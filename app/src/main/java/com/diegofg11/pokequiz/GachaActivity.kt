@@ -87,9 +87,10 @@ class GachaActivity : ComponentActivity() {
                                 )
                                 onPokemonRevealed(fixedPokemon)
                             } else {
-                                Log.e("GachaActivity", "Error roll: ${response.code()}")
+                                val errorMsg = response.errorBody()?.string()
+                                Log.e("GachaActivity", "Error roll: ${response.code()} - $errorMsg")
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, "Error al tirar: ${response.message()}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Error al tirar: ${errorMsg ?: response.message()}", Toast.LENGTH_SHORT).show()
                                 }
                                 onPokemonRevealed(null)
                             }
