@@ -22,23 +22,66 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.Pokemon
 import com.diegofg11.pokequiz.models.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.compose.runtime.*
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.lazy.grid.items
 
 class PokemonPCActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Mock data for demonstration
-            val mockUser = User(id = 1234, nombre = "Ash Ketchum", nivelProgreso = 10, monedasGacha = 500)
-            val mockPokemons = listOf(
-                Pokemon(1, "Bulbasaur", listOf("Planta", "Veneno"), 45, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png", "", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/1.png"),
-                Pokemon(4, "Charmander", listOf("Fuego"), 39, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png", "", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/4.png"),
-                Pokemon(7, "Squirtle", listOf("Agua"), 44, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png", "", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/7.png"),
-                Pokemon(25, "Pikachu", listOf("Eléctrico"), 35, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", "", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/25.png")
-            )
+            val userState = remember { mutableStateOf<User?>(User(1, "Usuario Entrenador", 1, 0)) }
+            val pokemonsState = remember { mutableStateListOf<Pokemon>() }
+            val isLoading = remember { mutableStateOf(true) }
+            val context = LocalContext.current
+            val scope = rememberCoroutineScope()
+
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    try {
+                        val response = withContext(Dispatchers.IO) {
+                            Network.api.getPc(userId = 1) // Hardcoded userId=1
+                        }
+                        if (response.isSuccessful && response.body() != null) {
+                            val body = response.body()!!
+                            pokemonsState.clear()
+                            val baseUrl = "http://10.0.2.2:3001"
+                            val mappedList = body.map { 
+                                it.copy(
+                                    spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,
+                                    spriteBack = if (it.spriteBack.startsWith("/")) baseUrl + it.spriteBack else it.spriteBack,
+                                    spriteIcon = if (it.spriteIcon.startsWith("/")) baseUrl + it.spriteIcon else it.spriteIcon
+                                )
+                            }
+                            pokemonsState.addAll(mappedList)
+                        } else {
+                            Log.e("PCActivity", "Error PC: ${response.code()}")
+                            Toast.makeText(context, "Error al cargar PC", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PCActivity", "Exception: ${e.message}")
+                        Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                    } finally {
+                        isLoading.value = false
+                    }
+                }
+            }
             
-            PokemonPCScreen(user = mockUser, pokemons = mockPokemons)
+            if (isLoading.value) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                PokemonPCScreen(user = userState.value!!, pokemons = pokemonsState)
+            }
         }
     }
 }

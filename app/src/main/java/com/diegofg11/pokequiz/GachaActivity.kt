@@ -27,8 +27,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.diegofg11.pokequiz.api.Network
+import com.diegofg11.pokequiz.models.GachaRequest
 import com.diegofg11.pokequiz.models.Pokemon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.util.Log
+import android.widget.Toast
+import android.content.Intent
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.platform.LocalContext
 
 // Estados del Gacha
 enum class GachaState {
@@ -42,28 +53,54 @@ class GachaActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Datos mock
+            // Datos del usuario - hardcodeado por ahora (ejercicio)
             val userCoins = remember { mutableIntStateOf(500) }
-            val costPerRoll = 10
+            val costPerRoll = 100
+            val context = LocalContext.current
+            val scope = rememberCoroutineScope()
 
             GachaScreen(
                 coins = userCoins.intValue,
                 costPerRoll = costPerRoll,
-                onRoll = {
-                    // Simular un roll - aquí iría la llamada a la API
-                    userCoins.intValue -= costPerRoll
-                    // Devolver un Pokémon aleatorio de ejemplo
-                    val mockPool = listOf(
-                        Pokemon(25, "Pikachu", listOf("Eléctrico"), 35, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", "", ""),
-                        Pokemon(1, "Bulbasaur", listOf("Planta", "Veneno"), 45, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png", "", ""),
-                        Pokemon(6, "Charizard", listOf("Fuego", "Volador"), 78, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png", "", ""),
-                        Pokemon(150, "Mewtwo", listOf("Psíquico"), 106, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png", "", ""),
-                        Pokemon(143, "Snorlax", listOf("Normal"), 160, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png", "", ""),
-                        Pokemon(94, "Gengar", listOf("Fantasma", "Veneno"), 60, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png", "", ""),
-                        Pokemon(131, "Lapras", listOf("Agua", "Hielo"), 130, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/131.png", "", ""),
-                        Pokemon(149, "Dragonite", listOf("Dragón", "Volador"), 91, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png", "", "")
-                    )
-                    mockPool.random()
+                onRoll = { onPokemonRevealed ->
+                    scope.launch {
+                        try {
+                            val response = withContext(Dispatchers.IO) {
+                                Network.api.rollGacha(GachaRequest(userId = 1)) // Hardcoded userId=1
+                            }
+                            if (response.isSuccessful && response.body() != null) {
+                                val body = response.body()!!
+                                if (body.pulled == null) {
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(context, "Error: No se recibió ningún Pokémon", Toast.LENGTH_SHORT).show()
+                                    }
+                                    onPokemonRevealed(null)
+                                    return@launch
+                                }
+                                userCoins.intValue = body.user.monedasGacha
+                                // Corregir URLs relativas del backend
+                                val baseUrl = "http://10.0.2.2:3001"
+                                val fixedPokemon = body.pulled.copy(
+                                    spriteFront = if (body.pulled.spriteFront.startsWith("/")) baseUrl + body.pulled.spriteFront else body.pulled.spriteFront,
+                                    spriteBack = if (body.pulled.spriteBack.startsWith("/")) baseUrl + body.pulled.spriteBack else body.pulled.spriteBack,
+                                    spriteIcon = if (body.pulled.spriteIcon.startsWith("/")) baseUrl + body.pulled.spriteIcon else body.pulled.spriteIcon
+                                )
+                                onPokemonRevealed(fixedPokemon)
+                            } else {
+                                Log.e("GachaActivity", "Error roll: ${response.code()}")
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Error al tirar: ${response.message()}", Toast.LENGTH_SHORT).show()
+                                }
+                                onPokemonRevealed(null)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("GachaActivity", "Exception: ${e.message}")
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                            onPokemonRevealed(null)
+                        }
+                    }
                 }
             )
         }
@@ -74,8 +111,9 @@ class GachaActivity : ComponentActivity() {
 fun GachaScreen(
     coins: Int,
     costPerRoll: Int,
-    onRoll: () -> Pokemon
+    onRoll: ((Pokemon?) -> Unit) -> Unit
 ) {
+    val context = LocalContext.current
     var gachaState by remember { mutableStateOf(GachaState.IDLE) }
     var revealedPokemon by remember { mutableStateOf<Pokemon?>(null) }
 
@@ -113,7 +151,7 @@ fun GachaScreen(
         label = "glowAlpha"
     )
 
-    // Efecto de temblor
+    // Efecto de temblor y espera del resultado
     LaunchedEffect(gachaState) {
         if (gachaState == GachaState.SHAKING) {
             // Temblor durante 1.5 segundos
@@ -124,9 +162,16 @@ fun GachaScreen(
                 )
             }
             shakeAnim.animateTo(0f, animationSpec = tween(50))
-            // Pasar a apertura
+            
+            // Si ya tenemos el pokemon, pasamos a abrirlo
             gachaState = GachaState.OPENING
-            delay(500)
+        }
+    }
+
+    // Una vez en OPENING, esperamos a tener el pokemon para pasar a REVEALED
+    LaunchedEffect(gachaState, revealedPokemon) {
+        if (gachaState == GachaState.OPENING && revealedPokemon != null) {
+            delay(800) // Tiempo para la animación de apertura
             gachaState = GachaState.REVEALED
         }
     }
@@ -235,8 +280,14 @@ fun GachaScreen(
                                 .clip(CircleShape)
                                 .background(Color.White)
                                 .clickable(enabled = gachaState == GachaState.IDLE && coins >= costPerRoll) {
-                                    revealedPokemon = onRoll()
                                     gachaState = GachaState.SHAKING
+                                    onRoll { pokemon ->
+                                        if (pokemon != null) {
+                                            revealedPokemon = pokemon
+                                        } else {
+                                            gachaState = GachaState.IDLE
+                                        }
+                                    }
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -348,8 +399,14 @@ fun GachaScreen(
                     Button(
                         onClick = {
                             if (coins >= costPerRoll) {
-                                revealedPokemon = onRoll()
                                 gachaState = GachaState.SHAKING
+                                onRoll { pokemon ->
+                                    if (pokemon != null) {
+                                        revealedPokemon = pokemon
+                                    } else {
+                                        gachaState = GachaState.IDLE
+                                    }
+                                }
                             }
                         },
                         enabled = coins >= costPerRoll,
@@ -392,6 +449,29 @@ fun GachaScreen(
                     ) {
                         Text(
                             text = "🔄 Tirar otra vez",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    OutlinedButton(
+                        onClick = {
+                            val intent = Intent(context, PokemonPCActivity::class.java)
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(2.dp, Color(0xFF4CAF50)),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            text = "📦 Ir al PC",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
