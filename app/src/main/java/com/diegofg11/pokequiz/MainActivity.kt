@@ -19,6 +19,7 @@ import com.diegofg11.pokequiz.ui.screens.BattleScreen
 import com.diegofg11.pokequiz.ui.screens.MapScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +30,22 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 var completedLevel by remember { mutableIntStateOf(0) }
                 var selectedItem by remember { mutableIntStateOf(0) }
+                
+                val scope = rememberCoroutineScope()
+                LaunchedEffect(Unit) {
+                    scope.launch {
+                        try {
+                            val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                com.diegofg11.pokequiz.api.Network.api.getUser(1)
+                            }
+                            if (response.isSuccessful && response.body() != null) {
+                                completedLevel = response.body()!!.nivelProgreso
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("MainActivity", "Error fetching user", e)
+                        }
+                    }
+                }
                 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -100,10 +117,17 @@ class MainActivity : ComponentActivity() {
                             BattleScreen(
                                 levelId = levelId,
                                 onBattleWin = {
-                                    if (levelId > completedLevel) {
-                                        completedLevel = levelId
+                                    // Fetch user explicitly again to update completedLevel synchronously
+                                    scope.launch {
+                                        try {
+                                            val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                                com.diegofg11.pokequiz.api.Network.api.getUser(1)
+                                            }
+                                            if (response.isSuccessful && response.body() != null) {
+                                                completedLevel = response.body()!!.nivelProgreso
+                                            }
+                                        } catch(e: Exception) {}
                                     }
-                                    navController.popBackStack()
                                 },
                                 onNavigateBack = {
                                     navController.popBackStack()

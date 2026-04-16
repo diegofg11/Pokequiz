@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -80,14 +81,16 @@ class PokemonPCActivity : ComponentActivity() {
                     CircularProgressIndicator()
                 }
             } else {
-                PokemonPCScreen(user = userState.value!!, pokemons = pokemonsState)
+                PokemonPCScreen(user = userState.value!!, pokemonsState = pokemonsState)
             }
         }
     }
 }
 
 @Composable
-fun PokemonPCScreen(user: User, pokemons: List<Pokemon>) {
+fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshots.SnapshotStateList<Pokemon>) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFFF0F0F0) // Light grey background
@@ -161,13 +164,18 @@ fun PokemonPCScreen(user: User, pokemons: List<Pokemon>) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(pokemons) { pokemon ->
-                        PokemonGridItem(pokemon)
+                    items(pokemonsState.toList()) { pokemon ->
+                        PokemonGridItem(pokemon, context, scope) { updated ->
+                            val index = pokemonsState.indexOfFirst { it.inventoryId == updated.inventoryId }
+                            if (index != -1) {
+                                pokemonsState[index] = updated
+                            }
+                        }
                     }
                     
                     // Fill remaining slots with empty boxes to mimic PC feel
                     val totalSlots = 30
-                    val emptySlots = totalSlots - pokemons.size
+                    val emptySlots = totalSlots - pokemonsState.size
                     if (emptySlots > 0) {
                         items(emptySlots) {
                             EmptySlot()
@@ -180,14 +188,48 @@ fun PokemonPCScreen(user: User, pokemons: List<Pokemon>) {
 }
 
 @Composable
-fun PokemonGridItem(pokemon: Pokemon) {
+fun PokemonGridItem(pokemon: Pokemon, context: android.content.Context, scope: kotlinx.coroutines.CoroutineScope, onToggle: (Pokemon) -> Unit) {
     Card(
         modifier = Modifier
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .clickable {
+                scope.launch {
+                    try {
+                        val newInParty = !pokemon.inParty
+                        val res = withContext(Dispatchers.IO) {
+                            Network.api.toggleParty(com.diegofg11.pokequiz.models.TogglePartyRequest(1, pokemon.inventoryId ?: 0, newInParty))
+                        }
+                        if (res.isSuccessful) {
+                            withContext(Dispatchers.Main) { onToggle(pokemon.copy(inParty = newInParty)) }
+                        } else {
+                            withContext(Dispatchers.Main) { Toast.makeText(context, "Equipo lleno (Máx 3)", Toast.LENGTH_SHORT).show() }
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) { Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show() }
+                    }
+                }
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = if (pokemon.inParty) Color(0xFFFFFBE6) else Color.White),
+        border = if (pokemon.inParty) androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFFFD700)) else null
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            if (pokemon.inParty) {
+                Text(
+                    "⭐",
+                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp),
+                    fontSize = 12.sp
+                )
+            }
+            // Muestra Nivel y Experiencia arriba a la izquierda
+            Text(
+                "Nv${pokemon.level}",
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray,
+                fontSize = 10.sp,
+                modifier = Modifier.align(Alignment.TopStart).padding(4.dp)
+            )
+
             AsyncImage(
                 model = pokemon.spriteFront,
                 contentDescription = pokemon.nombre,

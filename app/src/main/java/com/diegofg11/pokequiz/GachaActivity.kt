@@ -54,10 +54,25 @@ class GachaActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             // Datos del usuario - hardcodeado por ahora (ejercicio)
-            val userCoins = remember { mutableIntStateOf(500) }
+            val userCoins = remember { mutableIntStateOf(0) }
             val costPerRoll = 100
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
+
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    try {
+                        val response = withContext(Dispatchers.IO) {
+                            Network.api.getUser(1)
+                        }
+                        if (response.isSuccessful && response.body() != null) {
+                            userCoins.intValue = response.body()!!.monedasGacha
+                        }
+                    } catch (e: Exception) {
+                        Log.e("GachaActivity", "Error loading coins", e)
+                    }
+                }
+            }
 
             GachaScreen(
                 coins = userCoins.intValue,
@@ -85,7 +100,7 @@ class GachaActivity : ComponentActivity() {
                                     spriteBack = if (body.pulled.spriteBack.startsWith("/")) baseUrl + body.pulled.spriteBack else body.pulled.spriteBack,
                                     spriteIcon = if (body.pulled.spriteIcon.startsWith("/")) baseUrl + body.pulled.spriteIcon else body.pulled.spriteIcon
                                 )
-                                onPokemonRevealed(fixedPokemon)
+                                onPokemonRevealed(body.copy(pulled = fixedPokemon))
                             } else {
                                 val errorMsg = response.errorBody()?.string()
                                 Log.e("GachaActivity", "Error roll: ${response.code()} - $errorMsg")
@@ -112,11 +127,12 @@ class GachaActivity : ComponentActivity() {
 fun GachaScreen(
     coins: Int,
     costPerRoll: Int,
-    onRoll: ((Pokemon?) -> Unit) -> Unit
+    onRoll: ((com.diegofg11.pokequiz.models.GachaResponse?) -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     var gachaState by remember { mutableStateOf(GachaState.IDLE) }
     var revealedPokemon by remember { mutableStateOf<Pokemon?>(null) }
+    var isNewPull by remember { mutableStateOf(true) }
 
     // Animación de temblor de la Pokéball
     val shakeAnim = remember { Animatable(0f) }
@@ -172,7 +188,7 @@ fun GachaScreen(
     // Una vez en OPENING, esperamos a tener el pokemon para pasar a REVEALED
     LaunchedEffect(gachaState, revealedPokemon) {
         if (gachaState == GachaState.OPENING && revealedPokemon != null) {
-            delay(800) // Tiempo para la animación de apertura
+            delay(1200) // Tiempo para la animación de apertura
             gachaState = GachaState.REVEALED
         }
     }
@@ -360,9 +376,10 @@ fun GachaScreen(
                 // Info del Pokémon revelado
                 if (gachaState == GachaState.REVEALED && revealedPokemon != null) {
                     Text(
-                        text = "¡Has obtenido!",
+                        text = if (isNewPull) "¡NUEVO POKÉMON OBTENIDO!" else "¡REPETIDO! (+50 EXP)",
                         fontSize = 16.sp,
-                        color = Color(0xFFAABBCC)
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (isNewPull) Color(0xFFFFD700) else Color(0xFF48D0B0)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -401,9 +418,10 @@ fun GachaScreen(
                         onClick = {
                             if (coins >= costPerRoll) {
                                 gachaState = GachaState.SHAKING
-                                onRoll { pokemon ->
-                                    if (pokemon != null) {
-                                        revealedPokemon = pokemon
+                                onRoll { response ->
+                                    if (response != null) {
+                                        revealedPokemon = response.pulled
+                                        isNewPull = response.isNew
                                     } else {
                                         gachaState = GachaState.IDLE
                                     }

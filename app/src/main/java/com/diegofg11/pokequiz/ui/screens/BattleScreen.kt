@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,14 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.models.PokemonBattle
 import com.diegofg11.pokequiz.models.Question
 import com.diegofg11.pokequiz.ui.theme.*
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.diegofg11.pokequiz.api.Network
+import com.diegofg11.pokequiz.models.LevelResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.diegofg11.pokequiz.models.Pokemon
 
 @Composable
 fun BattleScreen(
@@ -27,202 +36,248 @@ fun BattleScreen(
     onBattleWin: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    // Mock Battle Data (could use levelId to customize opponent)
-    val battleData = remember(levelId) {
-        PokemonBattle(
-            id = levelId,
-            name = if (levelId == 1) "Pikachu" else "Charmander",
-            imageUrl = if (levelId == 1) 
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" 
-                else "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png",
-            maxHp = 100,
-            questions = listOf(
-                Question(1, "¿Qué movimiento es característico de este Pokémon?", listOf("Impactrueno", "Lanzallamas", "Burbuja", "Hoja Afilada"), if (levelId == 1) 0 else 1),
-                Question(2, "¿Cuál es su tipo?", listOf("Eléctrico", "Fuego", "Agua", "Planta"), if (levelId == 1) 0 else 1)
-            )
-        )
-    }
-
+    var levelData by remember { mutableStateOf<LevelResponse?>(null) }
+    var currentParty by remember { mutableStateOf<List<Pokemon>>(emptyList()) }
+    var currentPlayerIndex by remember { mutableIntStateOf(0) }
+    var isLoading by remember { mutableStateOf(true) }
+    
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    var opponentHp by remember { mutableIntStateOf(battleData.maxHp) }
+    var opponentHp by remember { mutableIntStateOf(100) }
     var userHp by remember { mutableIntStateOf(100) }
     var showGameOver by remember { mutableStateOf(false) }
     var gameOverMessage by remember { mutableStateOf("") }
 
-    val currentQuestion = battleData.questions[currentQuestionIndex]
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val baseUrl = "http://10.0.2.2:3001"
+
+    LaunchedEffect(levelId) {
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) { Network.api.getLevelData(levelId.toString()) }
+                val pcResponse = withContext(Dispatchers.IO) { Network.api.getPc(1) }
+
+                if (response.isSuccessful && response.body() != null) {
+                    levelData = response.body()
+                    if (levelData != null && levelData!!.enemy != null) {
+                        val fixedEnemy = levelData!!.enemy!!.copy(
+                            spriteFront = if (levelData!!.enemy!!.spriteFront.startsWith("/")) baseUrl + levelData!!.enemy!!.spriteFront else levelData!!.enemy!!.spriteFront
+                        )
+                        levelData = levelData!!.copy(enemy = fixedEnemy)
+                        opponentHp = fixedEnemy.hpBase
+                    }
+                }
+
+                if (pcResponse.isSuccessful && pcResponse.body()?.isNotEmpty() == true) {
+                    val pc = pcResponse.body()!!
+                    var party = pc.filter { it.inParty }
+                    if (party.isEmpty()) party = listOf(pc.first()) // Fallback si no hay equipo
+
+                    currentParty = party.map { p ->
+                        p.copy(
+                            spriteBack = if (p.spriteBack.startsWith("/")) baseUrl + p.spriteBack else p.spriteBack,
+                            spriteFront = if (p.spriteFront.startsWith("/")) baseUrl + p.spriteFront else p.spriteFront
+                        )
+                    }
+                    currentPlayerIndex = 0
+                    val first = currentParty.first()
+                    userHp = first.hpBase + (first.level * 5)
+                } else {
+                    userHp = 100 // Fallback
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) { Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show() }
+                onNavigateBack()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     if (showGameOver) {
         GameOverDialog(message = gameOverMessage, onDismiss = onNavigateBack)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        BackgroundStart,
-                        BackgroundMid,
-                        BackgroundEnd
-                    )
-                )
-            )
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Opponent Section
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .width(150.dp)
-            ) {
-                Text(
-                    text = battleData.name.uppercase(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                HpBar(currentHp = opponentHp, maxHp = battleData.maxHp)
-            }
-
-            AsyncImage(
-                model = battleData.imageUrl,
-                contentDescription = battleData.name,
-                modifier = Modifier
-                    .size(180.dp)
-                    .align(Alignment.CenterStart)
-            )
+    if (isLoading || levelData == null) {
+        Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd))), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = Color.White)
         }
+        return
+    }
 
-        Spacer(modifier = Modifier.weight(1f))
+    val currentQuestion = levelData!!.questions.getOrNull(currentQuestionIndex) ?: return
+    val playerPokemon = currentParty.getOrNull(currentPlayerIndex)
+    val pLevelVal = playerPokemon?.level ?: 1
+    val pName = playerPokemon?.nombre ?: "Sin Pokémon"
+    val pSprite = playerPokemon?.spriteBack ?: "" // Coil handles empty gracefully
+    val pMaxHp = (playerPokemon?.hpBase ?: 100) + (pLevelVal * 5)
+    val pLevel = "Nv$pLevelVal"
 
-        // Question Area
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp)),
-            color = CardBackground.copy(alpha = 0.8f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Text(
-                    text = currentQuestion.text,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
+    val checkAnswer: (Int) -> Unit = { index ->
+        val maxEnemyHp = levelData!!.enemy?.hpBase ?: 100
+        val damagePerHit = kotlin.math.ceil(maxEnemyHp.toDouble() / 10.0).toInt()
 
-                currentQuestion.options.forEachIndexed { index, option ->
-                    AnswerButton(
-                        text = option,
-                        onClick = {
-                            if (index == currentQuestion.correctAnswerIndex) {
-                                opponentHp = (opponentHp - 25).coerceAtLeast(0)
-                                if (opponentHp == 0) {
-                                    gameOverMessage = "¡HAS GANADO!"
-                                    showGameOver = true
-                                    // Trigger progress update
-                                    onBattleWin()
-                                }
-                            } else {
-                                userHp = (userHp - 25).coerceAtLeast(0)
-                                if (userHp == 0) {
-                                    gameOverMessage = "HAS PERDIDO..."
-                                    showGameOver = true
-                                }
-                            }
-                            
-                            if (!showGameOver) {
-                                if (currentQuestionIndex < battleData.questions.size - 1) {
-                                    currentQuestionIndex++
-                                } else {
-                                    currentQuestionIndex = 0 // Restart or end
-                                }
-                            }
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+        if (index == currentQuestion.correctAnswerIndex) {
+            opponentHp = (opponentHp - damagePerHit).coerceAtLeast(0)
+            if (opponentHp == 0) {
+                gameOverMessage = "¡HAS GANADO!"
+                showGameOver = true
+                scope.launch {
+                    try {
+                        Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(1, levelId, 100))
+                    } catch (e: Exception) {} finally {
+                        withContext(Dispatchers.Main) { onBattleWin() }
+                    }
+                }
+            }
+        } else {
+            // Recibir daño escalado (menos daño cuanto más nivel)
+            val damageTaken = (40 - (pLevelVal * 2)).coerceAtLeast(10)
+            userHp = (userHp - damageTaken).coerceAtLeast(0)
+            if (userHp == 0) {
+                if (currentPlayerIndex < currentParty.size - 1) {
+                    // Siguiente Pokémon
+                    currentPlayerIndex++
+                    val nextPkmn = currentParty[currentPlayerIndex]
+                    userHp = nextPkmn.hpBase + (nextPkmn.level * 5)
+                } else {
+                    gameOverMessage = "HAS PERDIDO..."
+                    showGameOver = true
                 }
             }
         }
-
-        Spacer(modifier = Modifier.weight(0.5f))
-
-        // User Section
-        Column(
-            modifier = Modifier
-                .align(Alignment.Start)
-                .width(150.dp)
-        ) {
-            Text(
-                text = "TÚ",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-            HpBar(currentHp = userHp, maxHp = 100)
+        if (!showGameOver) {
+            if (currentQuestionIndex < levelData!!.questions.size - 1) currentQuestionIndex++
+            else { showGameOver = true; gameOverMessage = "¡TE QUEDASTE SIN PREGUNTAS!" }
         }
     }
-}
 
-@Composable
-fun HpBar(currentHp: Int, maxHp: Int) {
-    val progress by animateFloatAsState(targetValue = currentHp.toFloat() / maxHp)
-    
-    Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(12.dp)
-                .clip(RoundedCornerShape(6.dp))
-                .background(Color.Gray.copy(alpha = 0.3f))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(progress)
-                    .fillMaxHeight()
-                    .background(
-                        when {
-                            progress > 0.5f -> Color.Green
-                            progress > 0.2f -> Color.Yellow
-                            else -> Color.Red
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF81B97C))) {
+        Column(Modifier.fillMaxSize()) {
+            // CAMPO DE BATALLA (Arriba)
+            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                // Info Enemigo (Arriba Izquierda)
+                Box(Modifier.align(Alignment.TopStart).padding(start = 16.dp, top = 32.dp)) {
+                    PokemonStatusBox(levelData!!.enemy?.nombre ?: "Enemigo", "Nv??", opponentHp, levelData!!.enemy?.hpBase ?: 100, false)
+                }
+                // Sprite Enemigo (Arriba Derecha)
+                AsyncImage(
+                    model = levelData!!.enemy?.spriteFront,
+                    contentDescription = "Enemy",
+                    modifier = Modifier.align(Alignment.TopEnd).padding(end = 24.dp, top = 24.dp).size(160.dp)
+                )
+
+                // Sprite Jugador (Abajo Izquierda)
+                AsyncImage(
+                    model = pSprite,
+                    contentDescription = "Player",
+                    modifier = Modifier.align(Alignment.BottomStart).padding(start = 24.dp, bottom = 48.dp).size(180.dp)
+                )
+                // Info Jugador (Abajo Derecha)
+                Box(Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp)) {
+                    PokemonStatusBox(pName, pLevel, userHp, pMaxHp, true)
+                }
+            }
+
+            // CUADRO DE DIÁLOGO Y OPCIONES (Abajo)
+            Surface(
+                modifier = Modifier.fillMaxWidth().height(250.dp), // Height increased from 200 to 250
+                color = Color(0xFF282828), // Borde exterior negro clásico
+                border = androidx.compose.foundation.BorderStroke(4.dp, Color(0xFFE8E8E8))
+            ) {
+                // Background interior
+                Box(Modifier.fillMaxSize().padding(6.dp).background(Color(0xFF485058))) {
+                    Column(Modifier.fillMaxSize()) {
+                        // Texto (Arriba)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().weight(0.7f).padding(8.dp), // Darle más espacio con 0.7f
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFB06868))
+                        ) {
+                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 8.dp)) {
+                                Text(
+                                    text = currentQuestion.text, 
+                                    color = Color.Black, 
+                                    fontSize = 17.sp, 
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                )
+                            }
                         }
-                    )
-            )
+
+                        // Botones de Opciones (Abajo)
+                        Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 8.dp).padding(bottom = 8.dp)) {
+                            Row(Modifier.weight(1f)) {
+                                BattleOptionBtn(currentQuestion.options.getOrElse(0) { "" }, Modifier.weight(1f)) { checkAnswer(0) }
+                                Spacer(Modifier.width(8.dp))
+                                BattleOptionBtn(currentQuestion.options.getOrElse(1) { "" }, Modifier.weight(1f)) { checkAnswer(1) }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            Row(Modifier.weight(1f)) {
+                                BattleOptionBtn(currentQuestion.options.getOrElse(2) { "" }, Modifier.weight(1f)) { checkAnswer(2) }
+                                Spacer(Modifier.width(8.dp))
+                                BattleOptionBtn(currentQuestion.options.getOrElse(3) { "" }, Modifier.weight(1f)) { checkAnswer(3) }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        Text(
-            text = "HP: $currentHp / $maxHp",
-            color = Color.White.copy(alpha = 0.7f),
-            fontSize = 12.sp,
-            modifier = Modifier.align(Alignment.End)
-        )
     }
 }
 
 @Composable
-fun AnswerButton(text: String, onClick: () -> Unit) {
+fun PokemonStatusBox(name: String, level: String, currentHp: Int, maxHp: Int, isPlayer: Boolean) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.1f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+        shape = RoundedCornerShape(topStart = 16.dp, bottomEnd = 16.dp),
+        color = Color(0xFFF8F8D8),
+        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF506858)),
+        modifier = Modifier.width(180.dp)
     ) {
-        Text(
-            text = text,
-            color = Color.White,
-            modifier = Modifier.padding(16.dp),
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp
-        )
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(name.uppercase(), fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(level, fontWeight = FontWeight.Bold, color = Color.DarkGray)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            // Barra de PS
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("PS", color = Color(0xFFE8B040), fontWeight = FontWeight.ExtraBold, fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
+                val progress by animateFloatAsState(targetValue = currentHp.toFloat() / maxHp)
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(8.dp).background(Color.DarkGray).border(1.dp, Color.Black)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth(progress).fillMaxHeight().background(
+                        when {
+                            progress > 0.5f -> Color(0xFF48D0B0)
+                            progress > 0.2f -> Color(0xFFF8C848)
+                            else -> Color(0xFFF85838)
+                        }
+                    ))
+                }
+            }
+
+            if (isPlayer) {
+                Text("$currentHp / $maxHp", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.End))
+            }
+        }
+    }
+}
+
+@Composable
+fun BattleOptionBtn(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Surface(
+        modifier = modifier.fillMaxHeight().clickable { onClick() },
+        shape = RoundedCornerShape(8.dp),
+        color = Color(0xFFF8F8F8),
+        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFD06860))
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp, textAlign = TextAlign.Center)
+        }
     }
 }
 
@@ -231,12 +286,8 @@ fun GameOverDialog(message: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = message, fontWeight = FontWeight.Bold, color = Color.White) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("VOLVER AL MAPA", color = RedPoke)
-            }
-        },
-        containerColor = DarkPoke,
-        shape = RoundedCornerShape(24.dp)
+        confirmButton = { TextButton(onClick = onDismiss) { Text("VOLVER AL MAPA", color = Color(0xFFF85838)) } },
+        containerColor = Color(0xFF282828),
+        shape = RoundedCornerShape(16.dp)
     )
 }

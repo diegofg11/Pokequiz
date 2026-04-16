@@ -14,3 +14,21 @@ data class PokemonBattle(
     val maxHp: Int,
     val questions: List<Question>
 )
+
+data class LevelResponse(
+    val levelId: String,
+    val enemy: Pokemon?,
+    val questions: List<Question>
+)
+
+data class RewardRequest(
+    val userId: Int,
+    val levelId: Int,
+    val coinsEarned: Int
+)
+
+data class TogglePartyRequest(
+    val userId: Int,
+    val inventoryId: Int,
+    val inParty: Boolean
+)
