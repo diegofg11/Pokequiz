@@ -40,6 +40,7 @@ import android.widget.Toast
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.platform.LocalContext
+import com.diegofg11.pokequiz.ui.components.PokeMenu
 
 // Estados del Gacha
 enum class GachaState {
@@ -298,9 +299,10 @@ fun GachaScreen(
                                 .background(Color.White)
                                 .clickable(enabled = gachaState == GachaState.IDLE && coins >= costPerRoll) {
                                     gachaState = GachaState.SHAKING
-                                    onRoll { pokemon ->
-                                        if (pokemon != null) {
-                                            revealedPokemon = pokemon
+                                    onRoll { response ->
+                                        if (response != null) {
+                                            revealedPokemon = response.pulled
+                                            isNewPull = response.isNew
                                         } else {
                                             gachaState = GachaState.IDLE
                                         }
@@ -509,6 +511,12 @@ fun GachaScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
             }
+
+            PokeMenu(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp)
+            )
         }
     }
 }

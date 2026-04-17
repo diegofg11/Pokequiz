@@ -27,6 +27,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.sqrt
 import androidx.compose.ui.graphics.Brush
 import com.diegofg11.pokequiz.ui.theme.*
+import com.diegofg11.pokequiz.ui.components.PokeMenu
 
 @Composable
 fun MapScreen(
@@ -66,20 +67,6 @@ fun MapScreen(
                 .padding(top = 120.dp, bottom = 120.dp)
         )
 
-        // Right side floating box
-        Surface(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 24.dp, bottom = 48.dp) // Adjusted padding
-                .size(64.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = CardBackground.copy(alpha = 0.8f),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
-        ) {
-             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                 Icon(Icons.Default.Menu, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(32.dp))
-             }
-        }
     }
 }
 
