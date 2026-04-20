@@ -34,6 +34,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.lazy.grid.items
+import com.diegofg11.pokequiz.ui.components.PokeMenu
 
 class PokemonPCActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,94 +96,102 @@ fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshot
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFFF0F0F0) // Light grey background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Avatar circular del usuario
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF6C63FF)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = user.nombre
-                        .split(" ")
-                        .take(2)
-                        .joinToString("") { it.first().uppercase() },
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Nombre del usuario
-            Text(
-                text = user.nombre,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF333333)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            // Código del usuario
-            Text(
-                text = "Código: #${user.id}",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Tu Colección de Pokémon",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(bottom = 12.dp),
-                color = Color(0xFF444444)
-            )
-
-            // Pokemon PC Grid
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFE8E8E8))
-                    .border(2.dp, Color(0xFFCCCCCC), RoundedCornerShape(12.dp))
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3), // 3 columns like a standard PC grid
-                    contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                // Avatar circular del usuario
+                Spacer(modifier = Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF6C63FF)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(pokemonsState.toList()) { pokemon ->
-                        PokemonGridItem(pokemon, context, scope) { updated ->
-                            val index = pokemonsState.indexOfFirst { it.inventoryId == updated.inventoryId }
-                            if (index != -1) {
-                                pokemonsState[index] = updated
+                    Text(
+                        text = user.nombre
+                            .split(" ")
+                            .take(2)
+                            .joinToString("") { it.first().uppercase() },
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Nombre del usuario
+                Text(
+                    text = user.nombre,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF333333)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                // Código del usuario
+                Text(
+                    text = "Código: #${user.id}",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Tu Colección de Pokémon",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(bottom = 12.dp),
+                    color = Color(0xFF444444)
+                )
+
+                // Pokemon PC Grid
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFE8E8E8))
+                        .border(2.dp, Color(0xFFCCCCCC), RoundedCornerShape(12.dp))
+                ) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3), // 3 columns like a standard PC grid
+                        contentPadding = PaddingValues(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(pokemonsState.toList()) { pokemon ->
+                            PokemonGridItem(pokemon, context, scope) { updated ->
+                                val index = pokemonsState.indexOfFirst { it.inventoryId == updated.inventoryId }
+                                if (index != -1) {
+                                    pokemonsState[index] = updated
+                                }
                             }
                         }
-                    }
-                    
-                    // Fill remaining slots with empty boxes to mimic PC feel
-                    val totalSlots = 30
-                    val emptySlots = totalSlots - pokemonsState.size
-                    if (emptySlots > 0) {
-                        items(emptySlots) {
-                            EmptySlot()
+                        
+                        // Fill remaining slots with empty boxes to mimic PC feel
+                        val totalSlots = 30
+                        val emptySlots = totalSlots - pokemonsState.size
+                        if (emptySlots > 0) {
+                            items(emptySlots) {
+                                EmptySlot()
+                            }
                         }
                     }
                 }
             }
+
+            PokeMenu(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp)
+            )
         }
     }
 }

@@ -17,9 +17,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import com.diegofg11.pokequiz.ui.screens.BattleScreen
 import com.diegofg11.pokequiz.ui.screens.MapScreen
+import com.diegofg11.pokequiz.ui.screens.PCScreen
+import com.diegofg11.pokequiz.ui.screens.GachaScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
 import kotlinx.coroutines.launch
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +35,9 @@ class MainActivity : ComponentActivity() {
                 var selectedItem by remember { mutableIntStateOf(0) }
                 
                 val scope = rememberCoroutineScope()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
                 LaunchedEffect(Unit) {
                     scope.launch {
                         try {
@@ -46,7 +52,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -57,10 +63,12 @@ class MainActivity : ComponentActivity() {
                         ) {
                             // Aventura
                             NavigationBarItem(
-                                selected = selectedItem == 0,
+                                selected = currentRoute == "map" || currentRoute?.startsWith("battle") == true,
                                 onClick = { 
-                                    selectedItem = 0
-                                    navController.navigate("map") { popUpTo("map") { inclusive = true } }
+                                    navController.navigate("map") { 
+                                        popUpTo("map") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
                                 },
                                 icon = { Icon(Icons.Default.Place, contentDescription = "Aventura") },
                                 label = { Text("Aventura") },
@@ -68,10 +76,13 @@ class MainActivity : ComponentActivity() {
                             )
                             // PC/Usuario
                             NavigationBarItem(
-                                selected = selectedItem == 1,
+                                selected = currentRoute == "pc",
                                 onClick = { 
-                                    selectedItem = 1
-                                    startActivity(Intent(this@MainActivity, PokemonPCActivity::class.java))
+                                    navController.navigate("pc") {
+                                        popUpTo("map") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 },
                                 icon = { PokeBallIcon(modifier = Modifier.size(24.dp), outerColor = Color.Transparent) },
                                 label = { Text("PC") },
@@ -79,10 +90,13 @@ class MainActivity : ComponentActivity() {
                             )
                             // Gacha
                             NavigationBarItem(
-                                selected = selectedItem == 2,
+                                selected = currentRoute == "gacha",
                                 onClick = { 
-                                    selectedItem = 2
-                                    startActivity(Intent(this@MainActivity, GachaActivity::class.java))
+                                    navController.navigate("gacha") {
+                                        popUpTo("map") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 },
                                 icon = { Icon(Icons.Default.Star, contentDescription = "Gacha") },
                                 label = { Text("Gacha") },
@@ -90,8 +104,8 @@ class MainActivity : ComponentActivity() {
                             )
                             // Minijuegos
                             NavigationBarItem(
-                                selected = selectedItem == 3,
-                                onClick = { selectedItem = 3 },
+                                selected = currentRoute == "games",
+                                onClick = { /* Logic for games if any */ },
                                 icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Minijuegos") },
                                 label = { Text("Juegos") },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
@@ -117,7 +131,6 @@ class MainActivity : ComponentActivity() {
                             BattleScreen(
                                 levelId = levelId,
                                 onBattleWin = {
-                                    // Fetch user explicitly again to update completedLevel synchronously
                                     scope.launch {
                                         try {
                                             val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -133,6 +146,18 @@ class MainActivity : ComponentActivity() {
                                     navController.popBackStack()
                                 }
                             )
+                        }
+                        composable("pc") {
+                            PCScreen()
+                        }
+                        composable("gacha") {
+                            GachaScreen(onNavigateToPC = {
+                                navController.navigate("pc") {
+                                    popUpTo("map") { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            })
                         }
                     }
                 }

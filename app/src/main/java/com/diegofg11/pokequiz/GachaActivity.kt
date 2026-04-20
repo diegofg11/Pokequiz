@@ -40,6 +40,7 @@ import android.widget.Toast
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.platform.LocalContext
+import com.diegofg11.pokequiz.ui.components.PokeMenu
 
 // Estados del Gacha
 enum class GachaState {
@@ -510,6 +511,12 @@ fun GachaScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
             }
+
+            PokeMenu(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp)
+            )
         }
     }
 }

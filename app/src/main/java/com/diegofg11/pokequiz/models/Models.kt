@@ -1,5 +1,12 @@
 package com.diegofg11.pokequiz.models
 
+enum class GachaState {
+    IDLE,       // Esperando a que el usuario pulse
+    SHAKING,    // La Pokéball tiembla
+    OPENING,    // La Pokéball se abre
+    REVEALED    // El Pokémon se muestra
+}
+
 data class Question(
     val id: Int,
     val text: String,
