@@ -298,9 +298,10 @@ fun GachaScreen(
                                 .background(Color.White)
                                 .clickable(enabled = gachaState == GachaState.IDLE && coins >= costPerRoll) {
                                     gachaState = GachaState.SHAKING
-                                    onRoll { pokemon ->
-                                        if (pokemon != null) {
-                                            revealedPokemon = pokemon
+                                    onRoll { response ->
+                                        if (response != null) {
+                                            revealedPokemon = response.pulled
+                                            isNewPull = response.isNew
                                         } else {
                                             gachaState = GachaState.IDLE
                                         }
