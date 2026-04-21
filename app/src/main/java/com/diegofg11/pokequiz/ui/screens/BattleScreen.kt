@@ -46,6 +46,7 @@ fun BattleScreen(
     var userHp by remember { mutableIntStateOf(100) }
     var showGameOver by remember { mutableStateOf(false) }
     var gameOverMessage by remember { mutableStateOf("") }
+    var isVictory by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -96,7 +97,18 @@ fun BattleScreen(
     }
 
     if (showGameOver) {
-        GameOverDialog(message = gameOverMessage, onDismiss = onNavigateBack)
+        GameOverDialog(
+            message = gameOverMessage,
+            onDismiss = if (isVictory) {
+                {
+                    scope.launch {
+                        try { Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(1, levelId, 100)) } catch (e: Exception) {}
+                        withContext(Dispatchers.Main) { onBattleWin() }
+                    }
+                    Unit
+                }
+            } else onNavigateBack
+        )
     }
 
     if (isLoading || levelData == null) {
@@ -121,16 +133,10 @@ fun BattleScreen(
         if (index == currentQuestion.correctAnswerIndex) {
             opponentHp = (opponentHp - damagePerHit).coerceAtLeast(0)
             if (opponentHp == 0) {
-                gameOverMessage = "¡HAS GANADO!"
-                showGameOver = true
-                scope.launch {
-                    try {
-                        Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(1, levelId, 100))
-                    } catch (e: Exception) {} finally {
-                        withContext(Dispatchers.Main) { onBattleWin() }
-                    }
+                    gameOverMessage = "¡HAS GANADO!"
+                    isVictory = true
+                    showGameOver = true
                 }
-            }
         } else {
             // Recibir daño escalado (menos daño cuanto más nivel)
             val damageTaken = (40 - (pLevelVal * 2)).coerceAtLeast(10)
@@ -143,6 +149,7 @@ fun BattleScreen(
                     userHp = nextPkmn.hpBase + (nextPkmn.level * 5)
                 } else {
                     gameOverMessage = "HAS PERDIDO..."
+                    isVictory = false
                     showGameOver = true
                 }
             }
@@ -153,7 +160,55 @@ fun BattleScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF81B97C))) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Cielo con gradiente azul
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.62f)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF5BA3D8), // Azul cielo
+                            Color(0xFF88C8F0), // Celeste suave
+                            Color(0xFFB0DDF8)  // Casi blanco-azulado
+                        )
+                    )
+                )
+        )
+        // Suelo: hierba
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.38f)
+                .align(Alignment.BottomStart)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF4A8F3F), // Verde hierba oscuro
+                            Color(0xFF5EAD50), // Verde medio
+                            Color(0xFF72C464)  // Verde claro
+                        )
+                    )
+                )
+        )
+        // Franja de tierra/separador
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(12.dp)
+                .align(Alignment.Center)
+                .offset(y = 80.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF8B6914),
+                            Color(0xFFA0791A),
+                            Color(0xFF8B6914)
+                        )
+                    )
+                )
+        )
         Column(Modifier.fillMaxSize()) {
             // CAMPO DE BATALLA (Arriba)
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
@@ -227,6 +282,7 @@ fun BattleScreen(
         }
     }
 }
+
 
 @Composable
 fun PokemonStatusBox(name: String, level: String, currentHp: Int, maxHp: Int, isPlayer: Boolean) {

@@ -1,6 +1,5 @@
 package com.diegofg11.pokequiz
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,9 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import com.diegofg11.pokequiz.ui.screens.BattleScreen
+import com.diegofg11.pokequiz.ui.screens.GachaScreen
 import com.diegofg11.pokequiz.ui.screens.MapScreen
 import com.diegofg11.pokequiz.ui.screens.PCScreen
-import com.diegofg11.pokequiz.ui.screens.GachaScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
 import kotlinx.coroutines.launch
@@ -56,6 +55,8 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
+                        val isInBattle = currentRoute?.startsWith("battle") == true
+                        if (!isInBattle) {
                         NavigationBar(
                             containerColor = BackgroundStart,
                             contentColor = Color.White,
@@ -112,6 +113,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                    }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -140,6 +142,10 @@ class MainActivity : ComponentActivity() {
                                                 completedLevel = response.body()!!.nivelProgreso
                                             }
                                         } catch(e: Exception) {}
+                                        // Volver al mapa tras la victoria
+                                        navController.navigate("map") {
+                                            popUpTo("map") { inclusive = true }
+                                        }
                                     }
                                 },
                                 onNavigateBack = {
@@ -165,12 +171,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Helper to start old activities if needed (could be called from Compose)
-    fun openPokemonPC() {
-        startActivity(Intent(this, PokemonPCActivity::class.java))
-    }
-
-    fun openGacha() {
-        startActivity(Intent(this, GachaActivity::class.java))
-    }
 }

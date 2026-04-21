@@ -27,7 +27,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.sqrt
 import androidx.compose.ui.graphics.Brush
 import com.diegofg11.pokequiz.ui.theme.*
-import com.diegofg11.pokequiz.ui.components.PokeMenu
 
 @Composable
 fun MapScreen(

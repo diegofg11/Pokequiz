@@ -34,7 +34,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.lazy.grid.items
-import com.diegofg11.pokequiz.ui.components.PokeMenu
+
 
 class PokemonPCActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -186,12 +186,6 @@ fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshot
                     }
                 }
             }
-
-            PokeMenu(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp)
-            )
         }
     }
 }
