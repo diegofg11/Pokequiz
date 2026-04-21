@@ -55,7 +55,7 @@ class PokemonPCActivity : ComponentActivity() {
                         if (response.isSuccessful && response.body() != null) {
                             val body = response.body()!!
                             pokemonsState.clear()
-                            val baseUrl = "http://10.0.2.2:3001"
+                            val baseUrl = "https://pokequizbackend-production.up.railway.app"
                             val mappedList = body.map { 
                                 it.copy(
                                     spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,

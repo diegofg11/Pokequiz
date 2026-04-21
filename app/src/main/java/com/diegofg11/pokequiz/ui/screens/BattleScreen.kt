@@ -51,7 +51,7 @@ fun BattleScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val baseUrl = "http://10.0.2.2:3001"
+    val baseUrl = "https://pokequizbackend-production.up.railway.app"
 
     LaunchedEffect(levelId) {
         scope.launch {

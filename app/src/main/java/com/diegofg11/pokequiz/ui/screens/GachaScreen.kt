@@ -118,7 +118,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
                     coins = body.user.monedasGacha
-                    val baseUrl = "http://10.0.2.2:3001"
+                    val baseUrl = "https://pokequizbackend-production.up.railway.app"
                     val fixed = body.pulled.copy(
                         spriteFront = if (body.pulled.spriteFront.startsWith("/")) baseUrl + body.pulled.spriteFront else body.pulled.spriteFront,
                         spriteBack = if (body.pulled.spriteBack.startsWith("/")) baseUrl + body.pulled.spriteBack else body.pulled.spriteBack,

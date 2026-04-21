@@ -52,7 +52,7 @@ fun PCScreen() {
             if (userResp.isSuccessful) user = userResp.body()
 
             if (pcResp.isSuccessful && pcResp.body() != null) {
-                val baseUrl = "http://10.0.2.2:3001"
+                val baseUrl = "https://pokequizbackend-production.up.railway.app"
                 val mapped = pcResp.body()!!.map {
                     it.copy(
                         spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,
