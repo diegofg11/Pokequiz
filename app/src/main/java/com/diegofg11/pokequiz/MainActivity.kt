@@ -17,6 +17,7 @@ import androidx.navigation.compose.*
 import com.diegofg11.pokequiz.ui.screens.BattleScreen
 import com.diegofg11.pokequiz.ui.screens.GachaScreen
 import com.diegofg11.pokequiz.ui.screens.MapScreen
+import com.diegofg11.pokequiz.ui.screens.MinigamesScreen
 import com.diegofg11.pokequiz.ui.screens.PCScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
@@ -106,7 +107,13 @@ class MainActivity : ComponentActivity() {
                             // Minijuegos
                             NavigationBarItem(
                                 selected = currentRoute == "games",
-                                onClick = { /* Logic for games if any */ },
+                                onClick = { 
+                                    navController.navigate("games") {
+                                        popUpTo("map") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
                                 icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Minijuegos") },
                                 label = { Text("Juegos") },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
@@ -164,6 +171,9 @@ class MainActivity : ComponentActivity() {
                                     restoreState = true
                                 }
                             })
+                        }
+                        composable("games") {
+                            MinigamesScreen()
                         }
                     }
                 }
