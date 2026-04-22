@@ -20,7 +20,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.diegofg11.pokequiz.ui.theme.DarkPoke
+import androidx.compose.ui.graphics.Brush
+import com.diegofg11.pokequiz.ui.theme.BackgroundStart
+import com.diegofg11.pokequiz.ui.theme.BackgroundMid
+import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
 import com.diegofg11.pokequiz.ui.theme.CardBackground
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,19 +46,32 @@ fun MinigamesScreen() {
         MinigameItem("4", "Batalla Rápida", "Vence a 3 rivales seguidos", Icons.Default.Star, "150 Monedas")
     )
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkPoke)
-            .padding(16.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        BackgroundStart,
+                        BackgroundMid,
+                        BackgroundEnd
+                    )
+                )
+            )
     ) {
-        Text(
-            text = "Zona Safari - Minijuegos",
-            color = Color.White,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp, top = 24.dp)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "ZONA SAFARI",
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.padding(bottom = 8.dp, top = 24.dp)
+            )
         
         Text(
             text = "Juega para conseguir monedas extra.",
@@ -64,14 +80,15 @@ fun MinigamesScreen() {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(dummyGames) { game ->
-                MinigameCard(game)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(dummyGames) { game ->
+                    MinigameCard(game)
+                }
             }
         }
     }
