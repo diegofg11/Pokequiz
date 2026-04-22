@@ -20,9 +20,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.diegofg11.pokequiz.ui.theme.BackgroundDark
+import com.diegofg11.pokequiz.ui.theme.DarkPoke
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
-import com.diegofg11.pokequiz.ui.theme.SurfaceDark
+import com.diegofg11.pokequiz.ui.theme.CardBackground
+import androidx.compose.ui.tooling.preview.Preview
+import com.diegofg11.pokequiz.ui.theme.PokequizTheme
 
 data class MinigameItem(
     val id: String,
@@ -44,7 +46,7 @@ fun MinigamesScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(DarkPoke)
             .padding(16.dp)
     ) {
         Text(
@@ -83,7 +85,7 @@ fun MinigameCard(game: MinigameItem) {
             .aspectRatio(0.85f)
             .clip(RoundedCornerShape(16.dp))
             .clickable { /* TODO: Navigate to game */ },
-        colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
@@ -134,5 +136,13 @@ fun MinigameCard(game: MinigameItem) {
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MinigamesScreenPreview() {
+    PokequizTheme {
+        MinigamesScreen()
     }
 }
