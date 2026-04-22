@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.tooling.preview.Preview
 import com.diegofg11.pokequiz.ui.theme.PokequizTheme
+import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +46,8 @@ fun PCScreen() {
     var user by remember { mutableStateOf<User?>(null) }
     val pokemonList = remember { mutableStateListOf<Pokemon>() }
     var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var warningMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         try {
@@ -67,7 +70,7 @@ fun PCScreen() {
             }
         } catch (e: Exception) {
             Log.e("PCScreen", "Error: ${e.message}")
-            Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+            errorMessage = "Error de red"
         } finally {
             isLoading = false
         }
@@ -82,6 +85,22 @@ fun PCScreen() {
                 )
             )
     ) {
+        if (errorMessage != null) {
+            PokemonAlertDialog(
+                title = "¡Error!",
+                message = errorMessage!!,
+                isError = true,
+                onDismiss = { errorMessage = null }
+            )
+        }
+        if (warningMessage != null) {
+            PokemonAlertDialog(
+                title = "Aviso",
+                message = warningMessage!!,
+                isError = false, // Info/Warning
+                onDismiss = { warningMessage = null }
+            )
+        }
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
@@ -255,12 +274,12 @@ fun PCScreen() {
                                                 if (idx != -1) pokemonList[idx] = pokemon.copy(inParty = toggleTo)
                                             } else {
                                                 withContext(Dispatchers.Main) {
-                                                    Toast.makeText(context, "Equipo lleno (Máx 3)", Toast.LENGTH_SHORT).show()
+                                                    warningMessage = "Equipo lleno (Máx 3)"
                                                 }
                                             }
                                         } catch (e: Exception) {
                                             withContext(Dispatchers.Main) {
-                                                Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                                                errorMessage = "Error de red"
                                             }
                                         }
                                     }
