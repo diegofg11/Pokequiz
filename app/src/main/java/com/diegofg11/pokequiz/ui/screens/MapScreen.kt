@@ -2,6 +2,8 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.ui.tooling.preview.Preview
+import com.diegofg11.pokequiz.ui.theme.PokequizTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -163,5 +165,13 @@ fun LevelMap(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MapScreenPreview() {
+    PokequizTheme {
+        MapScreen(completedLevel = 1, onNavigateToBattle = {})
     }
 }

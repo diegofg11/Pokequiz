@@ -2,6 +2,8 @@ package com.diegofg11.pokequiz.ui.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.tooling.preview.Preview
+import com.diegofg11.pokequiz.ui.theme.PokequizTheme
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -402,5 +404,13 @@ fun getPokeTypeColor(tipo: String): Color {
         "acero", "steel" -> Color(0xFFB0BEC5)
         "hada", "fairy" -> Color(0xFFF48FB1)
         else -> Color(0xFF757575)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GachaScreenPreview() {
+    PokequizTheme {
+        GachaScreen(onNavigateToPC = {})
     }
 }
