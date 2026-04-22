@@ -19,6 +19,7 @@ import com.diegofg11.pokequiz.ui.screens.GachaScreen
 import com.diegofg11.pokequiz.ui.screens.MapScreen
 import com.diegofg11.pokequiz.ui.screens.MinigamesScreen
 import com.diegofg11.pokequiz.ui.screens.PCScreen
+import com.diegofg11.pokequiz.ui.screens.WelcomeScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
 import kotlinx.coroutines.launch
@@ -56,8 +57,8 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        val isInBattle = currentRoute?.startsWith("battle") == true
-                        if (!isInBattle) {
+                        val isFullScreen = currentRoute?.startsWith("battle") == true || currentRoute == "welcome"
+                        if (!isFullScreen) {
                         NavigationBar(
                             containerColor = BackgroundStart,
                             contentColor = Color.White,
@@ -124,9 +125,18 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "map",
+                        startDestination = "welcome",
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable("welcome") {
+                            WelcomeScreen(
+                                onEnterClick = {
+                                    navController.navigate("map") {
+                                        popUpTo("welcome") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
                         composable("map") {
                             MapScreen(
                                 completedLevel = completedLevel,

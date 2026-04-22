@@ -2,6 +2,8 @@ package com.diegofg11.pokequiz.ui.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.tooling.preview.Preview
+import com.diegofg11.pokequiz.ui.theme.PokequizTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -331,4 +333,12 @@ private fun PCEmptySlot() {
             .background(Color(0xFF0D0D1A), RoundedCornerShape(8.dp))
             .border(1.dp, Color(0xFF1A1A2E), RoundedCornerShape(8.dp))
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PCScreenPreview() {
+    PokequizTheme {
+        PCScreen()
+    }
 }

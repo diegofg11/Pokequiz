@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -346,4 +347,12 @@ fun GameOverDialog(message: String, onDismiss: () -> Unit) {
         containerColor = Color(0xFF282828),
         shape = RoundedCornerShape(16.dp)
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BattleScreenPreview() {
+    PokequizTheme {
+        BattleScreen(levelId = 1, onBattleWin = {}, onNavigateBack = {})
+    }
 }
