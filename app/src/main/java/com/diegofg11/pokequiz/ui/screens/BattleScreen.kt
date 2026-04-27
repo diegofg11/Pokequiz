@@ -67,7 +67,8 @@ fun BattleScreen(
                             spriteFront = if (levelData!!.enemy!!.spriteFront.startsWith("/")) baseUrl + levelData!!.enemy!!.spriteFront else levelData!!.enemy!!.spriteFront
                         )
                         levelData = levelData!!.copy(enemy = fixedEnemy)
-                        opponentHp = fixedEnemy.hpBase
+                        val eLevel = fixedEnemy.level ?: 1
+                        opponentHp = fixedEnemy.hpBase + (eLevel * 5)
                     }
                 }
 
@@ -128,7 +129,8 @@ fun BattleScreen(
     val pLevel = "Nv$pLevelVal"
 
     val checkAnswer: (Int) -> Unit = { index ->
-        val maxEnemyHp = levelData!!.enemy?.hpBase ?: 100
+        val enemyLevel = levelData!!.enemy?.level ?: 1
+        val maxEnemyHp = (levelData!!.enemy?.hpBase ?: 100) + (enemyLevel * 5)
         val damagePerHit = kotlin.math.ceil(maxEnemyHp.toDouble() / 10.0).toInt()
 
         if (index == currentQuestion.correctAnswerIndex) {
@@ -139,8 +141,8 @@ fun BattleScreen(
                     showGameOver = true
                 }
         } else {
-            // Recibir daño escalado (menos daño cuanto más nivel)
-            val damageTaken = (40 - (pLevelVal * 2)).coerceAtLeast(10)
+            // Recibir daño escalado: Base 25 + (Nivel Enemigo * 2) - (Nivel Jugador * 2)
+            val damageTaken = (25 + (enemyLevel * 2) - (pLevelVal * 2)).coerceIn(10, 60)
             userHp = (userHp - damageTaken).coerceAtLeast(0)
             if (userHp == 0) {
                 if (currentPlayerIndex < currentParty.size - 1) {
@@ -215,7 +217,8 @@ fun BattleScreen(
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 // Info Enemigo (Arriba Izquierda)
                 Box(Modifier.align(Alignment.TopStart).padding(start = 16.dp, top = 32.dp)) {
-                    PokemonStatusBox(levelData!!.enemy?.nombre ?: "Enemigo", "Nv??", opponentHp, levelData!!.enemy?.hpBase ?: 100, false)
+                    val eLevel = levelData!!.enemy?.level ?: 1
+                    PokemonStatusBox(levelData!!.enemy?.nombre ?: "Enemigo", "Nv$eLevel", opponentHp, levelData!!.enemy?.hpBase ?: 100, false)
                 }
                 // Sprite Enemigo (Arriba Derecha)
                 AsyncImage(
