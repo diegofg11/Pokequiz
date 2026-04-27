@@ -2,8 +2,14 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
+import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +54,7 @@ fun BattleScreen(
     var showGameOver by remember { mutableStateOf(false) }
     var gameOverMessage by remember { mutableStateOf("") }
     var isVictory by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -90,8 +97,7 @@ fun BattleScreen(
                     userHp = 100 // Fallback
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) { Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show() }
-                onNavigateBack()
+                withContext(Dispatchers.Main) { errorMessage = "Error de red" }
             } finally {
                 isLoading = false
             }
@@ -101,6 +107,7 @@ fun BattleScreen(
     if (showGameOver) {
         GameOverDialog(
             message = gameOverMessage,
+            isVictory = isVictory,
             onDismiss = if (isVictory) {
                 {
                     scope.launch {
@@ -115,7 +122,20 @@ fun BattleScreen(
 
     if (isLoading || levelData == null) {
         Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd))), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Color.White)
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White)
+            }
+            if (errorMessage != null) {
+                PokemonAlertDialog(
+                    title = "¡Error!",
+                    message = errorMessage!!,
+                    isError = true,
+                    onDismiss = {
+                        errorMessage = null
+                        onNavigateBack()
+                    }
+                )
+            }
         }
         return
     }
@@ -342,14 +362,103 @@ fun BattleOptionBtn(text: String, modifier: Modifier = Modifier, onClick: () -> 
 }
 
 @Composable
-fun GameOverDialog(message: String, onDismiss: () -> Unit) {
-    AlertDialog(
+fun GameOverDialog(message: String, isVictory: Boolean, onDismiss: () -> Unit) {
+    Dialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = message, fontWeight = FontWeight.Bold, color = Color.White) },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("VOLVER AL MAPA", color = Color(0xFFF85838)) } },
-        containerColor = Color(0xFF282828),
-        shape = RoundedCornerShape(16.dp)
-    )
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 40.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = if (isVictory) Color(0xFFFFFBE6) else Color(0xFFFBE6E6),
+                border = androidx.compose.foundation.BorderStroke(4.dp, if (isVictory) Color(0xFFFFD700) else Color(0xFFD32F2F)),
+                shadowElevation = 12.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 48.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = if (isVictory) "¡VICTORIA!" else "DERROTA",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 28.sp,
+                        color = if (isVictory) Color(0xFFB8860B) else Color(0xFFB71C1C)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Text(
+                        text = message,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.DarkGray,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(28.dp))
+                    
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isVictory) Color(0xFF4CAF50) else Color(0xFFD32F2F)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .height(56.dp)
+                    ) {
+                        Text(
+                            text = "VOLVER AL MAPA",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+            
+            Surface(
+                modifier = Modifier
+                    .size(80.dp)
+                    .align(Alignment.TopCenter)
+                    .border(
+                        4.dp,
+                        if (isVictory) Color(0xFFFFD700) else Color(0xFFD32F2F),
+                        androidx.compose.foundation.shape.CircleShape
+                    ),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                color = if (isVictory) Color(0xFFFFD700) else Color(0xFFD32F2F),
+                shadowElevation = 8.dp
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (isVictory) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Victoria",
+                            modifier = Modifier.size(48.dp),
+                            tint = Color.White
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Derrota",
+                            modifier = Modifier.size(48.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)

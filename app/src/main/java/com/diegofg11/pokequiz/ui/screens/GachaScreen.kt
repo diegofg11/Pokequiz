@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.tooling.preview.Preview
 import com.diegofg11.pokequiz.ui.theme.PokequizTheme
+import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,6 +50,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
     var gachaState by remember { mutableStateOf(GachaAnimState.IDLE) }
     var revealedPokemon by remember { mutableStateOf<Pokemon?>(null) }
     var isNewPull by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Cargar monedas al entrar
     LaunchedEffect(Unit) {
@@ -131,14 +133,14 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 } else {
                     val err = response.errorBody()?.string()
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Error: ${err ?: response.message()}", Toast.LENGTH_SHORT).show()
+                        errorMessage = "Error: ${err ?: response.message()}"
                     }
                     gachaState = GachaAnimState.IDLE
                 }
             } catch (e: Exception) {
                 Log.e("GachaScreen", "Exception: ${e.message}")
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                    errorMessage = "Error de red"
                 }
                 gachaState = GachaAnimState.IDLE
             }
@@ -154,6 +156,14 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 )
             )
     ) {
+        if (errorMessage != null) {
+            PokemonAlertDialog(
+                title = "¡Error!",
+                message = errorMessage!!,
+                isError = true,
+                onDismiss = { errorMessage = null }
+            )
+        }
         if (glowAlpha > 0f) {
             Box(
                 modifier = Modifier
