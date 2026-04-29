@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -60,7 +61,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
 
     fun initializeGame() {
         val uniquePokemonIds = mutableSetOf<Int>()
-        while (uniquePokemonIds.size < 8) {
+        while (uniquePokemonIds.size < 6) {
             uniquePokemonIds.add(Random.nextInt(1, 152))
         }
         
@@ -257,9 +258,9 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Cuadrícula de Cartas (4x4)
+            // Cuadrícula de Cartas (3x4)
             LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
+                columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -304,7 +305,7 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
                     .graphicsLayer { rotationY = 180f }, // Rotar de vuelta para que el contenido no se vea en espejo
                 shape = RoundedCornerShape(8.dp),
                 color = if (cardData.isMatched) Color(0xFFE8F5E9) else Color.White,
-                border = border.BorderStroke(2.dp, if (cardData.isMatched) Color(0xFF4CAF50) else Color(0xFFB0BEC5))
+                border = androidx.compose.foundation.BorderStroke(2.dp, if (cardData.isMatched) Color(0xFF4CAF50) else Color(0xFFB0BEC5))
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(4.dp)) {
                     AsyncImage(
@@ -328,7 +329,7 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(8.dp),
                 color = Color(0xFFE53935), // Rojo Pokéball
-                border = border.BorderStroke(3.dp, Color(0xFFB71C1C))
+                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFB71C1C))
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     // Círculo central blanco estilo Pokéball
@@ -336,14 +337,14 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
                         modifier = Modifier.size(32.dp),
                         shape = RoundedCornerShape(50),
                         color = Color.White,
-                        border = border.BorderStroke(2.dp, Color.Black)
+                        border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black)
                     ) {}
                     // Círculo interno
                     Surface(
                         modifier = Modifier.size(16.dp),
                         shape = RoundedCornerShape(50),
                         color = Color.White,
-                        border = border.BorderStroke(1.dp, Color.Black)
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black)
                     ) {}
                 }
             }
