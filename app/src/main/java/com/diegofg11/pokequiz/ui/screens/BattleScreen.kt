@@ -119,7 +119,6 @@ fun BattleScreen(
                             }
                         } catch (e: Exception) {
                             withContext(Dispatchers.Main) {
-                                showGameOver = false
                                 errorMessage = "Error al reclamar la recompensa. Verifica tu conexión a internet."
                             }
                         }
@@ -130,21 +129,24 @@ fun BattleScreen(
         )
     }
 
+    if (errorMessage != null) {
+        PokemonAlertDialog(
+            title = "¡Error!",
+            message = errorMessage!!,
+            isError = true,
+            onDismiss = {
+                errorMessage = null
+                if (isLoading || levelData == null) {
+                    onNavigateBack()
+                }
+            }
+        )
+    }
+
     if (isLoading || levelData == null) {
         Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd))), contentAlignment = Alignment.Center) {
             if (isLoading) {
                 CircularProgressIndicator(color = Color.White)
-            }
-            if (errorMessage != null) {
-                PokemonAlertDialog(
-                    title = "¡Error!",
-                    message = errorMessage!!,
-                    isError = true,
-                    onDismiss = {
-                        errorMessage = null
-                        onNavigateBack()
-                    }
-                )
             }
         }
         return
