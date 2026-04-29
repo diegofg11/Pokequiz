@@ -140,7 +140,7 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text("MODO INFERNAL", color = Color(0xFFE53935), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                    Text("+200 Monedas | Fallo/Salir: -50 | Tablero Caótico | 30s", color = Color(0xFFFFEBEE), fontSize = 11.sp)
+                    Text("+200 Monedas | Fallo/Salir: -50 | Tablero Caótico | 20s | Vidas: ∞", color = Color(0xFFFFEBEE), fontSize = 10.sp)
                 }
             }
         }
@@ -165,7 +165,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     
     val winReward = if (difficulty == MemoryDifficulty.INFERNAL) 200 else 80
     val losePenalty = if (difficulty == MemoryDifficulty.INFERNAL) 50 else 20
-    val maxTime = 30
+    val maxTime = 20
     var timeLeft by remember { mutableIntStateOf(maxTime) }
     var flashTimer by remember { mutableStateOf(false) }
 
@@ -183,7 +183,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         }
         
         cards = deck.shuffled()
-        lives = 5
+        lives = if (difficulty == MemoryDifficulty.INFERNAL) 999 else 5
         timeLeft = maxTime
         selectedIndices = emptyList()
         isProcessing = false
@@ -329,9 +329,12 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     updatedCards[idx1] = updatedCards[idx1].copy(isFlipped = false)
                     updatedCards[idx2] = updatedCards[idx2].copy(isFlipped = false)
                     cards = updatedCards
-                    lives -= 1
                     
-                    if (lives <= 0) {
+                    if (difficulty == MemoryDifficulty.NORMAL) {
+                        lives -= 1
+                    }
+                    
+                    if (lives <= 0 && difficulty == MemoryDifficulty.NORMAL) {
                         hasWon = false
                         try {
                             Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
@@ -399,7 +402,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     Icon(Icons.Default.Favorite, contentDescription = "Lives", tint = Color(0xFFE53935), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "x $lives",
+                        text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
