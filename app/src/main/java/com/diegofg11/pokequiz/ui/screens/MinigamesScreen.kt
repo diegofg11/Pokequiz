@@ -62,20 +62,6 @@ fun MinigamesScreen(navController: NavController? = null) {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-        
-        // Dark Overlay to improve readability
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Black.copy(alpha = 0.4f),
-                            Color.Black.copy(alpha = 0.7f)
-                        )
-                    )
-                )
-        )
 
         Column(
             modifier = Modifier.fillMaxSize()
