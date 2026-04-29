@@ -62,7 +62,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
     
     var isRevealed by remember { mutableStateOf(false) }
     var selectedId by remember { mutableStateOf<Int?>(null) }
-    var score by remember { mutableIntStateOf(0) }
+    var sessionCoins by remember { mutableIntStateOf(0) }
     var isProcessing by remember { mutableStateOf(false) }
     
     var globalError by remember { mutableStateOf<String?>(null) }
@@ -105,8 +105,8 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
 
     if (showRewardDialog) {
         PokemonAlertDialog(
-            title = "¡Enhorabuena!",
-            message = "Has adivinado correctamente $score Pokémon(s) y ganado ${score * 20} monedas.",
+            title = if (sessionCoins > 0) "¡Enhorabuena!" else "Fin de la partida",
+            message = if (sessionCoins > 0) "Has ganado $sessionCoins monedas en total." else "Has perdido ${-sessionCoins} monedas en total.",
             isError = false,
             onDismiss = { 
                 showRewardDialog = false
@@ -132,14 +132,12 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                if (score > 0 && !isProcessing) {
-                    // Si ha ganado monedas pero se quiere ir, intentar cobrar
+                if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
                     scope.launch {
                         try {
-                            // Damos 20 monedas por acierto (sumamos todos los aciertos al salir)
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = score * 20))
-                            withContext(Dispatchers.Main) { onNavigateBack() }
+                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = sessionCoins))
+                            withContext(Dispatchers.Main) { showRewardDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
                                 globalError = "No se pudieron guardar tus monedas al salir."
@@ -147,7 +145,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                             }
                         }
                     }
-                } else {
+                } else if (!isProcessing) {
                     onNavigateBack()
                 }
             }) {
@@ -168,7 +166,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                 border = androidx.compose.foundation.BorderStroke(1.dp, GoldPoke)
             ) {
                 Text(
-                    text = "Aciertos: $score",
+                    text = "Monedas: $sessionCoins",
                     color = GoldPoke,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -237,32 +235,13 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                                     isRevealed = true
                                     
                                     if (selectedId == currentTargetId) {
-                                        score++
-                                        scope.launch {
-                                            delay(1500)
-                                            generateNewRound()
-                                        }
+                                        sessionCoins += 15
                                     } else {
-                                        // Fin del juego
-                                        isProcessing = true
-                                        scope.launch {
-                                            delay(2000)
-                                            if (score > 0) {
-                                                try {
-                                                    // Hacemos que el minijuego de 20 monedas por acierto simulando victorias
-                                                    // Damos 20 monedas por acierto
-                                                    Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = score * 20))
-                                                    withContext(Dispatchers.Main) { showRewardDialog = true }
-                                                } catch(e: Exception) {
-                                                    withContext(Dispatchers.Main) {
-                                                        globalError = "Fallo al guardar tus ganancias."
-                                                        isProcessing = false
-                                                    }
-                                                }
-                                            } else {
-                                                withContext(Dispatchers.Main) { onNavigateBack() }
-                                            }
-                                        }
+                                        sessionCoins -= 30
+                                    }
+                                    scope.launch {
+                                        delay(1500)
+                                        generateNewRound()
                                     }
                                 }
                             }
@@ -278,30 +257,13 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                                     isRevealed = true
                                     
                                     if (selectedId == currentTargetId) {
-                                        score++
-                                        scope.launch {
-                                            delay(1500)
-                                            generateNewRound()
-                                        }
+                                        sessionCoins += 15
                                     } else {
-                                        // Fin del juego
-                                        isProcessing = true
-                                        scope.launch {
-                                            delay(2000)
-                                            if (score > 0) {
-                                                try {
-                                                    Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = score * 20))
-                                                    withContext(Dispatchers.Main) { showRewardDialog = true }
-                                                } catch(e: Exception) {
-                                                    withContext(Dispatchers.Main) {
-                                                        globalError = "Fallo al guardar tus ganancias."
-                                                        isProcessing = false
-                                                    }
-                                                }
-                                            } else {
-                                                withContext(Dispatchers.Main) { onNavigateBack() }
-                                            }
-                                        }
+                                        sessionCoins -= 30
+                                    }
+                                    scope.launch {
+                                        delay(1500)
+                                        generateNewRound()
                                     }
                                 }
                             }
