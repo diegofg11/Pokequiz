@@ -61,6 +61,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             }
         } catch (e: Exception) {
             Log.e("GachaScreen", "Error loading coins", e)
+            errorMessage = "No se pudo conectar con el servidor para cargar tus monedas."
         }
     }
 

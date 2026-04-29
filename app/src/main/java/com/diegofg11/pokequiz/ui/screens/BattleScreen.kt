@@ -111,8 +111,18 @@ fun BattleScreen(
             onDismiss = if (isVictory) {
                 {
                     scope.launch {
-                        try { Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(1, levelId, 100)) } catch (e: Exception) {}
-                        withContext(Dispatchers.Main) { onBattleWin() }
+                        try { 
+                            Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(1, levelId, 100)) 
+                            withContext(Dispatchers.Main) { 
+                                showGameOver = false
+                                onBattleWin() 
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                showGameOver = false
+                                errorMessage = "Error al reclamar la recompensa. Verifica tu conexión a internet."
+                            }
+                        }
                     }
                     Unit
                 }

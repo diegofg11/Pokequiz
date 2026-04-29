@@ -22,6 +22,7 @@ import com.diegofg11.pokequiz.ui.screens.PCScreen
 import com.diegofg11.pokequiz.ui.screens.WelcomeScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
+import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import kotlinx.coroutines.launch
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 var completedLevel by remember { mutableIntStateOf(0) }
                 var selectedItem by remember { mutableIntStateOf(0) }
+                var globalErrorMessage by remember { mutableStateOf<String?>(null) }
                 
                 val scope = rememberCoroutineScope()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -50,8 +52,18 @@ class MainActivity : ComponentActivity() {
                             }
                         } catch (e: Exception) {
                             android.util.Log.e("MainActivity", "Error fetching user", e)
+                            globalErrorMessage = "No se pudo conectar con el servidor para cargar tu perfil."
                         }
                     }
+                }
+
+                if (globalErrorMessage != null) {
+                    PokemonAlertDialog(
+                        title = "¡Error de Conexión!",
+                        message = globalErrorMessage!!,
+                        isError = true,
+                        onDismiss = { globalErrorMessage = null }
+                    )
                 }
 
                 Scaffold(
@@ -158,7 +170,9 @@ class MainActivity : ComponentActivity() {
                                             if (response.isSuccessful && response.body() != null) {
                                                 completedLevel = response.body()!!.nivelProgreso
                                             }
-                                        } catch(e: Exception) {}
+                                        } catch(e: Exception) {
+                                            globalErrorMessage = "Error de sincronización con el servidor."
+                                        }
                                         // Volver al mapa tras la victoria
                                         navController.navigate("map") {
                                             popUpTo("map") { inclusive = true }
