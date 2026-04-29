@@ -43,8 +43,112 @@ data class MemoryCardData(
     var isMatched: Boolean = false
 )
 
+enum class MemoryDifficulty {
+    NORMAL, INFERNAL
+}
+
 @Composable
 fun MemoryGameScreen(onNavigateBack: () -> Unit) {
+    var difficulty by remember { mutableStateOf<MemoryDifficulty?>(null) }
+    
+    if (difficulty == null) {
+        MemoryDifficultySelectionScreen(
+            onSelect = { difficulty = it },
+            onBack = onNavigateBack
+        )
+    } else {
+        MemoryGameBoard(
+            difficulty = difficulty!!,
+            onNavigateBack = onNavigateBack
+        )
+    }
+}
+
+@Composable
+fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd)
+                )
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "MEMORAMA",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 48.dp)
+            )
+
+            // Normal Button
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clickable { onSelect(MemoryDifficulty.NORMAL) },
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF4CAF50),
+                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFF388E3C))
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("MODO NORMAL", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text("+80 Monedas | Fallo/Salir: -20 | 5 Vidas", color = Color(0xFFE8F5E9), fontSize = 12.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Infernal Button
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clickable { onSelect(MemoryDifficulty.INFERNAL) },
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF212121),
+                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFE53935))
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("MODO INFERNAL", color = Color(0xFFE53935), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                    Text("+200 Monedas | Fallo/Salir: -50 | Tablero Caótico | 30s", color = Color(0xFFFFEBEE), fontSize = 11.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     
     var cards by remember { mutableStateOf<List<MemoryCardData>>(emptyList()) }
@@ -58,10 +162,16 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
     var hasWon by remember { mutableStateOf(false) }
     
     var gameStarted by remember { mutableStateOf(false) }
+    
+    val winReward = if (difficulty == MemoryDifficulty.INFERNAL) 200 else 80
+    val losePenalty = if (difficulty == MemoryDifficulty.INFERNAL) 50 else 20
+    val maxTime = 30
+    var timeLeft by remember { mutableIntStateOf(maxTime) }
+    var flashTimer by remember { mutableStateOf(false) }
 
     fun initializeGame() {
         val uniquePokemonIds = mutableSetOf<Int>()
-        while (uniquePokemonIds.size < 6) {
+        while (uniquePokemonIds.size < 6) { // 3x4 grid = 12 cards = 6 pairs
             uniquePokemonIds.add(Random.nextInt(1, 152))
         }
         
@@ -74,6 +184,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
         
         cards = deck.shuffled()
         lives = 5
+        timeLeft = maxTime
         selectedIndices = emptyList()
         isProcessing = false
         gameStarted = true
@@ -81,6 +192,35 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
 
     LaunchedEffect(Unit) {
         initializeGame()
+    }
+    
+    LaunchedEffect(gameStarted, lives, hasWon) {
+        if (difficulty == MemoryDifficulty.INFERNAL && gameStarted && lives > 0 && !hasWon) {
+            while (timeLeft > 0) {
+                delay(1000)
+                if (lives > 0 && !hasWon) {
+                    timeLeft -= 1
+                    if (timeLeft <= 5) {
+                        flashTimer = !flashTimer
+                    }
+                }
+            }
+            if (timeLeft == 0 && lives > 0 && !hasWon) {
+                // Time over
+                lives = 0
+                isProcessing = true
+                hasWon = false
+                try {
+                    Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
+                    withContext(Dispatchers.Main) { showResultDialog = true }
+                } catch(e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        globalError = "Error de red al cobrar la entrada."
+                        isProcessing = false
+                    }
+                }
+            }
+        }
     }
 
     if (globalError != null) {
@@ -94,7 +234,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
 
     if (showResultDialog) {
         val title = if (hasWon) "¡VICTORIA!" else "DERROTA"
-        val message = if (hasWon) "¡Has encontrado todas las parejas!\nGanancia neta: +80 Monedas." else "Te has quedado sin vidas...\nEntrada cobrada: -20 Monedas."
+        val message = if (hasWon) "¡Has encontrado todas las parejas!\nPremio gordo: +$winReward Monedas." else "Te has quedado sin oportunidades...\nEntrada cobrada: -$losePenalty Monedas."
         
         PokemonAlertDialog(
             title = title,
@@ -110,7 +250,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
     if (showExitWarning) {
         PokemonAlertDialog(
             title = "¡Atención!",
-            message = "Si abandonas ahora se te cobrará la entrada de 20 monedas. ¿Seguro que quieres salir?",
+            message = "Si abandonas ahora se te cobrará la entrada de $losePenalty monedas. ¿Seguro que quieres salir?",
             isError = true,
             confirmText = "Abandonar",
             onConfirm = {
@@ -118,7 +258,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
                 isProcessing = true
                 scope.launch {
                     try {
-                        Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -20))
+                        Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
                         withContext(Dispatchers.Main) { onNavigateBack() }
                     } catch(e: Exception) {
                         withContext(Dispatchers.Main) { onNavigateBack() }
@@ -130,7 +270,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
     }
 
     fun handleCardClick(index: Int) {
-        if (isProcessing || cards[index].isFlipped || cards[index].isMatched) return
+        if (isProcessing || cards[index].isFlipped || cards[index].isMatched || lives <= 0) return
         
         // Flip the card
         val newCards = cards.toMutableList()
@@ -144,25 +284,36 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
         if (selectedIndices.size == 2) {
             isProcessing = true
             scope.launch {
-                delay(1000) // Wait 1 second to let user see the cards
+                delay(800) // Wait to let user see the cards
                 
                 val idx1 = selectedIndices[0]
                 val idx2 = selectedIndices[1]
                 
-                val updatedCards = cards.toMutableList()
+                var updatedCards = cards.toMutableList()
                 
                 if (updatedCards[idx1].pokemonId == updatedCards[idx2].pokemonId) {
                     // Match found
                     updatedCards[idx1] = updatedCards[idx1].copy(isMatched = true)
                     updatedCards[idx2] = updatedCards[idx2].copy(isMatched = true)
+                    
+                    // Tablero Caótico en Infernal
+                    if (difficulty == MemoryDifficulty.INFERNAL && !updatedCards.all { it.isMatched }) {
+                        val unmatchedCards = updatedCards.filter { !it.isMatched }.shuffled()
+                        var unmatchIdx = 0
+                        for (i in updatedCards.indices) {
+                            if (!updatedCards[i].isMatched) {
+                                updatedCards[i] = unmatchedCards[unmatchIdx++]
+                            }
+                        }
+                    }
+                    
                     cards = updatedCards
                     
                     // Check win condition
                     if (cards.all { it.isMatched }) {
                         hasWon = true
                         try {
-                            // Reward net 80 coins (100 prize - 20 entry fee)
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = 80))
+                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = winReward))
                             withContext(Dispatchers.Main) { showResultDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
@@ -183,8 +334,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
                     if (lives <= 0) {
                         hasWon = false
                         try {
-                            // Charge 20 coins entry fee on lose
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -20))
+                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
                             withContext(Dispatchers.Main) { showResultDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
@@ -231,10 +381,10 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
                 Text(
-                    text = "MEMORAMA",
-                    color = Color.White,
+                    text = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
+                    color = if (difficulty == MemoryDifficulty.INFERNAL) Color(0xFFE53935) else Color.White,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
@@ -252,6 +402,36 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
                         text = "x $lives",
                         color = Color.White,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            
+            // Timer Bar for Infernal
+            if (difficulty == MemoryDifficulty.INFERNAL) {
+                val timerColor = if (timeLeft <= 5) {
+                    if (flashTimer) Color.Red else Color.Yellow
+                } else {
+                    Color.Green
+                }
+                
+                val timerProgress by animateFloatAsState(
+                    targetValue = timeLeft.toFloat() / maxTime.toFloat(),
+                    animationSpec = tween(1000)
+                )
+                
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LinearProgressIndicator(
+                        progress = { timerProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .border(1.dp, Color.White, RoundedCornerShape(4.dp)),
+                        color = timerColor,
+                        trackColor = Color.DarkGray
                     )
                 }
             }
