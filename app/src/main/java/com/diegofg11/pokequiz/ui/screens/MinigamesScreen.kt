@@ -57,7 +57,7 @@ fun MinigamesScreen(navController: NavController? = null) {
     ) {
         // Full Screen Background Image
         Image(
-            painter = painterResource(id = R.drawable.fondoZonaSafari),
+            painter = painterResource(id = R.drawable.fondo_zona_safari),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
