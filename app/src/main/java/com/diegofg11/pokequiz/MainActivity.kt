@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Minijuegos") },
-                                label = { Text("Juegos") },
+                                label = { Text("Zona Safari") },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
                             )
                         }
