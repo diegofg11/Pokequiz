@@ -199,7 +199,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text("MODO INFERNAL", color = Color(0xFFE53935), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                    Text("+40 Monedas | Fallo: -80 | Distorsión | 4s", color = Color(0xFFFFEBEE), fontSize = 11.sp)
+                    Text("+40 Monedas | Fallo: -80 | Caos Visual | 4s", color = Color(0xFFFFEBEE), fontSize = 11.sp)
                 }
             }
         }
@@ -217,6 +217,9 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
     var isFlipped by remember { mutableStateOf(false) }
     var stretchX by remember { mutableFloatStateOf(1f) }
     var stretchY by remember { mutableFloatStateOf(1f) }
+    var zoom by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
     
     var isRevealed by remember { mutableStateOf(false) }
     var selectedId by remember { mutableStateOf<Int?>(null) }
@@ -254,18 +257,27 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 isFlipped = Random.nextBoolean()
                 stretchX = Random.nextFloat() * 0.6f + 0.7f // entre 0.7 y 1.3
                 stretchY = Random.nextFloat() * 0.6f + 0.7f
+                zoom = Random.nextFloat() * 1.8f + 0.7f // Zoom entre 0.7x (lejos) y 2.5x (cerca)
+                offsetX = Random.nextFloat() * 160f - 80f // Desplazamiento X para cortar imagen
+                offsetY = Random.nextFloat() * 160f - 80f // Desplazamiento Y para cortar imagen
             }
             Difficulty.HARD -> {
                 imageRotation = Random.nextFloat() * 360f
                 isFlipped = false
                 stretchX = 1f
                 stretchY = 1f
+                zoom = 1f
+                offsetX = 0f
+                offsetY = 0f
             }
             Difficulty.EASY -> {
                 imageRotation = 0f
                 isFlipped = false
                 stretchX = 1f
                 stretchY = 1f
+                zoom = 1f
+                offsetX = 0f
+                offsetY = 0f
             }
         }
         
@@ -451,10 +463,11 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp)
+                            .offset(x = offsetX.dp, y = offsetY.dp)
                             .rotate(imageRotation)
                             .scale(
-                                scaleX = stretchX * (if(isFlipped) -1f else 1f),
-                                scaleY = stretchY
+                                scaleX = zoom * stretchX * (if(isFlipped) -1f else 1f),
+                                scaleY = zoom * stretchY
                             ),
                         contentScale = ContentScale.Fit,
                         colorFilter = if (isRevealed) null else ColorFilter.tint(Color.Black)
