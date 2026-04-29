@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +39,7 @@ data class MinigameItem(
 )
 
 @Composable
-fun MinigamesScreen() {
+fun MinigamesScreen(navController: NavController? = null) {
     val dummyGames = listOf(
         MinigameItem("1", "¿Quién es ese Pokémon?", "Adivina la silueta del Pokémon", Icons.Default.PlayArrow, "50 Monedas"),
         MinigameItem("2", "Memorama", "Encuentra las parejas de cartas", Icons.Default.Star, "100 Monedas"),
@@ -87,7 +88,11 @@ fun MinigamesScreen() {
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(dummyGames) { game ->
-                    MinigameCard(game)
+                    MinigameCard(game) {
+                        if (game.id == "1") {
+                            navController?.navigate("guess_pokemon")
+                        }
+                    }
                 }
             }
         }
@@ -95,13 +100,13 @@ fun MinigamesScreen() {
 }
 
 @Composable
-fun MinigameCard(game: MinigameItem) {
+fun MinigameCard(game: MinigameItem, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(0.85f)
             .clip(RoundedCornerShape(16.dp))
-            .clickable { /* TODO: Navigate to game */ },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = CardBackground),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {

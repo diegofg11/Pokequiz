@@ -197,7 +197,12 @@ class MainActivity : ComponentActivity() {
                             })
                         }
                         composable("games") {
-                            MinigamesScreen()
+                            MinigamesScreen(navController = navController)
+                        }
+                        composable("guess_pokemon") {
+                            com.diegofg11.pokequiz.ui.screens.GuessPokemonScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
