@@ -25,6 +25,8 @@ fun PokemonAlertDialog(
     title: String,
     message: String,
     isError: Boolean = true,
+    confirmText: String? = null,
+    onConfirm: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
     Dialog(
@@ -71,22 +73,64 @@ fun PokemonAlertDialog(
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    Button(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(48.dp)
-                    ) {
-                        Text(
-                            text = "ENTENDIDO",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 14.sp,
-                            color = Color.White
-                        )
+                    if (onConfirm != null && confirmText != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = onDismiss,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Gray
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp)
+                            ) {
+                                Text(
+                                    text = "CANCELAR",
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 12.sp,
+                                    color = Color.White
+                                )
+                            }
+                            Button(
+                                onClick = onConfirm,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp)
+                            ) {
+                                Text(
+                                    text = confirmText.uppercase(),
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 12.sp,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    } else {
+                        Button(
+                            onClick = onDismiss,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .height(48.dp)
+                        ) {
+                            Text(
+                                text = "ENTENDIDO",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 14.sp,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }

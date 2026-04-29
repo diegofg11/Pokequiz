@@ -204,6 +204,11 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
+                        composable("memory_game") {
+                            com.diegofg11.pokequiz.ui.screens.MemoryGameScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }

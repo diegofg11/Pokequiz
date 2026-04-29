@@ -91,6 +91,8 @@ fun MinigamesScreen(navController: NavController? = null) {
                     MinigameCard(game) {
                         if (game.id == "1") {
                             navController?.navigate("guess_pokemon")
+                        } else if (game.id == "2") {
+                            navController?.navigate("memory_game")
                         }
                     }
                 }
