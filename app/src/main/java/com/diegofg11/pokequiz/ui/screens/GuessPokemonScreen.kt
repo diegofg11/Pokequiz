@@ -137,10 +137,8 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                     isProcessing = true
                     scope.launch {
                         try {
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, exp = 0)) // No exp, we just need coins, wait, rewardUser gives 100 coins fixed?
-                            // Actually, let's use the same endpoint but maybe we can't customize coins per win unless backend supports it.
-                            // The backend `rewardUser` gives fixed exp and maybe fixed coins? We will see.
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 1, exp = 10)) 
+                            // Damos 20 monedas por acierto (sumamos todos los aciertos al salir)
+                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = score * 20))
                             withContext(Dispatchers.Main) { onNavigateBack() }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
@@ -167,7 +165,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
             Surface(
                 color = GoldPoke.copy(alpha = 0.2f),
                 shape = RoundedCornerShape(8.dp),
-                border = border.BorderStroke(1.dp, GoldPoke)
+                border = androidx.compose.foundation.BorderStroke(1.dp, GoldPoke)
             ) {
                 Text(
                     text = "Aciertos: $score",
@@ -199,7 +197,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                     .size(250.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 color = Color(0xFFF0F0F0),
-                border = border.BorderStroke(4.dp, if (isRevealed) (if(selectedId == currentTargetId) Color(0xFF4CAF50) else Color(0xFFF44336)) else Color(0xFF333333))
+                border = androidx.compose.foundation.BorderStroke(4.dp, if (isRevealed) (if(selectedId == currentTargetId) Color(0xFF4CAF50) else Color(0xFFF44336)) else Color(0xFF333333))
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     AsyncImage(
@@ -252,10 +250,8 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                                             if (score > 0) {
                                                 try {
                                                     // Hacemos que el minijuego de 20 monedas por acierto simulando victorias
-                                                    // En un entorno real se crearía un endpoint específico
-                                                    for (s in 1..score) {
-                                                        Network.api.rewardUser(RewardRequest(userId = 1, levelId = 1, exp = 10))
-                                                    }
+                                                    // Damos 20 monedas por acierto
+                                                    Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = score * 20))
                                                     withContext(Dispatchers.Main) { showRewardDialog = true }
                                                 } catch(e: Exception) {
                                                     withContext(Dispatchers.Main) {
@@ -294,9 +290,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
                                             delay(2000)
                                             if (score > 0) {
                                                 try {
-                                                    for (s in 1..score) {
-                                                        Network.api.rewardUser(RewardRequest(userId = 1, levelId = 1, exp = 10))
-                                                    }
+                                                    Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = score * 20))
                                                     withContext(Dispatchers.Main) { showRewardDialog = true }
                                                 } catch(e: Exception) {
                                                     withContext(Dispatchers.Main) {
@@ -343,7 +337,7 @@ fun OptionButton(
             .clickable(enabled = !isRevealed) { onClick() },
         shape = RoundedCornerShape(12.dp),
         color = backgroundColor,
-        border = border.BorderStroke(2.dp, if (!isRevealed) Color(0xFF333333) else Color.Transparent)
+        border = androidx.compose.foundation.BorderStroke(2.dp, if (!isRevealed) Color(0xFF333333) else Color.Transparent)
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Text(
