@@ -136,16 +136,17 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
             Text(
                 text = "¿QUIÉN ES ESE POKÉMON?",
                 color = Color.White,
-                fontSize = 32.sp,
+                fontSize = 24.sp,
+                lineHeight = 30.sp,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Adivina la silueta correctamente.\nSelecciona un modo para empezar",
+                text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Grid de Selección de Dificultad

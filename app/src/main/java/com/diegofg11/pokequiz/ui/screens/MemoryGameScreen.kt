@@ -101,11 +101,11 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Encuentra todas las parejas.\nSelecciona un modo para empezar",
+                text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Modo Selección de Tarjetas

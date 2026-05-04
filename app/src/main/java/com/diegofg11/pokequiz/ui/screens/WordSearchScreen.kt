@@ -136,11 +136,11 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Encuentra todos los Pokémon ocultos.\nSelecciona un modo para empezar",
+                text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Grid de Selección de Dificultad

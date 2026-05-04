@@ -191,11 +191,11 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Vence a 3 Pokémon seguidos!\nSelecciona un modo para empezar",
+                "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Selector de Modo

@@ -177,11 +177,11 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Golpea a los Pokémon que salgan!\nSelecciona un modo para empezar",
+                "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Dificultad Cards
@@ -264,8 +264,8 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
 fun RankRow(rank: String, normal: String, infernal: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(rank, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        Text("$normal pts", color = Color.LightGray, fontSize = 12.sp)
-        Text("$infernal pts", color = Color(0xFFE53935), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        Text("$normal 💰", color = Color.LightGray, fontSize = 12.sp)
+        Text("$infernal 💰", color = Color(0xFFE53935), fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
 }
 
