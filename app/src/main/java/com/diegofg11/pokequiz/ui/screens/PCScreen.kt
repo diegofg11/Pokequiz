@@ -31,9 +31,7 @@ import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.Pokemon
 import com.diegofg11.pokequiz.models.TogglePartyRequest
 import com.diegofg11.pokequiz.models.User
-import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
-import com.diegofg11.pokequiz.ui.theme.BackgroundMid
-import com.diegofg11.pokequiz.ui.theme.BackgroundStart
+import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
