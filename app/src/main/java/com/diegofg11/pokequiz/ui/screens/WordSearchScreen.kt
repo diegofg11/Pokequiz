@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.ui.theme.BackgroundStart
 import com.diegofg11.pokequiz.ui.theme.BackgroundMid
 import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
-import com.diegofg11.pokequiz.network.Network
+import com.diegofg11.pokequiz.ui.theme.GoldPoke
+import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.launch
 
 enum class WordSearchDifficulty {
