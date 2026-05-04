@@ -19,4 +19,10 @@ object SessionManager {
         prefs.edit().putInt(KEY_USER_ID, id).apply()
         currentUserId = id
     }
+
+    fun logout(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().remove(KEY_USER_ID).apply()
+        currentUserId = -1
+    }
 }
