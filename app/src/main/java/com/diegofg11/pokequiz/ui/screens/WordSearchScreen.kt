@@ -30,6 +30,8 @@ import androidx.compose.animation.core.*
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import kotlinx.coroutines.delay
 import kotlin.random.Random
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 enum class WordSearchDifficulty {
     NORMAL, HARD, INFERNAL
@@ -101,12 +103,27 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
             )
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxSize()
         ) {
+            // Header with Back Button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
             Text(
                 text = "SOPA DE LETRAS",
                 color = Color.White,
@@ -183,15 +200,6 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                     Text("MODO INFERNAL", color = Color(0xFFE53935), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
                     Text("+120 Monedas | Costo: -20 | Palabras Invertidas | 30s", color = Color(0xFFFFEBEE), fontSize = 10.sp)
                 }
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Button(
-                onClick = onNavigateBack,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-            ) {
-                Text("Volver")
             }
         }
     }
