@@ -237,6 +237,11 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        composable("word_search") {
+                            com.diegofg11.pokequiz.ui.screens.WordSearchScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }
