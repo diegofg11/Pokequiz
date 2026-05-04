@@ -265,7 +265,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
             
             Text(
-                "PREMIOS POR RANGO",
+                "RANGOS Y PUNTUACIÓN",
                 color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -298,8 +298,8 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
 fun RankRow(rank: String, normal: String, infernal: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(rank, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        Text("$normal 💰", color = Color.LightGray, fontSize = 12.sp)
-        Text("$infernal 💰", color = Color(0xFFE53935), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        Text("$normal pts", color = Color.LightGray, fontSize = 12.sp)
+        Text("$infernal pts", color = Color(0xFFE53935), fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
 }
 

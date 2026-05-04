@@ -274,12 +274,6 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
             }
 
             Spacer(modifier = Modifier.height(48.dp))
-
-            Text(
-                "Selecciona un modo para empezar.",
-                color = Color.White.copy(alpha = 0.5f),
-                fontSize = 12.sp
-            )
         }
     }
 }
