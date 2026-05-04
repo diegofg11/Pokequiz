@@ -21,6 +21,15 @@ import com.diegofg11.pokequiz.ui.theme.GoldPoke
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.draw.rotate
+import androidx.compose.animation.core.*
+import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 enum class WordSearchDifficulty {
     NORMAL, HARD, INFERNAL
@@ -187,12 +196,6 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
         }
     }
 }
-
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
-import kotlinx.coroutines.delay
-import kotlin.random.Random
 
 // Lista de los 151 Pokémon de Kanto
 private val POKEMON_LIST = listOf(
@@ -424,7 +427,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
                         .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
                         .border(2.dp, GoldPoke, RoundedCornerShape(16.dp))
                         .padding(8.dp)
-                        .androidx.compose.ui.layout.onGloballyPositioned { layoutCoordinates ->
+                        .onGloballyPositioned { layoutCoordinates ->
                             gridWidth = layoutCoordinates.size.width.toFloat()
                             gridHeight = layoutCoordinates.size.height.toFloat()
                         }
@@ -493,14 +496,14 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
                                     val isFound = foundCells.contains(Pair(r, c))
                                     
                                     // Efecto Infernal: Vibración de letras
-                                    val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition()
+                                    val infiniteTransition = rememberInfiniteTransition()
                                     val rotation by if (difficulty == WordSearchDifficulty.INFERNAL && !isFound && !isSelected) {
-                                        infiniteTransition.androidx.compose.animation.core.animateFloat(
+                                        infiniteTransition.animateFloat(
                                             initialValue = -15f,
                                             targetValue = 15f,
-                                            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-                                                animation = androidx.compose.animation.core.tween(durationMillis = 300 + Random.nextInt(200), easing = androidx.compose.animation.core.LinearEasing),
-                                                repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                                            animationSpec = infiniteRepeatable(
+                                                animation = tween(durationMillis = 300 + Random.nextInt(200), easing = LinearEasing),
+                                                repeatMode = RepeatMode.Reverse
                                             )
                                         )
                                     } else {
@@ -526,7 +529,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
                                             color = if (isSelected || isFound) Color.Black else Color.White,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 18.sp,
-                                            modifier = Modifier.androidx.compose.ui.draw.rotate(rotation)
+                                            modifier = Modifier.rotate(rotation)
                                         )
                                     }
                                 }
@@ -548,9 +551,13 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
     }
     
     if (showResultDialog) {
-        com.diegofg11.pokequiz.ui.components.PokemonAlertDialog(
+        PokemonAlertDialog(
             title = if (hasWon) "¡ENCONTRADOS!" else "¡TIEMPO AGOTADO!",
             message = if (hasWon) "Has encontrado todos los Pokémon a tiempo. ¡Buen ojo!" else "No has logrado encontrar todas las palabras. ¡Más suerte la próxima vez!",
+            onDismiss = {
+                showResultDialog = false
+                onNavigateBack()
+            },
             onConfirm = {
                 showResultDialog = false
                 onNavigateBack()
