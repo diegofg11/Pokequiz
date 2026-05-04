@@ -27,13 +27,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.sqrt
 import androidx.compose.ui.graphics.Brush
 import com.diegofg11.pokequiz.ui.theme.*
+<<<<<<< Updated upstream
 import com.diegofg11.pokequiz.ui.components.PokeMenu
+=======
+import androidx.compose.ui.platform.LocalContext
+import com.diegofg11.pokequiz.utils.WallpaperManager
+>>>>>>> Stashed changes
 
 @Composable
 fun MapScreen(
     completedLevel: Int,
     onNavigateToBattle: (Int) -> Unit
 ) {
+<<<<<<< Updated upstream
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -56,6 +62,31 @@ fun MapScreen(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 64.dp)
+=======
+    val context = LocalContext.current
+    // --- CONFIGURACIÓN ---
+    val totalLevels = 20 
+    // ----------------------
+
+    val listState = rememberLazyListState()
+
+    // Scroll automático al nivel actual (o al siguiente por desbloquear)
+    LaunchedEffect(completedLevel) {
+        // Calculamos la posición. Como la lista está invertida visualmente (el nivel 1 abajo),
+        // el índice en la LazyColumn para el nivel actual es (totalLevels - nivel)
+        val targetLevel = (completedLevel + 1).coerceAtMost(totalLevels)
+        val indexToScroll = (totalLevels - targetLevel).coerceAtLeast(0)
+        listState.animateScrollToItem(indexToScroll)
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Fondo dinámico (Leído de preferencias)
+        Image(
+            painter = painterResource(id = WallpaperManager.getSelectedWallpaperRes(context)),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+>>>>>>> Stashed changes
         )
 
         // The Map
