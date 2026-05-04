@@ -100,12 +100,11 @@ fun MinigamesScreen(navController: NavController? = null) {
             ) {
                 items(dummyGames) { game ->
                     MinigameCard(game) {
-                        if (game.id == "1") {
-                            navController?.navigate("guess_pokemon")
-                        } else if (game.id == "2") {
-                            navController?.navigate("memory_game")
-                        } else if (game.id == "3") {
-                            navController?.navigate("word_search")
+                        when (game.id) {
+                            "1" -> navController?.navigate("guess_pokemon")
+                            "2" -> navController?.navigate("memory_game")
+                            "3" -> navController?.navigate("word_search")
+                            "4" -> navController?.navigate("quick_battle")
                         }
                     }
                 }

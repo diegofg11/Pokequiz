@@ -242,6 +242,11 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
+                        composable("quick_battle") {
+                            com.diegofg11.pokequiz.ui.screens.QuickBattleScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }
