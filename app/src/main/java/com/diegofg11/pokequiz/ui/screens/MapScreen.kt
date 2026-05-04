@@ -19,12 +19,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.ui.theme.*
+import androidx.compose.ui.platform.LocalContext
+import com.diegofg11.pokequiz.utils.WallpaperManager
 
 @Composable
 fun MapScreen(
     completedLevel: Int,
     onNavigateToBattle: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     // --- CONFIGURACIÓN ---
     val totalLevels = 20 
     // ----------------------
@@ -41,9 +44,9 @@ fun MapScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Fondo fijo (Se mantiene estático mientras los niveles suben/bajan)
+        // Fondo dinámico (Leído de preferencias)
         Image(
-            painter = painterResource(id = R.drawable.fondo_seleccion_niveles),
+            painter = painterResource(id = WallpaperManager.getSelectedWallpaperRes(context)),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

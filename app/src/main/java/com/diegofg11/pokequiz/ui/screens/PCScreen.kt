@@ -37,6 +37,13 @@ import com.diegofg11.pokequiz.ui.theme.BackgroundStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.diegofg11.pokequiz.utils.WallpaperManager
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun PCScreen() {
@@ -48,11 +55,13 @@ fun PCScreen() {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var warningMessage by remember { mutableStateOf<String?>(null) }
+    var showWallpaperDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         try {
-            val userResp = withContext(Dispatchers.IO) { Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) }
-            val pcResp = withContext(Dispatchers.IO) { Network.api.getPc(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) }
+            val userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId
+            val userResp = withContext(Dispatchers.IO) { Network.api.getUser(userId) }
+            val pcResp = withContext(Dispatchers.IO) { Network.api.getPc(userId) }
 
             if (userResp.isSuccessful) user = userResp.body()
 
@@ -114,6 +123,68 @@ fun PCScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
+
+                // --- WALLPAPER SELECTION DIALOG ---
+                if (showWallpaperDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showWallpaperDialog = false },
+                        title = { Text("Seleccionar Fondo del Mapa", color = Color.White, fontWeight = FontWeight.Bold) },
+                        containerColor = Color(0xFF1A1A2E),
+                        text = {
+                            val wallpapers = WallpaperManager.getAllWallpapers()
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.height(300.dp),
+                                contentPadding = PaddingValues(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                itemsIndexed(wallpapers) { index, resId ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(100.dp)
+                                            .clickable {
+                                                WallpaperManager.setSelectedWallpaper(context, index)
+                                                showWallpaperDialog = false
+                                                Toast.makeText(context, "Fondo actualizado", Toast.LENGTH_SHORT).show()
+                                            },
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = resId),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showWallpaperDialog = false }) {
+                                Text("Cerrar", color = Color.White)
+                            }
+                        }
+                    )
+                }
+
+                // --- TOP BAR WITH WALLPAPER BUTTON ---
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    IconButton(
+                        onClick = { showWallpaperDialog = true },
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Cambiar Fondo",
+                            tint = Color.White
+                        )
+                    }
+                }
 
                 // Avatar del usuario
                 val displayUser = user
