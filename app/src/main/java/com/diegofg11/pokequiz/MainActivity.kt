@@ -19,6 +19,7 @@ import com.diegofg11.pokequiz.ui.screens.GachaScreen
 import com.diegofg11.pokequiz.ui.screens.MapScreen
 import com.diegofg11.pokequiz.ui.screens.MinigamesScreen
 import com.diegofg11.pokequiz.ui.screens.PCScreen
+import com.diegofg11.pokequiz.ui.screens.UserScreen
 import com.diegofg11.pokequiz.ui.screens.WelcomeScreen
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.ui.components.PokeBallIcon
@@ -135,6 +136,20 @@ class MainActivity : ComponentActivity() {
                                 label = { Text("Zona Safari") },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
                             )
+                            // Perfil
+                            NavigationBarItem(
+                                selected = currentRoute == "user",
+                                onClick = { 
+                                    navController.navigate("user") {
+                                        popUpTo("map") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
+                                label = { Text("Perfil") },
+                                colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
+                            )
                         }
                     }
                     }
@@ -211,6 +226,15 @@ class MainActivity : ComponentActivity() {
                         composable("memory_game") {
                             com.diegofg11.pokequiz.ui.screens.MemoryGameScreen(
                                 onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("user") {
+                            UserScreen(
+                                onLogout = {
+                                    navController.navigate("welcome") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
                             )
                         }
                     }
