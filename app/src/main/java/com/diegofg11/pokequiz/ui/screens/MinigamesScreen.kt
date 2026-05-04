@@ -30,13 +30,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import com.diegofg11.pokequiz.R
-import com.diegofg11.pokequiz.ui.theme.GoldPoke
+import com.diegofg11.pokequiz.ui.theme.*
 import androidx.compose.ui.tooling.preview.Preview
-<<<<<<< HEAD
-import com.diegofg11.pokequiz.ui.theme.PokequizTheme
-import com.diegofg11.pokequiz.ui.theme.BackgroundStart
-import com.diegofg11.pokequiz.ui.theme.BackgroundMid
-import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
+
 
 data class MinigameItem(
     val id: String,
