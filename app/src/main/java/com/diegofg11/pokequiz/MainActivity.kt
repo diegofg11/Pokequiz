@@ -156,7 +156,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = if (com.diegofg11.pokequiz.utils.SessionManager.currentUserId != -1) "map" else "welcome",
+                        startDestination = "welcome",
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("welcome") {

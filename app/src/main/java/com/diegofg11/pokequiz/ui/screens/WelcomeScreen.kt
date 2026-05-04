@@ -29,12 +29,13 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun WelcomeScreen(onEnterClick: () -> Unit = {}) {
-    var screenState by remember { mutableStateOf("welcome") } // "welcome", "login", "register"
+    var screenState by remember { mutableStateOf("welcome") }
 
     when (screenState) {
         "welcome" -> WelcomeMenuScreen(
             onLoginClick = { screenState = "login" },
-            onRegisterClick = { screenState = "register" }
+            onRegisterClick = { screenState = "register" },
+            onContinueClick = onEnterClick
         )
         "login" -> LoginScreen(
             onBack = { screenState = "welcome" },
@@ -48,7 +49,9 @@ fun WelcomeScreen(onEnterClick: () -> Unit = {}) {
 }
 
 @Composable
-fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
+fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit, onContinueClick: () -> Unit) {
+    val isLoggedIn = SessionManager.currentUserId != -1
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -96,6 +99,19 @@ fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
             }
             
             Spacer(modifier = Modifier.height(64.dp))
+            
+            if (isLoggedIn) {
+                Button(
+                    onClick = onContinueClick,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                ) {
+                    Text("CONTINUAR", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             Button(
                 onClick = onLoginClick,
@@ -176,11 +192,11 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                         scope.launch {
                             try {
                                 val response = withContext(Dispatchers.IO) {
-                                    Network.api.login(LoginRequest(username.trim(), 1)) // StarterId ignored in backend login
+                                    Network.api.login(LoginRequest(username.trim(), 1))
                                 }
                                 if (response.isSuccessful && response.body() != null) {
                                     val user = response.body()!!
-                                    com.diegofg11.pokequiz.utils.SessionManager.saveUserId(context, user.id)
+                                    SessionManager.saveUserId(context, user.id)
                                     withContext(Dispatchers.Main) { onSuccess() }
                                 } else {
                                     val errorBody = response.errorBody()?.string()
@@ -218,7 +234,7 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
 @Composable
 fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
     var username by remember { mutableStateOf("") }
-    var selectedStarter by remember { mutableStateOf(1) } // 1: Bulbasaur, 4: Charmander, 7: Squirtle
+    var selectedStarter by remember { mutableStateOf(1) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -287,7 +303,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                 }
                                 if (response.isSuccessful && response.body() != null) {
                                     val user = response.body()!!
-                                    com.diegofg11.pokequiz.utils.SessionManager.saveUserId(context, user.id)
+                                    SessionManager.saveUserId(context, user.id)
                                     withContext(Dispatchers.Main) { onSuccess() }
                                 } else {
                                     errorMessage = "Ese nombre de usuario ya existe u ocurrió un error."
@@ -323,7 +339,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
 @Composable
 fun StarterPokemon(id: Int, selectedId: Int, onClick: () -> Unit) {
     val isSelected = id == selectedId
-    val imageUrl = "${com.diegofg11.pokequiz.api.Network.BASE_URL}public/sprites/${id}_front.png"
+    val imageUrl = "${Network.BASE_URL}public/sprites/${id}_front.png"
     
     Box(
         modifier = Modifier
@@ -343,13 +359,5 @@ fun StarterPokemon(id: Int, selectedId: Int, onClick: () -> Unit) {
             contentDescription = "Starter",
             modifier = Modifier.size(60.dp)
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WelcomeScreenPreview() {
-    PokequizTheme {
-        WelcomeMenuScreen({}, {})
     }
 }
