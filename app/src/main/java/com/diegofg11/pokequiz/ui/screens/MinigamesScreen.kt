@@ -33,6 +33,9 @@ import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
 import androidx.compose.ui.tooling.preview.Preview
 import com.diegofg11.pokequiz.ui.theme.PokequizTheme
+import com.diegofg11.pokequiz.ui.theme.BackgroundStart
+import com.diegofg11.pokequiz.ui.theme.BackgroundMid
+import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
 
 data class MinigameItem(
     val id: String,
