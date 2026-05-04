@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +32,8 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
+import com.diegofg11.pokequiz.ui.components.HelpSection
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.delay
@@ -154,13 +158,43 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
 
 @Composable
 fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
+    var showHelp by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+            }
+
+            // Botón de Ayuda
+            Surface(
+                onClick = { showHelp = true },
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color.White.copy(alpha = 0.2f),
+                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+            }
+        }
+
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = "INSTRUCCIONES",
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection("OBJETIVO", "Golpea a los Pokémon que salen de los agujeros para ganar puntos antes de que acabe el tiempo.")
+                    HelpSection("PUNTUACIÓN", "• Diglett: +10\n• Dugtrio: +25\n• Pikachu: +50\n• Voltorb: -20 (¡Evítalo!)")
+                    HelpSection("MODO NORMAL", "30 segundos de juego con aparición estándar de Pokémon.")
+                    HelpSection("MODO INFERNAL", "Solo 20 segundos. Los Voltorb aparecen mucho más a menudo y los Pokémon desaparecen en un abrir y cerrar de ojos.")
+                }
             }
         }
 

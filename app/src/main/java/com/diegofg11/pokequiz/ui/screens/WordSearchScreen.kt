@@ -1,9 +1,11 @@
 package com.diegofg11.pokequiz.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.ui.theme.BackgroundStart
 import com.diegofg11.pokequiz.ui.theme.BackgroundMid
+import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
+import com.diegofg11.pokequiz.ui.components.HelpSection
 import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
 import com.diegofg11.pokequiz.api.Network
@@ -97,6 +101,8 @@ fun WordSearchScreen(onNavigateBack: () -> Unit) {
 
 @Composable
 fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNavigateBack: () -> Unit) {
+    var showHelp by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -114,11 +120,39 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = onNavigateBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                 }
+
+                // Botón de Ayuda
+                Surface(
+                    onClick = { showHelp = true },
+                    modifier = Modifier.size(40.dp),
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.2f),
+                    border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    }
+                }
+            }
+
+            if (showHelp) {
+                PokemonHelpDialog(
+                    title = "INSTRUCCIONES",
+                    onDismiss = { showHelp = false },
+                    content = {
+                        Column {
+                            HelpSection("MODO NORMAL", "60 segundos para encontrar los nombres de Pokémon. Las palabras aparecen en horizontal y vertical.")
+                            HelpSection("MODO DIFÍCIL", "Solo tienes 45 segundos y las palabras también pueden aparecer en diagonal.")
+                            HelpSection("MODO INFERNAL", "¡El desafío supremo! 30 segundos, palabras invertidas y en todas las direcciones posibles.")
+                        }
+                    }
+                )
             }
 
             Column(
