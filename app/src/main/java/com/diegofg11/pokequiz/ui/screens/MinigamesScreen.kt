@@ -49,7 +49,8 @@ fun MinigamesScreen(navController: NavController? = null) {
         MinigameItem("1", "¿Quién es ese Pokémon?", "Adivina la silueta. 3 niveles de dificultad.", Icons.Default.PlayArrow, "Hasta 40 Monedas", Color(0xFF4CAF50)),
         MinigameItem("2", "Memorama", "Encuentra las parejas. ¡Cuidado con el modo Infernal!", Icons.Default.Star, "Hasta 200 Monedas", Color(0xFF2196F3)),
         MinigameItem("3", "Sopa de Letras", "Busca nombres de Pokémon ocultos", Icons.Default.PlayArrow, "75 Monedas", Color(0xFFFF9800)),
-        MinigameItem("4", "Batalla Rápida", "Vence a 3 rivales seguidos", Icons.Default.Star, "150 Monedas", Color(0xFFE91E63))
+        MinigameItem("4", "Batalla Rápida", "Vence a 3 rivales seguidos", Icons.Default.Star, "150 Monedas", Color(0xFFE91E63)),
+        MinigameItem("5", "Poké-Dojo", "Golpea a los Diglett. ¡Evita los Voltorb!", Icons.Default.PlayArrow, "Hasta 120 Monedas", Color(0xFF795548))
     )
 
     Box(
@@ -105,6 +106,7 @@ fun MinigamesScreen(navController: NavController? = null) {
                             "2" -> navController?.navigate("memory_game")
                             "3" -> navController?.navigate("word_search")
                             "4" -> navController?.navigate("quick_battle")
+                            "5" -> navController?.navigate("poke_dojo")
                         }
                     }
                 }

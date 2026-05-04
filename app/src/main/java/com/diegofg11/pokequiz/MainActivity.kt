@@ -247,6 +247,11 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
+                        composable("poke_dojo") {
+                            com.diegofg11.pokequiz.ui.screens.PokeDojoScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }
