@@ -13,6 +13,7 @@ import com.diegofg11.pokequiz.models.LevelResponse
 import com.diegofg11.pokequiz.models.User
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.models.TogglePartyRequest
+import com.diegofg11.pokequiz.models.LoginRequest
 
 interface PokeApi {
     @POST("api/gacha/roll")
@@ -32,4 +33,10 @@ interface PokeApi {
 
     @POST("api/user/party/toggle")
     suspend fun toggleParty(@Body request: TogglePartyRequest): Response<Any>
+
+    @POST("api/user/login")
+    suspend fun login(@Body request: LoginRequest): Response<User>
+
+    @POST("api/user/register")
+    suspend fun register(@Body request: LoginRequest): Response<User>
 }

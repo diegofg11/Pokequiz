@@ -29,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.diegofg11.pokequiz.utils.SessionManager.init(this)
         enableEdgeToEdge()
         setContent {
             PokequizTheme {
@@ -41,18 +42,21 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
-                LaunchedEffect(Unit) {
-                    scope.launch {
-                        try {
-                            val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                com.diegofg11.pokequiz.api.Network.api.getUser(1)
+                // Refetch user data when currentUserId changes and is valid
+                LaunchedEffect(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) {
+                    if (com.diegofg11.pokequiz.utils.SessionManager.currentUserId != -1) {
+                        scope.launch {
+                            try {
+                                val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                    com.diegofg11.pokequiz.api.Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId)
+                                }
+                                if (response.isSuccessful && response.body() != null) {
+                                    completedLevel = response.body()!!.nivelProgreso
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("MainActivity", "Error fetching user", e)
+                                globalErrorMessage = "No se pudo conectar con el servidor para cargar tu perfil."
                             }
-                            if (response.isSuccessful && response.body() != null) {
-                                completedLevel = response.body()!!.nivelProgreso
-                            }
-                        } catch (e: Exception) {
-                            android.util.Log.e("MainActivity", "Error fetching user", e)
-                            globalErrorMessage = "No se pudo conectar con el servidor para cargar tu perfil."
                         }
                     }
                 }
@@ -137,7 +141,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "welcome",
+                        startDestination = if (com.diegofg11.pokequiz.utils.SessionManager.currentUserId != -1) "map" else "welcome",
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("welcome") {
@@ -165,7 +169,7 @@ class MainActivity : ComponentActivity() {
                                     scope.launch {
                                         try {
                                             val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                com.diegofg11.pokequiz.api.Network.api.getUser(1)
+                                                com.diegofg11.pokequiz.api.Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId)
                                             }
                                             if (response.isSuccessful && response.body() != null) {
                                                 completedLevel = response.body()!!.nivelProgreso

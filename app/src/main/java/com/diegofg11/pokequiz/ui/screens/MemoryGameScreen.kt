@@ -211,7 +211,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 isProcessing = true
                 hasWon = false
                 try {
-                    Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
+                    Network.api.rewardUser(RewardRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId = 0, coinsEarned = -losePenalty))
                     withContext(Dispatchers.Main) { showResultDialog = true }
                 } catch(e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -258,7 +258,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 isProcessing = true
                 scope.launch {
                     try {
-                        Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
+                        Network.api.rewardUser(RewardRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId = 0, coinsEarned = -losePenalty))
                         withContext(Dispatchers.Main) { onNavigateBack() }
                     } catch(e: Exception) {
                         withContext(Dispatchers.Main) { onNavigateBack() }
@@ -313,7 +313,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     if (cards.all { it.isMatched }) {
                         hasWon = true
                         try {
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = winReward))
+                            Network.api.rewardUser(RewardRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId = 0, coinsEarned = winReward))
                             withContext(Dispatchers.Main) { showResultDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
@@ -337,7 +337,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     if (lives <= 0 && difficulty == MemoryDifficulty.NORMAL) {
                         hasWon = false
                         try {
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = -losePenalty))
+                            Network.api.rewardUser(RewardRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId = 0, coinsEarned = -losePenalty))
                             withContext(Dispatchers.Main) { showResultDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {

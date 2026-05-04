@@ -51,13 +51,13 @@ fun PCScreen() {
 
     LaunchedEffect(Unit) {
         try {
-            val userResp = withContext(Dispatchers.IO) { Network.api.getUser(1) }
-            val pcResp = withContext(Dispatchers.IO) { Network.api.getPc(1) }
+            val userResp = withContext(Dispatchers.IO) { Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) }
+            val pcResp = withContext(Dispatchers.IO) { Network.api.getPc(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) }
 
             if (userResp.isSuccessful) user = userResp.body()
 
             if (pcResp.isSuccessful && pcResp.body() != null) {
-                val baseUrl = "https://pokequizbackend-production.up.railway.app"
+                val baseUrl = com.diegofg11.pokequiz.api.Network.BASE_URL.dropLast(1)
                 val mapped = pcResp.body()!!.map {
                     it.copy(
                         spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,
@@ -266,7 +266,7 @@ fun PCScreen() {
                                         try {
                                             val res = withContext(Dispatchers.IO) {
                                                 Network.api.toggleParty(
-                                                    TogglePartyRequest(1, pokemon.inventoryId ?: 0, toggleTo)
+                                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, toggleTo)
                                                 )
                                             }
                                             if (res.isSuccessful) {

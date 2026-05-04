@@ -55,7 +55,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
     // Cargar monedas al entrar
     LaunchedEffect(Unit) {
         try {
-            val response = withContext(Dispatchers.IO) { Network.api.getUser(1) }
+            val response = withContext(Dispatchers.IO) { Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) }
             if (response.isSuccessful && response.body() != null) {
                 coins = response.body()!!.monedasGacha
             }
@@ -118,12 +118,12 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    Network.api.rollGacha(GachaRequest(userId = 1))
+                    Network.api.rollGacha(GachaRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId))
                 }
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
                     coins = body.user.monedasGacha
-                    val baseUrl = "https://pokequizbackend-production.up.railway.app"
+                    val baseUrl = com.diegofg11.pokequiz.api.Network.BASE_URL.dropLast(1)
                     val fixed = body.pulled.copy(
                         spriteFront = if (body.pulled.spriteFront.startsWith("/")) baseUrl + body.pulled.spriteFront else body.pulled.spriteFront,
                         spriteBack = if (body.pulled.spriteBack.startsWith("/")) baseUrl + body.pulled.spriteBack else body.pulled.spriteBack,

@@ -50,12 +50,12 @@ class PokemonPCActivity : ComponentActivity() {
                 scope.launch {
                     try {
                         val response = withContext(Dispatchers.IO) {
-                            Network.api.getPc(userId = 1) // Hardcoded userId=1
+                            Network.api.getPc(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId) // Using dynamic SessionManager
                         }
                         if (response.isSuccessful && response.body() != null) {
                             val body = response.body()!!
                             pokemonsState.clear()
-                            val baseUrl = "https://pokequizbackend-production.up.railway.app"
+                            val baseUrl = com.diegofg11.pokequiz.api.Network.BASE_URL.dropLast(1)
                             val mappedList = body.map { 
                                 it.copy(
                                     spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,
@@ -200,7 +200,7 @@ fun PokemonGridItem(pokemon: Pokemon, context: android.content.Context, scope: k
                     try {
                         val newInParty = !pokemon.inParty
                         val res = withContext(Dispatchers.IO) {
-                            Network.api.toggleParty(com.diegofg11.pokequiz.models.TogglePartyRequest(1, pokemon.inventoryId ?: 0, newInParty))
+                            Network.api.toggleParty(com.diegofg11.pokequiz.models.TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, newInParty))
                         }
                         if (res.isSuccessful) {
                             withContext(Dispatchers.Main) { onToggle(pokemon.copy(inParty = newInParty)) }

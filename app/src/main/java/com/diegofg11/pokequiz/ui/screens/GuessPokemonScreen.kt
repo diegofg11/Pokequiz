@@ -370,7 +370,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                     isProcessing = true
                     scope.launch {
                         try {
-                            Network.api.rewardUser(RewardRequest(userId = 1, levelId = 0, coinsEarned = sessionCoins))
+                            Network.api.rewardUser(RewardRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId = 0, coinsEarned = sessionCoins))
                             withContext(Dispatchers.Main) { showRewardDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
