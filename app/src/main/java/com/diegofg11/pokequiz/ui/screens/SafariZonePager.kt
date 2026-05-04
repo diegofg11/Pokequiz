@@ -27,15 +27,27 @@ fun SafariZonePager(
     // Estado para saber si mostrar las flechas (solo en selección de modo)
     var showNavigation by remember { mutableStateOf(true) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Contenedor principal con el fondo oficial para evitar bordes blancos
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(androidx.compose.ui.graphics.Brush.verticalGradient(
+                colors = listOf(
+                    com.diegofg11.pokequiz.ui.theme.BackgroundStart,
+                    com.diegofg11.pokequiz.ui.theme.BackgroundMid,
+                    com.diegofg11.pokequiz.ui.theme.BackgroundEnd
+                )
+            ))
+    ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = if (showNavigation) 44.dp else 0.dp), // Margen para las flechas
+            modifier = Modifier.fillMaxSize(),
+            // Usamos contentPadding en lugar de Modifier.padding para no ver el fondo de la app
+            contentPadding = PaddingValues(horizontal = if (showNavigation) 44.dp else 0.dp),
             userScrollEnabled = showNavigation,
             beyondViewportPageCount = 1
         ) { page ->
+            // Envolvemos cada pantalla para asegurar que el fondo se extienda si es necesario
             Box(modifier = Modifier.fillMaxSize()) {
                 when (page) {
                     0 -> GuessPokemonScreen(
