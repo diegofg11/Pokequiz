@@ -19,6 +19,7 @@ import com.diegofg11.pokequiz.ui.theme.BackgroundMid
 import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
 import com.diegofg11.pokequiz.api.Network
+import com.diegofg11.pokequiz.models.RewardRequest
 import kotlinx.coroutines.launch
 
 enum class WordSearchDifficulty {
@@ -51,7 +52,11 @@ fun WordSearchScreen(onNavigateBack: () -> Unit) {
                 val cost = -20
                 scope.launch {
                     try {
-                        val response = Network.api.rewardUser(1, cost) // Assuming userId = 1 for now
+                        val response = Network.api.rewardUser(RewardRequest(
+                            userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId,
+                            levelId = 0,
+                            coinsEarned = cost
+                        ))
                         if (response.isSuccessful) {
                             selectedDifficulty = difficulty
                         } else {
@@ -338,7 +343,11 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
             }
             scope.launch {
                 try {
-                    Network.api.rewardUser(1, reward)
+                    Network.api.rewardUser(RewardRequest(
+                        userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId,
+                        levelId = 0,
+                        coinsEarned = reward
+                    ))
                 } catch (e: Exception) {
                     // Ignore for now
                 }
