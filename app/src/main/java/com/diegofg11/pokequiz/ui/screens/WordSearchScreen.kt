@@ -204,6 +204,7 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
         }
     }
 }
+}
 
 // Lista de los 151 Pokémon de Kanto
 private val POKEMON_LIST = listOf(
