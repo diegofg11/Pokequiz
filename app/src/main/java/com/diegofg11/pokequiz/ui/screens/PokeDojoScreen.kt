@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +32,8 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
+import com.diegofg11.pokequiz.ui.components.HelpSection
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.delay
@@ -154,13 +158,44 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
 
 @Composable
 fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
+    var showHelp by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+            }
+
+            // Botón de Ayuda
+            Surface(
+                onClick = { showHelp = true },
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color.White.copy(alpha = 0.2f),
+                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+            }
+        }
+
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = "INSTRUCCIONES",
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection("OBJETIVO", "Golpea a los Pokémon que salen de los agujeros para ganar puntos antes de que acabe el tiempo.")
+                    HelpSection("PUNTUACIÓN", "• Diglett: +10 pts\n• Dugtrio: +25 pts\n• Pikachu: +50 pts\n• Voltorb: -20 pts (¡Evítalo!)")
+                    HelpSection("MEDALLAS Y PREMIOS", "Al final de la partida, tus puntos determinarán tu rango (Bronce, Plata u Oro). ¡Cada rango tiene una recompensa en monedas (💰) diferente!")
+                    HelpSection("MODO NORMAL", "30 segundos de juego con aparición estándar de Pokémon.")
+                    HelpSection("MODO INFERNAL", "Solo 20 segundos. Los Voltorb aparecen mucho más a menudo y los Pokémon desaparecen muy rápido. ¡Premios dobles!")
+                }
             }
         }
 
@@ -177,11 +212,11 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Golpea a los Pokémon que salgan!\nSelecciona un modo para empezar",
+                "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Dificultad Cards
@@ -204,7 +239,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                         Text("30s | Estándar", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+120 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("Hasta 350 💰", color = GoldPoke, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
                 }
 
@@ -223,7 +258,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                         Text("20s | ¡Caos!", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+400 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("Hasta 750 💰", color = GoldPoke, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
                 }
             }
@@ -231,7 +266,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
             
             Text(
-                "PREMIOS POR RANGO",
+                "RANGOS Y PUNTUACIÓN",
                 color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -246,14 +281,14 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("RANGO", color = Color.LightGray, fontSize = 10.sp)
-                        Text("NORMAL", color = Color.LightGray, fontSize = 10.sp)
-                        Text("INFERNAL", color = Color.LightGray, fontSize = 10.sp)
+                        Text("RANGO", color = Color.LightGray, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                        Text("NORMAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f))
+                        Text("INFERNAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f))
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = Color.White.copy(alpha = 0.1f))
-                    RankRow("Bronce", "50", "100")
-                    RankRow("Plata", "150", "300")
-                    RankRow("Oro", "250", "500")
+                    RankRow("Bronce", "100", "60", "200", "120")
+                    RankRow("Plata", "300", "180", "600", "350")
+                    RankRow("Oro", "500", "350", "1000", "750")
                 }
             }
         }
@@ -261,11 +296,26 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
 }
 
 @Composable
-fun RankRow(rank: String, normal: String, infernal: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(rank, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        Text("$normal pts", color = Color.LightGray, fontSize = 12.sp)
-        Text("$infernal pts", color = Color(0xFFE53935), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+fun RankRow(rank: String, ptsN: String, coinsN: String, ptsI: String, coinsI: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(rank, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        
+        Text(
+            text = "$ptsN ($coinsN 💰)", 
+            color = Color.LightGray, 
+            fontSize = 10.sp,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1.5f)
+        )
+        
+        Text(
+            text = "$ptsI ($coinsI 💰)", 
+            color = Color(0xFFE53935), 
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1.5f)
+        )
     }
 }
 
@@ -430,35 +480,18 @@ fun DojoHole(state: HoleState, onClick: () -> Unit) {
 
 @Composable
 fun PokeDojoResult(score: Int, difficulty: DojoDifficulty, onRetry: () -> Unit, onExit: () -> Unit) {
-    val rank = if (difficulty == DojoDifficulty.INFERNAL) {
-        when {
-            score >= 500 -> "ORO"
-            score >= 300 -> "PLATA"
-            score >= 100 -> "BRONCE"
-            else -> "NINGUNO"
+    val (rank, reward) = when (difficulty) {
+        DojoDifficulty.INFERNAL -> when {
+            score >= 1000 -> "ORO" to 750
+            score >= 600 -> "PLATA" to 350
+            score >= 200 -> "BRONCE" to 120
+            else -> "NINGUNO" to 0
         }
-    } else {
-        when {
-            score >= 250 -> "ORO"
-            score >= 150 -> "PLATA"
-            score >= 50 -> "BRONCE"
-            else -> "NINGUNO"
-        }
-    }
-    
-    val reward = if (difficulty == DojoDifficulty.INFERNAL) {
-        when (rank) {
-            "ORO" -> 400
-            "PLATA" -> 200
-            "BRONCE" -> 100
-            else -> 0
-        }
-    } else {
-        when (rank) {
-            "ORO" -> 120
-            "PLATA" -> 80
-            "BRONCE" -> 40
-            else -> 0
+        DojoDifficulty.NORMAL -> when {
+            score >= 500 -> "ORO" to 350
+            score >= 300 -> "PLATA" to 180
+            score >= 100 -> "BRONCE" to 60
+            else -> "NINGUNO" to 0
         }
     }
 

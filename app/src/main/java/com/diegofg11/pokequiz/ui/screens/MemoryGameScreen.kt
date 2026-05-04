@@ -2,14 +2,17 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
@@ -29,6 +32,8 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
+import com.diegofg11.pokequiz.ui.components.HelpSection
 import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -75,14 +80,42 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                 )
             )
     ) {
+        var showHelp by remember { mutableStateOf(false) }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+
+            // Botón de Ayuda
+            Surface(
+                onClick = { showHelp = true },
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color.White.copy(alpha = 0.2f),
+                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+            }
+        }
+
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = "INSTRUCCIONES",
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection("MODO NORMAL", "Encuentra todas las parejas de Pokémon antes de que se agoten tus 5 vidas.")
+                    HelpSection("MODO INFERNAL", "¡Sin vidas! Debes encontrar todas las parejas en menos de 20 segundos. Además, las cartas pueden cambiar de sitio.")
+                }
             }
         }
 
@@ -104,7 +137,8 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                 text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Modo Selección de Tarjetas
@@ -127,7 +161,7 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                         Text("5 Vidas | Relajado", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+80 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+80 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -146,7 +180,7 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                         Text("Caótico | 20s", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+200 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+200 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
             }

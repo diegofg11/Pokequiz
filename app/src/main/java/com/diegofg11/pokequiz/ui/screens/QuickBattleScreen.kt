@@ -1,6 +1,7 @@
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +26,8 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
+import com.diegofg11.pokequiz.ui.components.HelpSection
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.delay
@@ -168,13 +171,41 @@ fun QuickBattleScreen(onNavigateBack: () -> Unit) {
 
 @Composable
 fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
+    var showHelp by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+            }
+
+            // Botón de Ayuda
+            Surface(
+                onClick = { showHelp = true },
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color.White.copy(alpha = 0.2f),
+                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+            }
+        }
+
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = "INSTRUCCIONES",
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection("MODO CLÁSICO", "Vence a 3 rivales seguidos. Debes elegir el tipo de movimiento que sea SUPEREFICAZ (debilidad) contra el rival.")
+                    HelpSection("MODO INVERSO", "¡El mundo al revés! Debes elegir el tipo de movimiento al que el rival sea RESISTENTE (o inmune). ¡Piensa al revés!")
+                }
             }
         }
 
@@ -191,11 +222,11 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Vence a 3 Pokémon seguidos!\nSelecciona un modo para empezar",
+                "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Selector de Modo
@@ -218,7 +249,7 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                         Text("Usa debilidades", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-30 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+100 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+100 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -237,18 +268,12 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                         Text("Usa resistencias", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+200 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+200 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(48.dp))
-
-            Text(
-                "Selecciona un modo para empezar.",
-                color = Color.White.copy(alpha = 0.5f),
-                fontSize = 12.sp
-            )
         }
     }
 }

@@ -2,12 +2,15 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -31,6 +34,8 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
+import com.diegofg11.pokequiz.ui.components.HelpSection
 import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -114,15 +119,44 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                 )
             )
     ) {
+        var showHelp by remember { mutableStateOf(false) }
+
         // Top bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+
+            // Botón de Ayuda
+            Surface(
+                onClick = { showHelp = true },
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color.White.copy(alpha = 0.2f),
+                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+            }
+        }
+
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = "INSTRUCCIONES",
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection("MODO FÁCIL", "Adivina el Pokémon por su silueta. No hay límite de tiempo para responder.")
+                    HelpSection("MODO DIFÍCIL", "El Pokémon aparecerá rotado aleatoriamente y solo tendrás 5 segundos.")
+                    HelpSection("MODO INFERNAL", "¡El caos! Siluetas distorsionadas, solo 4 segundos y efectos visuales que dificultan la visión.")
+                }
             }
         }
 
@@ -134,17 +168,19 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "ELIGE DIFICULTAD",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
+                text = "¿QUIÉN ES ESE POKÉMON?",
                 color = Color.White,
+                fontSize = 24.sp,
+                lineHeight = 30.sp,
+                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
             )
 
             // Grid de Selección de Dificultad
@@ -170,7 +206,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                             Text("Sin límites", color = Color.LightGray, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text("-30 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+15 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            Text("+15 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -191,7 +227,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                             Text("5s | Rotado", color = Color.LightGray, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text("-40 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+20 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            Text("+20 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -213,7 +249,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                 Text("-80 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                                Text("+40 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                                Text("+40 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
