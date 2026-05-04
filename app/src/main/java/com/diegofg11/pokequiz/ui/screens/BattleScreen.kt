@@ -65,7 +65,7 @@ fun BattleScreen(
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) { Network.api.getLevelData(levelId.toString()) }
-                val pcResponse = withContext(Dispatchers.IO) { Network.api.getPc(1) }
+                val pcResponse = withContext(Dispatchers.IO) { Network.api.getPc(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) }
 
                 if (response.isSuccessful && response.body() != null) {
                     levelData = response.body()
@@ -112,7 +112,7 @@ fun BattleScreen(
                 {
                     scope.launch {
                         try { 
-                            Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(1, levelId, 100)) 
+                            Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId, 100)) 
                             withContext(Dispatchers.Main) { 
                                 showGameOver = false
                                 onBattleWin() 
