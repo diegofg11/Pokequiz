@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +38,10 @@ import kotlin.random.Random
 
 // --- Modelos y Enums ---
 
+enum class DojoDifficulty {
+    NORMAL, INFERNAL
+}
+
 enum class MoleType(val score: Int, val imageUrl: String, val duration: Long) {
     EMPTY(0, "", 0L),
     DIGLETT(10, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/50.png", 1200L),
@@ -56,6 +61,7 @@ data class HoleState(
 @Composable
 fun PokeDojoScreen(onNavigateBack: () -> Unit) {
     var gameState by remember { mutableStateOf("START") } // START, PLAYING, RESULT
+    var difficulty by remember { mutableStateOf(DojoDifficulty.NORMAL) }
     var score by remember { mutableIntStateOf(0) }
     var globalError by remember { mutableStateOf<String?>(null) }
     
@@ -69,8 +75,9 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
         when (gameState) {
             "START" -> PokeDojoStart(
                 onBack = onNavigateBack,
-                onStart = {
-                    val cost = -20
+                onStart = { selectedDifficulty ->
+                    difficulty = selectedDifficulty
+                    val cost = if (difficulty == DojoDifficulty.INFERNAL) -50 else -20
                     scope.launch {
                         try {
                             val response = Network.api.rewardUser(RewardRequest(
@@ -82,7 +89,7 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
                                 score = 0
                                 gameState = "PLAYING"
                             } else {
-                                globalError = "No tienes suficientes monedas (-20)."
+                                globalError = "No tienes suficientes monedas ($cost)."
                             }
                         } catch (e: Exception) {
                             globalError = "Error de conexión: ${e.localizedMessage}"
@@ -91,16 +98,26 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
                 }
             )
             "PLAYING" -> PokeDojoGame(
+                difficulty = difficulty,
                 onGameEnd = { finalScore ->
                     score = finalScore
                     gameState = "RESULT"
                     
                     // Calcular premio por rangos
-                    val reward = when {
-                        finalScore >= 250 -> 120
-                        finalScore >= 150 -> 80
-                        finalScore >= 50 -> 40
-                        else -> 0
+                    val reward = if (difficulty == DojoDifficulty.INFERNAL) {
+                        when {
+                            finalScore >= 500 -> 400
+                            finalScore >= 300 -> 200
+                            finalScore >= 100 -> 100
+                            else -> 0
+                        }
+                    } else {
+                        when {
+                            finalScore >= 250 -> 120
+                            finalScore >= 150 -> 80
+                            finalScore >= 50 -> 40
+                            else -> 0
+                        }
                     }
                     
                     if (reward > 0) {
@@ -118,6 +135,7 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
             )
             "RESULT" -> PokeDojoResult(
                 score = score,
+                difficulty = difficulty,
                 onRetry = { gameState = "START" },
                 onExit = onNavigateBack
             )
@@ -135,7 +153,7 @@ fun PokeDojoScreen(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun PokeDojoStart(onBack: () -> Unit, onStart: () -> Unit) {
+fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -147,7 +165,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: () -> Unit) {
         }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -159,86 +177,109 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: () -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Golpea a los Pokémon que salgan de los agujeros!",
+                "¡Selecciona tu desafío!",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
             )
 
-            // Reward Cards
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+            // Dificultad Cards
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item {
-                    DojoRankCard("BRONCE", "50 pts", "+40 💰", Color(0xFFCD7F32))
+                // Normal Mode Card
+                Card(
+                    modifier = Modifier.weight(1f).clickable { onStart(DojoDifficulty.NORMAL) },
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF795548).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(20.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF795548))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("NORMAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("30s | Estándar", color = Color.LightGray, fontSize = 10.sp)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("+120 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                    }
                 }
-                item {
-                    DojoRankCard("PLATA", "150 pts", "+80 💰", Color(0xFFC0C0C0))
-                }
-                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
-                    DojoRankCard("ORO", "250 pts", "+120 💰", GoldPoke)
+
+                // Infernal Mode Card
+                Card(
+                    modifier = Modifier.weight(1f).clickable { onStart(DojoDifficulty.INFERNAL) },
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF212121).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(20.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFE53935))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("INFERNAL", color = Color(0xFFE53935), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("20s | ¡Caos!", color = Color.LightGray, fontSize = 10.sp)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("+400 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
             
             Text(
-                "¡CUIDADO CON LOS VOLTORB! (-20 pts)",
-                color = Color(0xFFEF5350),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
+                "PREMIOS POR RANGO",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = onStart,
-                modifier = Modifier.fillMaxWidth().height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF795548)),
-                shape = RoundedCornerShape(16.dp),
-                border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+            // Reward Table (Mini)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.White.copy(alpha = 0.05f),
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Text("EMPEZAR (-20 💰)", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("RANGO", color = Color.LightGray, fontSize = 10.sp)
+                        Text("NORMAL", color = Color.LightGray, fontSize = 10.sp)
+                        Text("INFERNAL", color = Color.LightGray, fontSize = 10.sp)
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = Color.White.copy(alpha = 0.1f))
+                    RankRow("Bronce", "50", "100")
+                    RankRow("Plata", "150", "300")
+                    RankRow("Oro", "250", "500")
+                }
             }
         }
     }
 }
 
 @Composable
-fun DojoRankCard(rank: String, pts: String, reward: String, color: Color) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),
-        shape = RoundedCornerShape(16.dp),
-        border = androidx.compose.foundation.BorderStroke(2.dp, color)
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(rank, color = color, fontWeight = FontWeight.Black, fontSize = 14.sp)
-            Text(pts, color = Color.White, fontSize = 12.sp)
-            Text(reward, color = GoldPoke, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-        }
+fun RankRow(rank: String, normal: String, infernal: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(rank, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        Text("$normal pts", color = Color.LightGray, fontSize = 12.sp)
+        Text("$infernal pts", color = Color(0xFFE53935), fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
-fun PokeDojoGame(onGameEnd: (Int) -> Unit) {
+fun PokeDojoGame(difficulty: DojoDifficulty, onGameEnd: (Int) -> Unit) {
     var score by remember { mutableIntStateOf(0) }
-    var timeLeft by remember { mutableIntStateOf(30) }
+    var timeLeft by remember { mutableIntStateOf(if (difficulty == DojoDifficulty.INFERNAL) 20 else 30) }
     
-    // Estado de los 9 agujeros
     val holes = remember { mutableStateListOf<HoleState>().apply { 
         repeat(9) { add(HoleState(it)) }
     } }
 
     val scope = rememberCoroutineScope()
 
-    // Timer de juego
     LaunchedEffect(Unit) {
         while (timeLeft > 0) {
             delay(1000)
@@ -247,38 +288,41 @@ fun PokeDojoGame(onGameEnd: (Int) -> Unit) {
         onGameEnd(score)
     }
 
-    // Lógica de aparición aleatoria
     LaunchedEffect(Unit) {
         while (timeLeft > 0) {
-            // Decidir cuántos aparecen a la vez (1 a 3)
-            val count = Random.nextInt(1, 4)
+            val count = if (difficulty == DojoDifficulty.INFERNAL) Random.nextInt(2, 5) else Random.nextInt(1, 4)
             repeat(count) {
                 val emptyHoles = holes.indices.filter { holes[it].type == MoleType.EMPTY }
                 if (emptyHoles.isNotEmpty()) {
                     val index = emptyHoles.random()
                     
-                    // Decidir tipo
+                    val voltorbChance = if (difficulty == DojoDifficulty.INFERNAL) 0.35f else 0.15f
+                    val pikachuChance = voltorbChance + 0.10f
+                    val dugtrioChance = pikachuChance + 0.15f
+                    
                     val rand = Random.nextFloat()
                     val type = when {
-                        rand < 0.15f -> MoleType.VOLTORB
-                        rand < 0.25f -> MoleType.PIKACHU
-                        rand < 0.40f -> MoleType.DUGTRIO
+                        rand < voltorbChance -> MoleType.VOLTORB
+                        rand < pikachuChance -> MoleType.PIKACHU
+                        rand < dugtrioChance -> MoleType.DUGTRIO
                         else -> MoleType.DIGLETT
                     }
                     
+                    // En infernal desaparecen mucho más rápido
+                    val duration = if (difficulty == DojoDifficulty.INFERNAL) (type.duration * 0.6).toLong() else type.duration
+                    
                     holes[index] = holes[index].copy(type = type, isHit = false)
                     
-                    // Desaparecer después de un tiempo
                     scope.launch {
-                        delay(type.duration)
+                        delay(duration)
                         if (holes[index].type == type) {
                             holes[index] = holes[index].copy(type = MoleType.EMPTY)
                         }
                     }
                 }
             }
-            // Esperar antes de la siguiente oleada
-            delay(Random.nextLong(600, 1200))
+            val spawnDelay = if (difficulty == DojoDifficulty.INFERNAL) Random.nextLong(400, 800) else Random.nextLong(600, 1200)
+            delay(spawnDelay)
         }
     }
 
@@ -286,7 +330,6 @@ fun PokeDojoGame(onGameEnd: (Int) -> Unit) {
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // HUD
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -299,13 +342,16 @@ fun PokeDojoGame(onGameEnd: (Int) -> Unit) {
             
             Column(horizontalAlignment = Alignment.End) {
                 Text("TIEMPO", color = Color.LightGray, fontSize = 12.sp)
-                Text("$timeLeft s", color = if (timeLeft < 10) Color.Red else Color.White, fontSize = 32.sp, fontWeight = FontWeight.Black)
+                Text("$timeLeft s", color = if (timeLeft < 5) Color.Red else Color.White, fontSize = 32.sp, fontWeight = FontWeight.Black)
             }
+        }
+
+        if (difficulty == DojoDifficulty.INFERNAL) {
+            Text("¡MODO INFERNAL!", color = Color(0xFFE53935), fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Grid de Agujeros
         Box(
             modifier = Modifier
                 .aspectRatio(1f)
@@ -326,7 +372,6 @@ fun PokeDojoGame(onGameEnd: (Int) -> Unit) {
                             if (holes[index].type != MoleType.EMPTY && !holes[index].isHit) {
                                 score += holes[index].type.score
                                 holes[index] = holes[index].copy(isHit = true)
-                                // Desaparecer al ser golpeado
                                 scope.launch {
                                     delay(200)
                                     holes[index] = holes[index].copy(type = MoleType.EMPTY)
@@ -348,7 +393,7 @@ fun DojoHole(state: HoleState, onClick: () -> Unit) {
         modifier = Modifier
             .aspectRatio(1f)
             .clip(CircleShape)
-            .background(Color(0xFF3E2723)) // Marrón oscuro del agujero
+            .background(Color(0xFF3E2723))
             .border(4.dp, Color(0xFF5D4037), CircleShape)
             .clickable { onClick() },
         contentAlignment = Alignment.BottomCenter
@@ -384,19 +429,37 @@ fun DojoHole(state: HoleState, onClick: () -> Unit) {
 }
 
 @Composable
-fun PokeDojoResult(score: Int, onRetry: () -> Unit, onExit: () -> Unit) {
-    val rank = when {
-        score >= 250 -> "ORO"
-        score >= 150 -> "PLATA"
-        score >= 50 -> "BRONCE"
-        else -> "NINGUNO"
+fun PokeDojoResult(score: Int, difficulty: DojoDifficulty, onRetry: () -> Unit, onExit: () -> Unit) {
+    val rank = if (difficulty == DojoDifficulty.INFERNAL) {
+        when {
+            score >= 500 -> "ORO"
+            score >= 300 -> "PLATA"
+            score >= 100 -> "BRONCE"
+            else -> "NINGUNO"
+        }
+    } else {
+        when {
+            score >= 250 -> "ORO"
+            score >= 150 -> "PLATA"
+            score >= 50 -> "BRONCE"
+            else -> "NINGUNO"
+        }
     }
     
-    val reward = when (rank) {
-        "ORO" -> 120
-        "PLATA" -> 80
-        "BRONCE" -> 40
-        else -> 0
+    val reward = if (difficulty == DojoDifficulty.INFERNAL) {
+        when (rank) {
+            "ORO" -> 400
+            "PLATA" -> 200
+            "BRONCE" -> 100
+            else -> 0
+        }
+    } else {
+        when (rank) {
+            "ORO" -> 120
+            "PLATA" -> 80
+            "BRONCE" -> 40
+            else -> 0
+        }
     }
 
     Column(
@@ -405,7 +468,7 @@ fun PokeDojoResult(score: Int, onRetry: () -> Unit, onExit: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("¡FIN DE LA SESIÓN!", color = Color.LightGray, fontSize = 16.sp)
-        Text("$score PTS", color = Color.White, fontSize = 56.sp, fontWeight = FontWeight.Black)
+        Text("$score PTS", color = if (difficulty == DojoDifficulty.INFERNAL) Color(0xFFE53935) else Color.White, fontSize = 56.sp, fontWeight = FontWeight.Black)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -419,7 +482,7 @@ fun PokeDojoResult(score: Int, onRetry: () -> Unit, onExit: () -> Unit) {
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("RANGO ALCANZADO:", color = Color.LightGray, fontSize = 12.sp)
+                Text("RANGO ALCANZADO (${difficulty.name}):", color = Color.LightGray, fontSize = 10.sp)
                 Text(rank, color = when(rank) {
                     "ORO" -> GoldPoke
                     "PLATA" -> Color(0xFFC0C0C0)
