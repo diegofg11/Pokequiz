@@ -53,16 +53,14 @@ fun MinigamesScreen(navController: NavController? = null) {
     )
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd)
+                )
+            )
     ) {
-        // Full Screen Background Image
-        Image(
-            painter = painterResource(id = R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
