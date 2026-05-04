@@ -138,8 +138,13 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 48.dp)
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Selecciona un modo para empezar",
+                color = Color.LightGray,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
             )
 
             // Grid de Selección de Dificultad

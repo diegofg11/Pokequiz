@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.ui.theme.BackgroundStart
@@ -135,9 +136,10 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "Encuentra todos los Pokémon ocultos.",
+                text = "Encuentra todos los Pokémon ocultos.\nSelecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 

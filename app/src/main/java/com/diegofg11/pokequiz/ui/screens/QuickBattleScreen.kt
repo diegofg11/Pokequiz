@@ -191,7 +191,7 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Vence a 3 Pokémon seguidos!",
+                "¡Vence a 3 Pokémon seguidos!\nSelecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,

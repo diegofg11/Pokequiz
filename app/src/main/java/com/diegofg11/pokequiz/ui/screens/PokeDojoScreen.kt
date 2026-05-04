@@ -177,7 +177,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(
-                "¡Selecciona tu desafío!",
+                "¡Golpea a los Pokémon que salgan!\nSelecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
