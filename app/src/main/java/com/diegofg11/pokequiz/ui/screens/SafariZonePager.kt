@@ -30,38 +30,43 @@ fun SafariZonePager(
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            userScrollEnabled = showNavigation // Solo deslizar si estamos en selección
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = if (showNavigation) 44.dp else 0.dp), // Margen para las flechas
+            userScrollEnabled = showNavigation,
+            beyondViewportPageCount = 1
         ) { page ->
-            when (page) {
-                0 -> GuessPokemonScreen(
-                    onNavigateBack = onNavigateBack,
-                    onStateChange = { showNavigation = it }
-                )
-                1 -> MemoryGameScreen(
-                    onNavigateBack = onNavigateBack,
-                    onStateChange = { showNavigation = it }
-                )
-                2 -> WordSearchScreen(
-                    onNavigateBack = onNavigateBack,
-                    onStateChange = { showNavigation = it }
-                )
-                3 -> QuickBattleScreen(
-                    onNavigateBack = onNavigateBack,
-                    onStateChange = { showNavigation = it }
-                )
-                4 -> PokeDojoScreen(
-                    onNavigateBack = onNavigateBack,
-                    onStateChange = { showNavigation = it }
-                )
+            Box(modifier = Modifier.fillMaxSize()) {
+                when (page) {
+                    0 -> GuessPokemonScreen(
+                        onNavigateBack = onNavigateBack,
+                        onStateChange = { showNavigation = it }
+                    )
+                    1 -> MemoryGameScreen(
+                        onNavigateBack = onNavigateBack,
+                        onStateChange = { showNavigation = it }
+                    )
+                    2 -> WordSearchScreen(
+                        onNavigateBack = onNavigateBack,
+                        onStateChange = { showNavigation = it }
+                    )
+                    3 -> QuickBattleScreen(
+                        onNavigateBack = onNavigateBack,
+                        onStateChange = { showNavigation = it }
+                    )
+                    4 -> PokeDojoScreen(
+                        onNavigateBack = onNavigateBack,
+                        onStateChange = { showNavigation = it }
+                    )
+                }
             }
         }
 
         // Flechas de navegación (Capa superior)
         AnimatedVisibility(
             visible = showNavigation,
-            enter = fadeIn() + expandHorizontally(),
-            exit = fadeOut() + shrinkHorizontally()
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Flecha Izquierda
@@ -70,7 +75,7 @@ fun SafariZonePager(
                         icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .padding(start = 8.dp),
+                            .padding(start = 4.dp),
                         onClick = {
                             scope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
@@ -85,7 +90,7 @@ fun SafariZonePager(
                         icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp),
+                            .padding(end = 4.dp),
                         onClick = {
                             scope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
@@ -100,7 +105,7 @@ fun SafariZonePager(
                         .height(50.dp)
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 24.dp),
+                        .padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     repeat(5) { iteration ->
@@ -126,16 +131,16 @@ fun NavigationArrow(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.size(48.dp),
+        modifier = modifier.size(40.dp), // Reducido de 48dp a 40dp
         shape = CircleShape,
-        color = Color.Black.copy(alpha = 0.2f),
+        color = Color.Black.copy(alpha = 0.15f), // Más sutil
         contentColor = Color.White
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
     }
