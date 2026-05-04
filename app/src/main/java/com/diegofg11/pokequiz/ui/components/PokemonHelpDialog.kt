@@ -39,7 +39,7 @@ fun PokemonHelpDialog(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 32.dp),
+                    .padding(top = 24.dp, start = 8.dp),
                 shape = RoundedCornerShape(24.dp),
                 color = Color(0xFFE6F2FF),
                 border = BorderStroke(4.dp, Color(0xFF1976D2)),
@@ -48,7 +48,7 @@ fun PokemonHelpDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 40.dp, bottom = 20.dp, start = 20.dp, end = 20.dp),
+                        .padding(top = 32.dp, bottom = 20.dp, start = 20.dp, end = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -90,21 +90,21 @@ fun PokemonHelpDialog(
                     }
                 }
             }
-            
+            // Círculo del icono superior izquierdo
             Surface(
                 modifier = Modifier
-                    .size(64.dp)
-                    .align(Alignment.TopCenter)
-                    .border(4.dp, Color(0xFF1976D2), CircleShape),
+                    .size(48.dp)
+                    .align(Alignment.TopStart)
+                    .border(3.dp, Color(0xFF1976D2), CircleShape),
                 shape = CircleShape,
                 color = Color(0xFF1976D2),
-                shadowElevation = 8.dp
+                shadowElevation = 10.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Ayuda",
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = Color.White
                     )
                 }

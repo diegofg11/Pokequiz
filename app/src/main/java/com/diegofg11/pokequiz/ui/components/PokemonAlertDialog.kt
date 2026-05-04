@@ -41,7 +41,7 @@ fun PokemonAlertDialog(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 32.dp),
+                    .padding(top = 24.dp, start = 8.dp),
                 shape = RoundedCornerShape(24.dp),
                 color = if (isError) Color(0xFFFBE6E6) else Color(0xFFE6F2FF),
                 border = BorderStroke(4.dp, if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)),
@@ -50,7 +50,7 @@ fun PokemonAlertDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 40.dp, bottom = 20.dp, start = 20.dp, end = 20.dp),
+                        .padding(top = 32.dp, bottom = 20.dp, start = 20.dp, end = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -135,24 +135,25 @@ fun PokemonAlertDialog(
                 }
             }
             
+            // Icono en la esquina superior izquierda
             Surface(
                 modifier = Modifier
-                    .size(64.dp)
-                    .align(Alignment.TopCenter)
+                    .size(48.dp)
+                    .align(Alignment.TopStart)
                     .border(
-                        4.dp,
+                        3.dp,
                         if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
                         CircleShape
                     ),
                 shape = CircleShape,
                 color = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
-                shadowElevation = 8.dp
+                shadowElevation = 10.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = if (isError) Icons.Default.Warning else Icons.Default.Info,
                         contentDescription = "Icon",
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = Color.White
                     )
                 }
