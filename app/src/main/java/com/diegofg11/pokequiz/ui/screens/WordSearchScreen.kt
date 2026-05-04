@@ -46,22 +46,23 @@ enum class WordSearchDifficulty {
 }
 
 @Composable
-fun WordSearchScreen(onNavigateBack: () -> Unit) {
+fun WordSearchScreen(
+    onNavigateBack: () -> Unit,
+    onStateChange: (Boolean) -> Unit = {}
+) {
     var selectedDifficulty by remember { mutableStateOf<WordSearchDifficulty?>(null) }
     var globalError by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(selectedDifficulty) {
+        onStateChange(selectedDifficulty == null)
+    }
+
     if (globalError != null) {
-        // Simple error dialog
-        AlertDialog(
-            onDismissRequest = { globalError = null },
-            title = { Text("Error") },
-            text = { Text(globalError ?: "") },
-            confirmButton = {
-                TextButton(onClick = { globalError = null }) {
-                    Text("OK")
-                }
-            }
+        PokemonAlertDialog(
+            title = "Error",
+            message = globalError ?: "",
+            onDismiss = { globalError = null }
         )
     }
 

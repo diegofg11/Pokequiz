@@ -63,13 +63,20 @@ data class HoleState(
 // --- Pantalla Principal ---
 
 @Composable
-fun PokeDojoScreen(onNavigateBack: () -> Unit) {
+fun PokeDojoScreen(
+    onNavigateBack: () -> Unit,
+    onStateChange: (Boolean) -> Unit = {}
+) {
     var gameState by remember { mutableStateOf("START") } // START, PLAYING, RESULT
     var difficulty by remember { mutableStateOf(DojoDifficulty.NORMAL) }
     var score by remember { mutableIntStateOf(0) }
     var globalError by remember { mutableStateOf<String?>(null) }
     
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(gameState) {
+        onStateChange(gameState == "START")
+    }
 
     Box(
         modifier = Modifier

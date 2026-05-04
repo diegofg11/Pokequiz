@@ -102,11 +102,11 @@ fun MinigamesScreen(navController: NavController? = null) {
                 items(dummyGames) { game ->
                     MinigameCard(game) {
                         when (game.id) {
-                            "1" -> navController?.navigate("guess_pokemon")
-                            "2" -> navController?.navigate("memory_game")
-                            "3" -> navController?.navigate("word_search")
-                            "4" -> navController?.navigate("quick_battle")
-                            "5" -> navController?.navigate("poke_dojo")
+                            "1" -> navController?.navigate("safari_zone/0")
+                            "2" -> navController?.navigate("safari_zone/1")
+                            "3" -> navController?.navigate("safari_zone/2")
+                            "4" -> navController?.navigate("safari_zone/3")
+                            "5" -> navController?.navigate("safari_zone/4")
                         }
                     }
                 }

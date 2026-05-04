@@ -218,13 +218,10 @@ class MainActivity : ComponentActivity() {
                         composable("games") {
                             MinigamesScreen(navController = navController)
                         }
-                        composable("guess_pokemon") {
-                            com.diegofg11.pokequiz.ui.screens.GuessPokemonScreen(
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
-                        composable("memory_game") {
-                            com.diegofg11.pokequiz.ui.screens.MemoryGameScreen(
+                        composable("safari_zone/{gameIndex}") { backStackEntry ->
+                            val gameIndex = backStackEntry.arguments?.getString("gameIndex")?.toIntOrNull() ?: 0
+                            com.diegofg11.pokequiz.ui.screens.SafariZonePager(
+                                initialPage = gameIndex,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
@@ -235,21 +232,6 @@ class MainActivity : ComponentActivity() {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 }
-                            )
-                        }
-                        composable("word_search") {
-                            com.diegofg11.pokequiz.ui.screens.WordSearchScreen(
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
-                        composable("quick_battle") {
-                            com.diegofg11.pokequiz.ui.screens.QuickBattleScreen(
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
-                        composable("poke_dojo") {
-                            com.diegofg11.pokequiz.ui.screens.PokeDojoScreen(
-                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
                     }

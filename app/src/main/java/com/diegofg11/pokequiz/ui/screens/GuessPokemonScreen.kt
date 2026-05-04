@@ -81,9 +81,17 @@ enum class Difficulty {
 }
 
 @Composable
-fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
+fun GuessPokemonScreen(
+    onNavigateBack: () -> Unit,
+    onStateChange: (Boolean) -> Unit = {}
+) {
     var difficulty by remember { mutableStateOf<Difficulty?>(null) }
     var globalError by remember { mutableStateOf<String?>(null) }
+
+    // Notificar al contenedor si estamos en modo selección o jugando
+    LaunchedEffect(difficulty) {
+        onStateChange(difficulty == null)
+    }
 
     if (globalError != null) {
         PokemonAlertDialog(
@@ -102,7 +110,7 @@ fun GuessPokemonScreen(onNavigateBack: () -> Unit) {
     } else {
         GuessPokemonGame(
             difficulty = difficulty!!,
-            onNavigateBack = onNavigateBack,
+            onNavigateBack = { difficulty = null },
             onError = { globalError = it }
         )
     }

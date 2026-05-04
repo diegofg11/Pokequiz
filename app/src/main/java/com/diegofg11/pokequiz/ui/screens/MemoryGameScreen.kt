@@ -53,8 +53,15 @@ enum class MemoryDifficulty {
 }
 
 @Composable
-fun MemoryGameScreen(onNavigateBack: () -> Unit) {
+fun MemoryGameScreen(
+    onNavigateBack: () -> Unit,
+    onStateChange: (Boolean) -> Unit = {}
+) {
     var difficulty by remember { mutableStateOf<MemoryDifficulty?>(null) }
+
+    LaunchedEffect(difficulty) {
+        onStateChange(difficulty == null)
+    }
     
     if (difficulty == null) {
         MemoryDifficultySelectionScreen(
@@ -64,7 +71,7 @@ fun MemoryGameScreen(onNavigateBack: () -> Unit) {
     } else {
         MemoryGameBoard(
             difficulty = difficulty!!,
-            onNavigateBack = onNavigateBack
+            onNavigateBack = { difficulty = null }
         )
     }
 }

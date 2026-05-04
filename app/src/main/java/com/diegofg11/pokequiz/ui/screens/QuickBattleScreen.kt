@@ -84,7 +84,10 @@ val OPPONENTS_POOL = listOf(
 // --- Pantallas ---
 
 @Composable
-fun QuickBattleScreen(onNavigateBack: () -> Unit) {
+fun QuickBattleScreen(
+    onNavigateBack: () -> Unit,
+    onStateChange: (Boolean) -> Unit = {}
+) {
     var gameState by remember { mutableStateOf("START") } // START, PLAYING, RESULT
     var hasWon by remember { mutableStateOf(false) }
     var currentRound by remember { mutableIntStateOf(0) }
@@ -92,6 +95,10 @@ fun QuickBattleScreen(onNavigateBack: () -> Unit) {
     var globalError by remember { mutableStateOf<String?>(null) }
     
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(gameState) {
+        onStateChange(gameState == "START")
+    }
 
     Box(
         modifier = Modifier
@@ -162,8 +169,7 @@ fun QuickBattleScreen(onNavigateBack: () -> Unit) {
             PokemonAlertDialog(
                 title = "Error",
                 message = globalError ?: "",
-                onDismiss = { globalError = null },
-                onConfirm = { globalError = null }
+                onDismiss = { globalError = null }
             )
         }
     }
