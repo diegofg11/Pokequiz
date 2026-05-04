@@ -133,14 +133,14 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                textAlign = TextAlign.Center
             )
             Text(
                 text = "Encuentra todos los Pokémon ocultos.\nSelecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
             )
 
             // Grid de Selección de Dificultad
@@ -166,7 +166,7 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                             Text("60s | Estándar", color = Color.LightGray, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+30 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            Text("+30 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -187,7 +187,7 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                             Text("45s | Diagonal", color = Color.LightGray, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+60 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            Text("+60 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -209,7 +209,7 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                 Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                                Text("+120 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                                Text("+120 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

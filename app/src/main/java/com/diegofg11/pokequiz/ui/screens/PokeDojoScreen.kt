@@ -181,7 +181,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                 color = Color.LightGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
             )
 
             // Dificultad Cards
@@ -204,7 +204,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                         Text("30s | Estándar", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+120 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+120 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -223,7 +223,7 @@ fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
                         Text("20s | ¡Caos!", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+400 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+400 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
             }

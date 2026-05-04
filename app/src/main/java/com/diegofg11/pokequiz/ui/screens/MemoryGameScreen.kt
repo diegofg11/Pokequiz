@@ -101,9 +101,10 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Selecciona un modo para empezar",
+                text = "Encuentra todas las parejas.\nSelecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
             )
 
@@ -127,7 +128,7 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                         Text("5 Vidas | Relajado", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+80 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+80 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -146,7 +147,7 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                         Text("Caótico | 20s", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+200 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+200 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
             }

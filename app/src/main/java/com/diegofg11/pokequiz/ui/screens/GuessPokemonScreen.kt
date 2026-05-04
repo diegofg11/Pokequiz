@@ -134,16 +134,17 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "ELIGE DIFICULTAD",
+                text = "¿QUIÉN ES ESE POKÉMON?",
+                color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Selecciona un modo para empezar",
+                text = "Adivina la silueta correctamente.\nSelecciona un modo para empezar",
                 color = Color.LightGray,
                 fontSize = 14.sp,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, bottom = 48.dp)
             )
 
@@ -170,7 +171,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                             Text("Sin límites", color = Color.LightGray, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text("-30 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+15 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            Text("+15 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -191,7 +192,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                             Text("5s | Rotado", color = Color.LightGray, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Text("-40 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+20 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            Text("+20 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -213,7 +214,7 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                 Text("-80 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                                Text("+40 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                                Text("+40 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

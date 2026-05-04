@@ -218,7 +218,7 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                         Text("Usa debilidades", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-30 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+100 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+100 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -237,7 +237,7 @@ fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
                         Text("Usa resistencias", color = Color.LightGray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+200 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        Text("+200 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
                     }
                 }
             }
