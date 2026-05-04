@@ -32,6 +32,9 @@ import kotlinx.coroutines.delay
 import kotlin.random.Random
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 
 enum class WordSearchDifficulty {
     NORMAL, HARD, INFERNAL
@@ -138,67 +141,76 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNa
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            // Normal Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clickable { onSelect(WordSearchDifficulty.NORMAL) },
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF4CAF50),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFF388E3C))
+            // Grid de Selección de Dificultad
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("MODO NORMAL", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("+30 Monedas | Costo: -20 | 60s", color = Color(0xFFE8F5E9), fontSize = 12.sp)
+                // Normal Mode
+                item {
+                    Card(
+                        modifier = Modifier.clickable { onSelect(WordSearchDifficulty.NORMAL) },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)),
+                        shape = RoundedCornerShape(20.dp),
+                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF4CAF50))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("NORMAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("60s | Estándar", color = Color.LightGray, fontSize = 10.sp)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("+30 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Hard Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clickable { onSelect(WordSearchDifficulty.HARD) },
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFFFF9800),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFF57C00))
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("MODO DIFÍCIL", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("+60 Monedas | Costo: -20 | Diagonales | 45s", color = Color(0xFFFFF3E0), fontSize = 12.sp)
+                // Hard Mode
+                item {
+                    Card(
+                        modifier = Modifier.clickable { onSelect(WordSearchDifficulty.HARD) },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800).copy(alpha = 0.2f)),
+                        shape = RoundedCornerShape(20.dp),
+                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFFF9800))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("DIFÍCIL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("45s | Diagonal", color = Color.LightGray, fontSize = 10.sp)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text("+60 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Infernal Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clickable { onSelect(WordSearchDifficulty.INFERNAL) },
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF212121),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFE53935))
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("MODO INFERNAL", color = Color(0xFFE53935), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                    Text("+120 Monedas | Costo: -20 | Palabras Invertidas | 30s", color = Color(0xFFFFEBEE), fontSize = 10.sp)
+                // Infernal Mode
+                item(span = { GridItemSpan(2) }) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable { onSelect(WordSearchDifficulty.INFERNAL) },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF212121).copy(alpha = 0.2f)),
+                        shape = RoundedCornerShape(20.dp),
+                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFE53935))
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("INFERNAL", color = Color(0xFFE53935), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("30s | Invertidas | El reto supremo", color = Color.LightGray, fontSize = 10.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("+120 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
             }
         }

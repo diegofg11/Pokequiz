@@ -102,45 +102,47 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                 modifier = Modifier.padding(bottom = 48.dp)
             )
 
-            // Normal Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clickable { onSelect(MemoryDifficulty.NORMAL) },
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF4CAF50),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFF388E3C))
+            // Modo Selección de Tarjetas
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                // Normal Mode Card
+                Card(
+                    modifier = Modifier.weight(1f).clickable { onSelect(MemoryDifficulty.NORMAL) },
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(20.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF4CAF50))
                 ) {
-                    Text("MODO NORMAL", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("+80 Monedas | Fallo/Salir: -20 | 5 Vidas", color = Color(0xFFE8F5E9), fontSize = 12.sp)
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("NORMAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("5 Vidas | Relajado", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("+80 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Infernal Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clickable { onSelect(MemoryDifficulty.INFERNAL) },
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF212121),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFE53935))
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                // Infernal Mode Card
+                Card(
+                    modifier = Modifier.weight(1f).clickable { onSelect(MemoryDifficulty.INFERNAL) },
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF212121).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(20.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFE53935))
                 ) {
-                    Text("MODO INFERNAL", color = Color(0xFFE53935), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                    Text("+200 Monedas | Fallo/Salir: -50 | Tablero Caótico | 20s | Vidas: ∞", color = Color(0xFFFFEBEE), fontSize = 10.sp)
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("INFERNAL", color = Color(0xFFE53935), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("Caótico | 20s", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("+200 🏆", color = GoldPoke, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
