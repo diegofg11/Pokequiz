@@ -416,7 +416,10 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 backgroundColor = Color(0xFFF0F0F0),
                 borderColor = if (isRevealed) (if(selectedId == currentTargetId) Color(0xFF4CAF50) else Color(0xFFF44336)) else Color.Black
             ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Box(
+                    contentAlignment = Alignment.Center, 
+                    modifier = Modifier.fillMaxSize().clipToBounds()
+                ) {
                     AsyncImage(
                         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${currentTargetId}.png",
                         contentDescription = "Mistery Pokemon",
