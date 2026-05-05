@@ -280,7 +280,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
         ) {
             if (difficulty == GuessDifficulty.EASY) {
                 RetroText(
-                    text = "¿QUIÉN ES ESE POKÉMON?",
+                    text = "¿CUAL ES ESTE POKÉMON?",
                     fontSize = 22.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 24.dp)

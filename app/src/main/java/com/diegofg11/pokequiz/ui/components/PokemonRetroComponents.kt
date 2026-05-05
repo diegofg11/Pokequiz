@@ -629,10 +629,10 @@ fun SafariSelectionScreen(
             Text(
                 text = subtitle,
                 color = Color(0xFF333333),
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
+                modifier = Modifier.padding(top = 12.dp, bottom = 40.dp)
             )
 
             // Grid de Selección de Dificultad
