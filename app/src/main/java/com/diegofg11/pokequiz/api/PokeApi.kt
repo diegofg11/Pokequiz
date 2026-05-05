@@ -14,6 +14,8 @@ import com.diegofg11.pokequiz.models.User
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.models.TogglePartyRequest
 import com.diegofg11.pokequiz.models.LoginRequest
+import com.diegofg11.pokequiz.models.QuickBattleOpponent
+import com.diegofg11.pokequiz.models.MinigamePokemon
 
 interface PokeApi {
     @POST("api/gacha/roll")
@@ -30,6 +32,15 @@ interface PokeApi {
 
     @POST("api/user/reward")
     suspend fun rewardUser(@Body request: RewardRequest): Response<User>
+
+    @POST("api/user/safari/reward")
+    suspend fun safariReward(@Body request: RewardRequest): Response<User>
+
+    @GET("api/minigames/quickbattle")
+    suspend fun getQuickBattleOpponent(): Response<QuickBattleOpponent>
+
+    @GET("api/minigames/pokemon")
+    suspend fun getMinigamePokemon(@Query("limit") limit: Int = 151): Response<List<MinigamePokemon>>
 
     @POST("api/user/party/toggle")
     suspend fun toggleParty(@Body request: TogglePartyRequest): Response<Any>

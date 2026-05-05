@@ -18,9 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
-import com.diegofg11.pokequiz.utils.PokemonConstants
 import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.WordSearchDifficulty
+import com.diegofg11.pokequiz.models.MinigamePokemon
+import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -90,6 +91,9 @@ fun WordSearchGame(
     var isProcessing by remember { mutableStateOf(false) }
     var showResultDialog by remember { mutableStateOf(false) }
     var hasWon by remember { mutableStateOf(false) }
+    
+    var pokemonList by remember { mutableStateOf<List<MinigamePokemon>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
     val rewardWin = when(difficulty) {
         WordSearchDifficulty.NORMAL -> 60
@@ -104,7 +108,15 @@ fun WordSearchGame(
     }
 
     fun initializeGame() {
-        val words = PokemonConstants.KANTO_POKEMON_LIST.shuffled().take(wordCount).map { it.uppercase() }
+        if (pokemonList.isEmpty()) return
+        
+        val words = pokemonList.shuffled().take(wordCount).map { it.nombre.uppercase()
+            .replace("♂", "")
+            .replace("♀", "")
+            .replace("'", "")
+            .replace(".", "")
+            .replace(" ", "") 
+        }
         targetWords = words
         foundWords.clear()
         selectedCells.clear()
@@ -122,7 +134,20 @@ fun WordSearchGame(
     }
 
     LaunchedEffect(Unit) {
-        initializeGame()
+        scope.launch {
+            try {
+                val response = Network.api.getMinigamePokemon(limit = 151)
+                if (response.isSuccessful && response.body() != null) {
+                    pokemonList = response.body()!!
+                    isLoading = false
+                    initializeGame()
+                } else {
+                    onError("No se pudo cargar la lista de Pokémon.")
+                }
+            } catch (e: Exception) {
+                onError("Error de conexión: ${e.localizedMessage}")
+            }
+        }
     }
 
     LaunchedEffect(timeLeft, hasWon) {
@@ -182,10 +207,15 @@ fun WordSearchGame(
                 }
             )
 
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = GoldPoke)
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                 RetroMenuBox(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     backgroundColor = Color.White.copy(alpha = 0.1f),
@@ -273,6 +303,7 @@ fun WordSearchGame(
             }
         }
     }
+}
 }
 
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)

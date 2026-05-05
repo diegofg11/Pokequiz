@@ -26,13 +26,7 @@ import com.diegofg11.pokequiz.models.QuickBattleOpponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val OPPONENTS_POOL = listOf(
-    QuickBattleOpponent("CHARIZARD", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png", listOf(PokeType.WATER, PokeType.GROUND), listOf(PokeType.GRASS, PokeType.FIRE)),
-    QuickBattleOpponent("BLASTOISE", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png", listOf(PokeType.ELECTRIC, PokeType.GRASS), listOf(PokeType.FIRE, PokeType.WATER)),
-    QuickBattleOpponent("VENUSAUR", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png", listOf(PokeType.FIRE, PokeType.FLYING, PokeType.ICE), listOf(PokeType.WATER, PokeType.ELECTRIC)),
-    QuickBattleOpponent("GYARADOS", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/130.png", listOf(PokeType.ELECTRIC, PokeType.ROCK_POKE), listOf(PokeType.FIGHTING, PokeType.WATER)),
-    QuickBattleOpponent("DRAGONITE", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png", listOf(PokeType.ICE, PokeType.ROCK_POKE), listOf(PokeType.FIRE, PokeType.WATER, PokeType.GRASS, PokeType.ELECTRIC))
-)
+import com.diegofg11.pokequiz.api.Network
 
 @Composable
 fun QuickBattleScreen(
@@ -46,7 +40,28 @@ fun QuickBattleScreen(
     var victories by remember { mutableIntStateOf(0) }
     var globalError by remember { mutableStateOf<String?>(null) }
     
+    var isLoading by remember { mutableStateOf(false) }
+    
     val scope = rememberCoroutineScope()
+
+    fun fetchNewOpponent(onSuccess: () -> Unit = {}) {
+        scope.launch {
+            isLoading = true
+            try {
+                val response = Network.api.getQuickBattleOpponent()
+                if (response.isSuccessful && response.body() != null) {
+                    currentOpponent = response.body()
+                    onSuccess()
+                } else {
+                    globalError = "No se pudo obtener un oponente del servidor."
+                }
+            } catch (e: Exception) {
+                globalError = "Error de conexión: ${e.localizedMessage}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     LaunchedEffect(gameState) {
         onStateChange(gameState == SafariGameState.START)
@@ -106,18 +121,21 @@ fun QuickBattleScreen(
                                 reward = "150", 
                                 color = Color(0xFFE53935), 
                                 onClick = {
-                                    SafariUtils.rewardUser(
-                                        scope = scope,
-                                        coins = -20,
-                                        onSuccess = {
-                                            isInverse = false
-                                            victories = 0
-                                            roundCount = 0
-                                            currentOpponent = OPPONENTS_POOL.random()
-                                            gameState = SafariGameState.PLAYING
-                                        },
-                                        onError = { globalError = it }
-                                    )
+                                    if (!isLoading) {
+                                        SafariUtils.rewardUser(
+                                            scope = scope,
+                                            coins = -20,
+                                            onSuccess = {
+                                                isInverse = false
+                                                victories = 0
+                                                roundCount = 0
+                                                fetchNewOpponent {
+                                                    gameState = SafariGameState.PLAYING
+                                                }
+                                            },
+                                            onError = { globalError = it }
+                                        )
+                                    }
                                 }
                             ),
                             DifficultyCardData(
@@ -127,38 +145,47 @@ fun QuickBattleScreen(
                                 reward = "250", 
                                 color = Color(0xFF9C27B0), 
                                 onClick = {
-                                    SafariUtils.rewardUser(
-                                        scope = scope,
-                                        coins = -40,
-                                        onSuccess = {
-                                            isInverse = true
-                                            victories = 0
-                                            roundCount = 0
-                                            currentOpponent = OPPONENTS_POOL.random()
-                                            gameState = SafariGameState.PLAYING
-                                        },
-                                        onError = { globalError = it }
-                                    )
+                                    if (!isLoading) {
+                                        SafariUtils.rewardUser(
+                                            scope = scope,
+                                            coins = -40,
+                                            onSuccess = {
+                                                isInverse = true
+                                                victories = 0
+                                                roundCount = 0
+                                                fetchNewOpponent {
+                                                    gameState = SafariGameState.PLAYING
+                                                }
+                                            },
+                                            onError = { globalError = it }
+                                        )
+                                    }
                                 }
                             )
                         )
                     )
-                    SafariGameState.PLAYING -> QuickBattleGame(
-                        opponent = currentOpponent!!,
-                        isInverse = isInverse,
-                        onResult = { isVictory ->
-                            if (isVictory) victories++
-                            roundCount++
-                            if (roundCount >= 3) {
-                                gameState = SafariGameState.RESULT
-                                val rewardBase = if (isInverse) 250 else 150
-                                val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else (rewardBase * 0.1).toInt()
-                                SafariUtils.rewardUser(scope = scope, coins = reward)
-                            } else {
-                                currentOpponent = OPPONENTS_POOL.filter { it != currentOpponent }.random()
-                            }
+                    SafariGameState.PLAYING -> if (isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = GoldPoke)
                         }
-                    )
+                    } else if (currentOpponent != null) {
+                        QuickBattleGame(
+                            opponent = currentOpponent!!,
+                            isInverse = isInverse,
+                            onResult = { isVictory ->
+                                if (isVictory) victories++
+                                roundCount++
+                                if (roundCount >= 3) {
+                                    gameState = SafariGameState.RESULT
+                                    val rewardBase = if (isInverse) 250 else 150
+                                    val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else (rewardBase * 0.1).toInt()
+                                    SafariUtils.rewardUser(scope = scope, coins = reward)
+                                } else {
+                                    fetchNewOpponent()
+                                }
+                            }
+                        )
+                    }
                     SafariGameState.RESULT -> QuickBattleResult(
                         victories = victories,
                         isInverse = isInverse,
@@ -208,9 +235,14 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
 
         val types = remember(opponent, isInverse) {
             val targetList = if (isInverse) opponent.resistances else opponent.weaknesses
-            val correct = targetList.random()
-            val incorrects = PokeType.entries.filter { it !in targetList }.shuffled().take(3)
-            (listOf(correct) + incorrects).shuffled()
+            if (targetList.isEmpty()) {
+                // Fallback de seguridad para evitar crashes si el backend fallara
+                PokeType.entries.shuffled().take(4)
+            } else {
+                val correct = targetList.random()
+                val incorrects = PokeType.entries.filter { it !in targetList }.shuffled().take(3)
+                (listOf(correct) + incorrects).shuffled()
+            }
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -247,7 +279,7 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
         AnimatedVisibility(visible = showEffect != null) {
             Text(
                 text = showEffect ?: "",
-                color = if (showEffect?.contains("EFECTIVO") == true && !showEffect?.contains("MAL")!!) Color(0xFF4CAF50) else Color(0xFFE53935),
+                color = if (showEffect != null && showEffect!!.contains("EFECTIVO") && !showEffect!!.contains("MAL")) Color(0xFF4CAF50) else Color(0xFFE53935),
                 fontWeight = FontWeight.Black,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(top = 24.dp)
@@ -268,7 +300,10 @@ fun TypeButton(type: PokeType, onClick: () -> Unit, modifier: Modifier = Modifie
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = type.nombreEs,
-                color = if (type == PokeType.ELECTRIC) Color.Black else Color.White,
+                color = when(type) {
+                    PokeType.ELECTRIC, PokeType.ICE, PokeType.GROUND, PokeType.STEEL, PokeType.NORMAL -> Color.Black
+                    else -> Color.White
+                },
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
                 fontFamily = FontFamily.Monospace

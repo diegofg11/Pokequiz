@@ -9,6 +9,11 @@ enum class DifficultyLevel {
     EASY, NORMAL, HARD, INFERNAL
 }
 
+data class MinigamePokemon(
+    val id: Int,
+    val nombre: String
+)
+
 // --- Guess Pokémon Models ---
 
 enum class GuessDifficulty {
@@ -37,23 +42,24 @@ enum class WordSearchDifficulty {
 // --- Quick Battle Models ---
 
 enum class PokeType(val color: Color, val nombreEs: String) {
-    FIRE(Color(0xFFF44336), "FUEGO"),
-    WATER(Color(0xFF2196F3), "AGUA"),
-    GRASS(Color(0xFF4CAF50), "PLANTA"),
-    ELECTRIC(Color(0xFFFFEB3B), "ELÉCTRICO"),
-    GROUND(Color(0xFF795548), "TIERRA"),
-    FLYING(Color(0xFF9C27B0), "VOLADOR"),
-    ICE(Color(0xFF00BCD4), "HIELO"),
-    FIGHTING(Color(0xFFFF5722), "LUCHA"),
-    PSYCHIC(Color(0xFFE91E63), "PSÍQUICO"),
-    BUG(Color(0xFF8BC34A), "BICHO"),
-    POISON(Color(0xFF9C27B0), "VENENO"),
-    GHOST(Color(0xFF673AB7), "FANTASMA"),
-    DRAGON(Color(0xFF3F51B5), "DRAGÓN"),
-    STEEL(Color(0xFF607D8B), "ACERO"),
-    DARK(Color(0xFF212121), "SINIESTRO"),
-    NORMAL(Color(0xFF9E9E9E), "NORMAL"),
-    ROCK_POKE(Color(0xFFC0CA33), "ROCA")
+    FIRE(Color(0xFFEE8130), "FUEGO"),
+    WATER(Color(0xFF6390F0), "AGUA"),
+    GRASS(Color(0xFF7AC74C), "PLANTA"),
+    ELECTRIC(Color(0xFFF7D02C), "ELÉCTRICO"),
+    GROUND(Color(0xFFE2BF65), "TIERRA"),
+    FLYING(Color(0xFFA98FF3), "VOLADOR"),
+    ICE(Color(0xFF96D9D6), "HIELO"),
+    FIGHTING(Color(0xFFC22E28), "LUCHA"),
+    PSYCHIC(Color(0xFFF95587), "PSÍQUICO"),
+    BUG(Color(0xFFA6B91A), "BICHO"),
+    POISON(Color(0xFFA33EA1), "VENENO"),
+    GHOST(Color(0xFF735797), "FANTASMA"),
+    DRAGON(Color(0xFF6F35FC), "DRAGÓN"),
+    STEEL(Color(0xFFB7B7CE), "ACERO"),
+    DARK(Color(0xFF705746), "SINIESTRO"),
+    NORMAL(Color(0xFFA8A77A), "NORMAL"),
+    ROCK_POKE(Color(0xFFB6A136), "ROCA"),
+    FAIRY(Color(0xFFD685AD), "HADA")
 }
 
 data class QuickBattleOpponent(

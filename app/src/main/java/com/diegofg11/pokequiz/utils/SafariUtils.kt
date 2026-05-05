@@ -27,7 +27,7 @@ object SafariUtils {
         
         scope.launch {
             try {
-                val response = Network.api.rewardUser(
+                val response = Network.api.safariReward(
                     RewardRequest(
                         userId = SessionManager.currentUserId,
                         levelId = 0,
@@ -38,7 +38,7 @@ object SafariUtils {
                     if (response.isSuccessful) {
                         onSuccess()
                     } else {
-                        onError("No se pudo procesar la transacción.")
+                        onError("No se pudo procesar la transacción del Safari.")
                     }
                 }
             } catch (e: Exception) {
@@ -52,15 +52,18 @@ object SafariUtils {
     /**
      * Generates a deck of memory cards.
      */
-    fun generateMemoryDeck(pairCount: Int): List<MemoryCardData> {
-        val uniquePokemonIds = mutableSetOf<Int>()
-        while (uniquePokemonIds.size < pairCount) {
-            uniquePokemonIds.add(Random.nextInt(1, 152))
+    fun generateMemoryDeck(availableIds: List<Int>, pairCount: Int): List<MemoryCardData> {
+        val idsToUse = if (availableIds.isEmpty()) {
+            val list = mutableListOf<Int>()
+            repeat(pairCount) { list.add(Random.nextInt(1, 152)) }
+            list
+        } else {
+            availableIds.shuffled().take(pairCount)
         }
         
         val deck = mutableListOf<MemoryCardData>()
         var cardId = 0
-        uniquePokemonIds.forEach { pokeId ->
+        idsToUse.forEach { pokeId ->
             deck.add(MemoryCardData(id = cardId++, pokemonId = pokeId))
             deck.add(MemoryCardData(id = cardId++, pokemonId = pokeId))
         }

@@ -30,6 +30,8 @@ import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.MemoryDifficulty
 import com.diegofg11.pokequiz.models.MemoryCardData
+import com.diegofg11.pokequiz.models.MinigamePokemon
+import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -82,10 +84,15 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     val maxTime = 20
     var timeLeft by remember { mutableIntStateOf(maxTime) }
     var flashTimer by remember { mutableStateOf(false) }
+    
+    var pokemonList by remember { mutableStateOf<List<MinigamePokemon>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
     fun initializeGame() {
+        if (pokemonList.isEmpty()) return
+        
         cards.clear()
-        cards.addAll(SafariUtils.generateMemoryDeck(6))
+        cards.addAll(SafariUtils.generateMemoryDeck(pokemonList.map { it.id }, 6))
         lives = if (difficulty == MemoryDifficulty.INFERNAL) 999 else 5
         timeLeft = maxTime
         selectedIndices = emptyList()
@@ -95,7 +102,20 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     }
 
     LaunchedEffect(Unit) {
-        initializeGame()
+        scope.launch {
+            try {
+                val response = Network.api.getMinigamePokemon(limit = 151)
+                if (response.isSuccessful && response.body() != null) {
+                    pokemonList = response.body()!!
+                    isLoading = false
+                    initializeGame()
+                } else {
+                    globalError = "No se pudo cargar la lista de Pokémon."
+                }
+            } catch (e: Exception) {
+                globalError = "Error de conexión: ${e.localizedMessage}"
+            }
+        }
     }
     
     LaunchedEffect(gameStarted, lives, hasWon) {
@@ -276,7 +296,12 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }
             )
             
-            if (difficulty == MemoryDifficulty.INFERNAL) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = GoldPoke)
+                }
+            } else {
+                if (difficulty == MemoryDifficulty.INFERNAL) {
                 val timerProgress by animateFloatAsState(
                     targetValue = timeLeft.toFloat() / maxTime.toFloat(),
                     animationSpec = tween(1000)
@@ -317,6 +342,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
             }
         }
     }
+}
 }
 
 @Composable

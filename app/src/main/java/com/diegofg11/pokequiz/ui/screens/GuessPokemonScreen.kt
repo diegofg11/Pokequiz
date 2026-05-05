@@ -26,9 +26,10 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
-import com.diegofg11.pokequiz.utils.PokemonConstants
 import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.GuessDifficulty
+import com.diegofg11.pokequiz.models.MinigamePokemon
+import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -106,6 +107,8 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
     var selectedId by remember { mutableStateOf<Int?>(null) }
     var sessionCoins by remember { mutableIntStateOf(0) }
     var isProcessing by remember { mutableStateOf(false) }
+    var pokemonList by remember { mutableStateOf<List<MinigamePokemon>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
     
     val maxTime = if (difficulty == GuessDifficulty.INFERNAL) 4 else 5
     var timeLeft by remember { mutableIntStateOf(maxTime) }
@@ -162,33 +165,48 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
             }
         }
         
-        val correctId = Random.nextInt(1, 152)
+        val correctPokemon = pokemonList.random()
+        val correctId = correctPokemon.id
         currentTargetId = correctId
         
-        val optionsSet = mutableSetOf<Int>()
-        optionsSet.add(correctId)
+        val optionsSet = mutableSetOf<MinigamePokemon>()
+        optionsSet.add(correctPokemon)
         
         if (difficulty != GuessDifficulty.EASY) {
             val group = CONFUSION_GROUPS.find { it.contains(correctId) }
             if (group != null) {
-                val available = group.filter { it != correctId }.shuffled()
-                for (i in 0 until minOf(3, available.size)) {
-                    optionsSet.add(available[i])
+                val available = group.filter { it != correctId }
+                for (id in available.shuffled()) {
+                    pokemonList.find { it.id == id }?.let { optionsSet.add(it) }
+                    if (optionsSet.size >= 4) break
                 }
             }
         }
         
         while (optionsSet.size < 4) {
-            optionsSet.add(Random.nextInt(1, 152))
+            optionsSet.add(pokemonList.random())
         }
         
-        currentOptions = optionsSet.toList().shuffled().map { id ->
-            Pair(id, PokemonConstants.KANTO_POKEMON_LIST[id - 1])
+        currentOptions = optionsSet.toList().shuffled().map { p ->
+            Pair(p.id, p.nombre)
         }
     }
 
     LaunchedEffect(Unit) {
-        generateNewRound()
+        scope.launch {
+            try {
+                val response = Network.api.getMinigamePokemon(limit = 151)
+                if (response.isSuccessful && response.body() != null) {
+                    pokemonList = response.body()!!
+                    isLoading = false
+                    generateNewRound()
+                } else {
+                    onError("No se pudo cargar la lista de Pokémon.")
+                }
+            } catch (e: Exception) {
+                onError("Error de conexión: ${e.localizedMessage}")
+            }
+        }
     }
     
     LaunchedEffect(currentTargetId, isRevealed) {
@@ -272,12 +290,17 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
             }
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = GoldPoke)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
             if (difficulty == GuessDifficulty.EASY) {
                 RetroText(
                     text = "¿CUAL ES ESTE POKÉMON?",
@@ -353,6 +376,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
             }
         }
     }
+}
 }
 
 @Composable
