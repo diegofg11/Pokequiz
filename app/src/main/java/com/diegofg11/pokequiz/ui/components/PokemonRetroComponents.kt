@@ -463,7 +463,6 @@ private fun InfoItem(label: String, value: String, color: Color) {
                 fontFamily = FontFamily.Monospace
             )
         }
-        }
     }
 }
 
