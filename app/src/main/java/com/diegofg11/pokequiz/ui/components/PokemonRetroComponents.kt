@@ -54,8 +54,8 @@ fun RetroMenuBox(
             }
         }
 
-        // Decorative corner dots
-        Box(modifier = Modifier.fillMaxSize()) {
+        // Decorative corner dots - matchParentSize prevents stretching the parent
+        Box(modifier = Modifier.matchParentSize()) {
             Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.TopStart))
             Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.TopEnd))
             Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.BottomStart))
@@ -268,7 +268,8 @@ fun SafariRetroHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .height(80.dp) // Altura fija para evitar solapamientos
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Botón Retro Atrás
@@ -320,7 +321,8 @@ fun RetroDifficultyCard(
     
     Box(
         modifier = modifier
-            .height(130.dp) // Fixed height to reduce empty space
+            .height(160.dp) // Increased height
+            .width(150.dp) // Added width to prevent text breaking
             .clickable { onClick() }
             .border(4.dp, Color.Black, RoundedCornerShape(4.dp))
             .padding(2.dp)
@@ -343,10 +345,11 @@ fun RetroDifficultyCard(
                 text = title,
                 color = color,
                 fontWeight = FontWeight.Black,
-                fontSize = 18.sp,
+                fontSize = 20.sp, // Larger font
                 letterSpacing = 1.sp,
                 fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 1
             )
             
             Spacer(modifier = Modifier.height(4.dp))
