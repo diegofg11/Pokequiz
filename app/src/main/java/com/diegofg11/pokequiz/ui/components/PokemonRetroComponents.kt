@@ -424,11 +424,10 @@ private fun InfoItem(label: String, value: String, color: Color) {
             fontFamily = FontFamily.Monospace
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(id = com.diegofg11.pokequiz.R.drawable.ic_coin),
-                contentDescription = null,
-                modifier = Modifier.size(10.dp),
-                tint = color
+            Text(
+                text = "💰",
+                fontSize = 10.sp,
+                color = color
             )
             Spacer(modifier = Modifier.width(3.dp))
             Text(
