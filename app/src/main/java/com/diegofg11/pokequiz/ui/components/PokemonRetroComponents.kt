@@ -263,41 +263,46 @@ fun PokeballPageIndicator(
 fun SafariRetroHeader(
     title: String,
     onBackClick: () -> Unit,
+    onHelpClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(80.dp) // Altura fija para evitar solapamientos
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .height(80.dp)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
     ) {
         // Botón Retro Atrás
         Surface(
             onClick = onBackClick,
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .align(Alignment.CenterStart),
             shape = RoundedCornerShape(4.dp),
             color = Color.Black,
             contentColor = Color.White
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text("<", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+                Icon(
+                    androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
         
-        Spacer(modifier = Modifier.width(16.dp))
-        
         // Título en Caja Retro
         RetroMenuBox(
-            modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFD4E1D1), // Mismo que la pantalla
+            modifier = Modifier.fillMaxWidth(0.6f),
+            backgroundColor = Color(0xFF94A684),
             borderColor = Color(0xFF2D5A27)
         ) {
             Text(
                 text = title.uppercase(),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.Black,
                 letterSpacing = 2.sp,

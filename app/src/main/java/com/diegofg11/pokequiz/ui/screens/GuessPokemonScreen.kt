@@ -126,12 +126,12 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
         ) {
             RetroText(
                 text = "¿QUIÉN ES ESE POKÉMON?",
-                fontSize = 24.sp,
+                fontSize = 36.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
-                color = Color.LightGray,
+                color = Color(0xFF333333),
                 fontSize = 12.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center,

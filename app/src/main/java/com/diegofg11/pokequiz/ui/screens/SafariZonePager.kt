@@ -89,7 +89,8 @@ fun SafariZonePager(
         ) {
             SafariRetroHeader(
                 title = "ZONA SAFARI",
-                onBackClick = onNavigateBack
+                onBackClick = onNavigateBack,
+                onHelpClick = { showHelp = true }
             )
         }
 

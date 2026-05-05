@@ -108,12 +108,12 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
         ) {
             RetroText(
                 text = "SOPA DE LETRAS",
-                fontSize = 28.sp,
+                fontSize = 38.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
-                color = Color.LightGray,
+                color = Color(0xFF333333),
                 fontSize = 12.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center,

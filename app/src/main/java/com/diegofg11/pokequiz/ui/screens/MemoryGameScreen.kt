@@ -86,12 +86,12 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
         ) {
             RetroText(
                 text = "MEMORAMA",
-                fontSize = 32.sp,
+                fontSize = 42.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
-                color = Color.LightGray,
+                color = Color(0xFF333333),
                 fontSize = 12.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center,

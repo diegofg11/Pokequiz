@@ -170,12 +170,12 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
         ) {
             RetroText(
                 "POKÉ-DOJO",
-                fontSize = 32.sp,
+                fontSize = 42.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 "Selecciona un modo para empezar",
-                color = Color.LightGray,
+                color = Color(0xFF333333),
                 fontSize = 12.sp,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
