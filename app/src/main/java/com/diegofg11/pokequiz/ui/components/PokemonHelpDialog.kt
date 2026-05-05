@@ -1,6 +1,6 @@
 package com.diegofg11.pokequiz.ui.components
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,82 +32,75 @@ fun PokemonHelpDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
     ) {
-        Box(
+        RetroBackground(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .heightIn(max = 500.dp)
         ) {
-            Surface(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp, start = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = Color(0xFFE6F2FF),
-                border = BorderStroke(4.dp, Color(0xFF1976D2)),
-                shadowElevation = 8.dp
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = 20.dp, start = 20.dp, end = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // Header del Diálogo
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        text = title,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 22.sp,
-                        color = Color(0xFF0D47A1),
-                        textAlign = TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Box(
-                        modifier = Modifier
-                            .heightIn(max = 300.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        content()
-                    }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Button(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1976D2)
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(48.dp)
-                    ) {
-                        Text(
-                            text = "ENTENDIDO",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 14.sp,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-            // Círculo del icono superior izquierdo
-            Surface(
-                modifier = Modifier
-                    .size(48.dp)
-                    .align(Alignment.TopStart)
-                    .border(3.dp, Color(0xFF1976D2), CircleShape),
-                shape = CircleShape,
-                color = Color(0xFF1976D2),
-                shadowElevation = 10.dp
-            ) {
-                Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Ayuda",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = Color.White
+                        tint = Color(0xFF2D5A27)
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    RetroText(
+                        text = title.uppercase(),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                
+                PixelDivider(modifier = Modifier.padding(vertical = 12.dp))
+                
+                // Contenido Scrolleable
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Column {
+                        content()
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Botón Cerrar Retro
+                Surface(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFF2D5A27),
+                    contentColor = Color.White,
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF1B3022))
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "ENTENDIDO",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
                 }
             }
         }
@@ -117,16 +111,19 @@ fun PokemonHelpDialog(
 fun HelpSection(title: String, description: String) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
-            text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            color = Color(0xFF1976D2)
+            text = title.uppercase(),
+            fontWeight = FontWeight.Black,
+            fontSize = 13.sp,
+            color = Color(0xFF1B3022),
+            fontFamily = FontFamily.Monospace
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = description,
-            fontSize = 14.sp,
-            color = Color.DarkGray,
-            lineHeight = 18.sp
+            fontSize = 12.sp,
+            color = Color.Black.copy(alpha = 0.7f),
+            lineHeight = 16.sp,
+            fontFamily = FontFamily.Monospace
         )
     }
 }
