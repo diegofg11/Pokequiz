@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,8 @@ import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.WordSearchDifficulty
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 
 @Composable
 fun WordSearchScreen(
@@ -272,7 +275,7 @@ fun WordSearchGame(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun FlowRow(
     modifier: Modifier = Modifier,
