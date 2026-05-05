@@ -32,8 +32,8 @@ import com.diegofg11.pokequiz.ui.theme.*
 @Composable
 fun RetroMenuBox(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.White,
-    borderColor: Color = Color.Black,
+    backgroundColor: Color = Color(0xFFECEFF1), // Gris azulado pálido muy retro
+    borderColor: Color = Color(0xFF37474F), // Gris oscuro azulado para contraste
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(
@@ -78,34 +78,47 @@ fun RetroBackground(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF2D5A27))
+            .background(Color(0xFF1B3022)) // Verde oscuro bosque profundo
     ) {
-        // Pixel Pattern Overlay
+        // Pixel Pattern Overlay (Capa base)
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val step = 16.dp.toPx()
+            val step = 20.dp.toPx()
             for (x in 0..size.width.toInt() step step.toInt()) {
                 for (y in 0..size.height.toInt() step step.toInt()) {
                     drawRect(
-                        color = Color.Black.copy(alpha = 0.05f),
+                        color = Color.Black.copy(alpha = 0.1f),
                         topLeft = Offset(x.toFloat(), y.toFloat()),
-                        size = Size(4.dp.toPx(), 4.dp.toPx())
+                        size = Size(8.dp.toPx(), 8.dp.toPx())
                     )
                 }
             }
         }
 
-        // Screen Border
+        // Screen Area with subtle themed background
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
-                .border(4.dp, Color.Black.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
-        )
+                .padding(12.dp)
+                .background(Color(0xFFD4E1D1), RoundedCornerShape(4.dp)) // Verde pálido tipo LCD retro
+                .border(4.dp, Color(0xFF2D5A27), RoundedCornerShape(4.dp)) // Borde verde medio
+                .border(6.dp, Color.Black.copy(alpha = 0.2f), RoundedCornerShape(4.dp)) // Sombra interna
+        ) {
+            // Grid de fondo muy sutil para la "pantalla"
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val step = 10.dp.toPx()
+                for (x in 0..size.width.toInt() step step.toInt()) {
+                    drawLine(Color.Black.copy(alpha = 0.02f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height))
+                }
+                for (y in 0..size.height.toInt() step step.toInt()) {
+                    drawLine(Color.Black.copy(alpha = 0.02f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()))
+                }
+            }
 
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            content = content
-        )
+            Box(
+                modifier = Modifier.fillMaxSize().padding(8.dp),
+                content = content
+            )
+        }
     }
 }
 
@@ -276,8 +289,8 @@ fun SafariRetroHeader(
         // Título en Caja Retro
         RetroMenuBox(
             modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFF8F8F8),
-            borderColor = Color(0xFF5D4037)
+            backgroundColor = Color(0xFFD4E1D1), // Mismo que la pantalla
+            borderColor = Color(0xFF2D5A27)
         ) {
             Text(
                 text = title.uppercase(),
