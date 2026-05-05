@@ -429,7 +429,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 ) {
                     AsyncImage(
                         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${currentTargetId}.png",
-                        contentDescription = "Mistery Pokemon",
+                        contentDescription = "Pokémon misterioso",
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(8.dp)

@@ -188,7 +188,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }
             }
             if (timeLeft == 0 && lives > 0 && !hasWon) {
-                // Time over
+                // Tiempo agotado
                 lives = 0
                 isProcessing = true
                 hasWon = false
@@ -257,7 +257,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     fun handleCardClick(index: Int) {
         if (isProcessing || cards[index].isFlipped || cards[index].isMatched || lives <= 0) return
         
-        // Flip the card
+        // Voltear la carta
         val newCards = cards.toMutableList()
         newCards[index] = newCards[index].copy(isFlipped = true)
         cards = newCards
@@ -269,7 +269,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         if (selectedIndices.size == 2) {
             isProcessing = true
             scope.launch {
-                delay(800) // Wait to let user see the cards
+                delay(800) // Esperar a que el usuario vea las cartas
                 
                 val idx1 = selectedIndices[0]
                 val idx2 = selectedIndices[1]
@@ -277,7 +277,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 var updatedCards = cards.toMutableList()
                 
                 if (updatedCards[idx1].pokemonId == updatedCards[idx2].pokemonId) {
-                    // Match found
+                    // Pareja encontrada
                     updatedCards[idx1] = updatedCards[idx1].copy(isMatched = true)
                     updatedCards[idx2] = updatedCards[idx2].copy(isMatched = true)
                     
@@ -310,7 +310,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                         isProcessing = false
                     }
                 } else {
-                    // No match
+                    // Sin pareja
                     updatedCards[idx1] = updatedCards[idx1].copy(isFlipped = false)
                     updatedCards[idx2] = updatedCards[idx2].copy(isFlipped = false)
                     cards = updatedCards
@@ -358,7 +358,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                         onNavigateBack()
                     }
                 }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                 }
                 RetroText(
                     text = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
@@ -375,7 +375,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     modifier = Modifier.wrapContentSize()
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Favorite, contentDescription = "Lives", tint = Color(0xFFE53935), modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Favorite, contentDescription = "Vidas", tint = Color(0xFFE53935), modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
@@ -388,7 +388,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }
             }
             
-            // Timer Bar for Infernal
+            // Barra de tiempo para el modo Infernal
             if (difficulty == MemoryDifficulty.INFERNAL) {
                 val timerColor = if (timeLeft <= 5) {
                     if (flashTimer) Color.Red else Color.Yellow
@@ -472,7 +472,7 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(4.dp)) {
                     AsyncImage(
                         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cardData.pokemonId}.png",
-                        contentDescription = "Pokemon Sprite",
+                        contentDescription = "Sprite de Pokémon",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )

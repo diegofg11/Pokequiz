@@ -38,16 +38,16 @@ import androidx.compose.foundation.lazy.grid.items
 
 // --- Modelos de Datos ---
 
-enum class PokeType(val color: Color) {
-    FIRE(Color(0xFFF44336)),
-    WATER(Color(0xFF2196F3)),
-    GRASS(Color(0xFF4CAF50)),
-    ELECTRIC(Color(0xFFFFEB3B)),
-    GROUND(Color(0xFF795548)),
-    FLYING(Color(0xFF9C27B0)),
-    ICE(Color(0xFF00BCD4)),
-    FIGHTING(Color(0xFFFF5722)),
-    PSYCHIC(Color(0xFFE91E63))
+enum class PokeType(val color: Color, val nombreEs: String) {
+    FIRE(Color(0xFFF44336), "FUEGO"),
+    WATER(Color(0xFF2196F3), "AGUA"),
+    GRASS(Color(0xFF4CAF50), "PLANTA"),
+    ELECTRIC(Color(0xFFFFEB3B), "ELÉCTRICO"),
+    GROUND(Color(0xFF795548), "TIERRA"),
+    FLYING(Color(0xFF9C27B0), "VOLADOR"),
+    ICE(Color(0xFF00BCD4), "HIELO"),
+    FIGHTING(Color(0xFFFF5722), "LUCHA"),
+    PSYCHIC(Color(0xFFE91E63), "PSÍQUICO")
 }
 
 data class QuickBattleOpponent(
@@ -200,7 +200,7 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Classic Mode Card
+                // Tarjeta Modo Clásico
                 RetroDifficultyCard(
                     title = "CLÁSICO",
                     subtitle = "Usa debilidades",
@@ -211,7 +211,7 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
                     modifier = Modifier.weight(1f)
                 )
 
-                // Inverse Mode Card
+                // Tarjeta Modo Inverso
                 RetroDifficultyCard(
                     title = "INVERSO",
                     subtitle = "Usa resistencias",
@@ -261,7 +261,7 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Round Indicator
+        // Indicador de ronda
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -303,7 +303,7 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
 
         Spacer(modifier = Modifier.weight(0.5f))
 
-        // Opponent area
+        // Zona del rival
         RetroMenuBox(
             modifier = Modifier.size(220.dp),
             backgroundColor = Color.White.copy(alpha = 0.1f),
@@ -327,7 +327,7 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Attack Buttons
+        // Botones de ataque
         Text(
             if (isInverse) "¡ELIGE UN TIPO POCO EFICAZ!" else "¡ELIGE EL TIPO SÚPER EFICAZ!",
             color = if (isInverse) Color(0xFFE1BEE7) else GoldPoke,
@@ -360,7 +360,7 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            type.name, 
+                            type.nombreEs, 
                             fontWeight = FontWeight.Black, 
                             color = if (type == PokeType.ELECTRIC) Color.Black else Color.White,
                             fontFamily = FontFamily.Monospace,

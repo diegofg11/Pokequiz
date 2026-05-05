@@ -214,11 +214,11 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
     var isGridReady by remember { mutableStateOf(false) }
     var gameId by remember { mutableIntStateOf(0) }
     
-    // Selection state
+    // Estado de selección
     var selectedCells by remember { mutableStateOf<List<Pair<Int, Int>>>(emptyList()) }
     var foundCells by remember { mutableStateOf<Set<Pair<Int, Int>>>(emptySet()) }
 
-    // Init Game
+    // Inicializar partida
     LaunchedEffect(gameId) {
         timeRemaining = when (difficulty) {
             WordSearchDifficulty.NORMAL -> 60
@@ -241,7 +241,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         
         wordsToFind = filteredWords
         
-        // Generate grid
+        // Generar cuadrícula
         val newGrid = Array(gridSize) { CharArray(gridSize) { ' ' } }
         val placedCells = mutableSetOf<Pair<Int, Int>>()
         
@@ -252,7 +252,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                 val isReversed = difficulty == WordSearchDifficulty.INFERNAL && Random.nextBoolean()
                 val wordToPlace = if (isReversed) word.reversed() else word
                 
-                // Directions: 0=Horizontal, 1=Vertical, 2=DiagonalDownRight, 3=DiagonalUpRight
+                // Direcciones: 0=Horizontal, 1=Vertical, 2=DiagonalAbajoDerecha, 3=DiagonalArribaDerecha
                 val maxDir = if (difficulty == WordSearchDifficulty.NORMAL) 1 else 3
                 val dir = Random.nextInt(maxDir + 1)
                 
@@ -288,7 +288,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
             }
         }
         
-        // Fill empty spaces
+        // Rellenar espacios vacíos
         for (r in 0 until gridSize) {
             for (c in 0 until gridSize) {
                 if (newGrid[r][c] == ' ') {
@@ -301,7 +301,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         isGridReady = true
     }
     
-    // Timer
+    // Temporizador
     LaunchedEffect(isGameOver, isGridReady) {
         if (!isGameOver && isGridReady) {
             while (timeRemaining > 0) {
@@ -316,13 +316,13 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         }
     }
     
-    // Check Win
+    // Comprobar victoria
     LaunchedEffect(foundWords) {
         if (foundWords.size == wordsToFindCount && wordsToFindCount > 0 && !isGameOver) {
             isGameOver = true
             hasWon = true
             
-            // Give reward
+            // Dar recompensa
             val reward = when (difficulty) {
                 WordSearchDifficulty.NORMAL -> 30
                 WordSearchDifficulty.HARD -> 60
@@ -429,7 +429,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                                     val startCell = selectedCells.first()
                                     val currentCells = mutableListOf<Pair<Int, Int>>()
                                     
-                                    // Calculate path from start to current (must be horizontal, vertical, or diagonal)
+                                    // Calcular el camino desde el inicio al punto actual (debe ser horizontal, vertical o diagonal)
                                     val dr = row - startCell.first
                                     val dc = col - startCell.second
                                     
@@ -438,7 +438,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                                         val stepR = dr / steps
                                         val stepC = dc / steps
                                         
-                                        // Only allow straight lines
+                                        // Solo permitir líneas rectas
                                         if ((dr == 0 || dc == 0 || kotlin.math.abs(dr) == kotlin.math.abs(dc)) && 
                                             (kotlin.math.abs(stepR) <= 1 && kotlin.math.abs(stepC) <= 1)) {
                                             for (i in 0..steps) {
