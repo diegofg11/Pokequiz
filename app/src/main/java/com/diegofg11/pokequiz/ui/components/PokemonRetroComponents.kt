@@ -272,7 +272,8 @@ fun SafariRetroHeader(
     title: String,
     onBackClick: () -> Unit,
     onHelpClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    extraContent: @Composable () -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -297,6 +298,8 @@ fun SafariRetroHeader(
                 fontFamily = FontFamily.Monospace
             )
         }
+        
+        extraContent()
 
         // Botón Atrás (Izquierda) - Ahora a juego con el de ayuda
         Surface(

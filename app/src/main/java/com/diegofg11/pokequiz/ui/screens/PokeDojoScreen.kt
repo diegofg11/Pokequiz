@@ -35,6 +35,7 @@ import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.SafariGameState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -66,84 +67,123 @@ fun PokeDojoScreen(
     onNavigateBack: () -> Unit,
     onStateChange: (Boolean) -> Unit = {}
 ) {
-    var gameState by remember { mutableStateOf("START") } // START, PLAYING, RESULT
+    var gameState by remember { mutableStateOf(SafariGameState.START) }
     var difficulty by remember { mutableStateOf(DojoDifficulty.NORMAL) }
     var score by remember { mutableIntStateOf(0) }
+    var timeLeft by remember { mutableIntStateOf(0) }
     var globalError by remember { mutableStateOf<String?>(null) }
     
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(gameState) {
-        onStateChange(gameState == "START")
+        onStateChange(gameState == SafariGameState.START)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        when (gameState) {
-            "START" -> PokeDojoStart(
-                onStart = { selectedDifficulty ->
-                    difficulty = selectedDifficulty
-                    val cost = if (difficulty == DojoDifficulty.INFERNAL) -50 else -20
-                    scope.launch {
-                        try {
-                            val response = Network.api.rewardUser(RewardRequest(
-                                userId = SessionManager.currentUserId,
-                                levelId = 0,
-                                coinsEarned = cost
-                            ))
-                            if (response.isSuccessful) {
-                                score = 0
-                                gameState = "PLAYING"
-                            } else {
-                                globalError = "No tienes suficientes monedas para entrar."
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header visible only during game or result
+            if (gameState != SafariGameState.START) {
+                SafariRetroHeader(
+                    title = "POKÉ-DOJO",
+                    onBackClick = {
+                        if (gameState == SafariGameState.PLAYING) {
+                            gameState = SafariGameState.RESULT
+                        } else {
+                            gameState = SafariGameState.START
+                        }
+                    },
+                    extraContent = {
+                        if (gameState == SafariGameState.PLAYING) {
+                            Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text("PTS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                        Text("$score", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                                    }
+                                    Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text("SEG", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                        Text("$timeLeft", color = if (timeLeft < 5) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                                    }
+                                }
                             }
-                        } catch (e: Exception) {
-                            globalError = "Error de red: ${e.localizedMessage}"
                         }
                     }
+                )
+            }
+
+            Box(modifier = Modifier.weight(1f)) {
+                when (gameState) {
+                    SafariGameState.START -> PokeDojoStart(
+                        onStart = { selectedDifficulty ->
+                            difficulty = selectedDifficulty
+                            val cost = if (difficulty == DojoDifficulty.INFERNAL) -50 else -20
+                            scope.launch {
+                                try {
+                                    val response = Network.api.rewardUser(RewardRequest(
+                                        userId = SessionManager.currentUserId,
+                                        levelId = 0,
+                                        coinsEarned = cost
+                                    ))
+                                    if (response.isSuccessful) {
+                                        score = 0
+                                        timeLeft = if (difficulty == DojoDifficulty.INFERNAL) 20 else 30
+                                        gameState = SafariGameState.PLAYING
+                                    } else {
+                                        globalError = "No tienes suficientes monedas para entrar."
+                                    }
+                                } catch (e: Exception) {
+                                    globalError = "Error de red: ${e.localizedMessage}"
+                                }
+                            }
+                        }
+                    )
+                    SafariGameState.PLAYING -> PokeDojoGame(
+                        difficulty = difficulty,
+                        timeLeft = timeLeft,
+                        onTimeUpdate = { timeLeft = it },
+                        onGameEnd = { finalScore ->
+                            score = finalScore
+                            gameState = SafariGameState.RESULT
+                            
+                            // Calcular premio por rangos
+                            val reward = if (difficulty == DojoDifficulty.INFERNAL) {
+                                when {
+                                    finalScore >= 500 -> 400
+                                    finalScore >= 300 -> 200
+                                    finalScore >= 100 -> 100
+                                    else -> 0
+                                }
+                            } else {
+                                when {
+                                    finalScore >= 250 -> 120
+                                    finalScore >= 150 -> 80
+                                    finalScore >= 50 -> 40
+                                    else -> 0
+                                }
+                            }
+                            
+                            if (reward > 0) {
+                                scope.launch {
+                                    try {
+                                        Network.api.rewardUser(RewardRequest(
+                                            userId = SessionManager.currentUserId,
+                                            levelId = 0,
+                                            coinsEarned = reward
+                                        ))
+                                    } catch (e: Exception) { /* ignore */ }
+                                }
+                            }
+                        }
+                    )
+                    SafariGameState.RESULT -> PokeDojoResult(
+                        score = score,
+                        difficulty = difficulty,
+                        onRetry = { gameState = SafariGameState.START },
+                        onExit = onNavigateBack
+                    )
                 }
-            )
-            "PLAYING" -> PokeDojoGame(
-                difficulty = difficulty,
-                onGameEnd = { finalScore ->
-                    score = finalScore
-                    gameState = "RESULT"
-                    
-                    // Calcular premio por rangos
-                    val reward = if (difficulty == DojoDifficulty.INFERNAL) {
-                        when {
-                            finalScore >= 500 -> 400
-                            finalScore >= 300 -> 200
-                            finalScore >= 100 -> 100
-                            else -> 0
-                        }
-                    } else {
-                        when {
-                            finalScore >= 250 -> 120
-                            finalScore >= 150 -> 80
-                            finalScore >= 50 -> 40
-                            else -> 0
-                        }
-                    }
-                    
-                    if (reward > 0) {
-                        scope.launch {
-                            try {
-                                Network.api.rewardUser(RewardRequest(
-                                    userId = SessionManager.currentUserId,
-                                    levelId = 0,
-                                    coinsEarned = reward
-                                ))
-                            } catch (e: Exception) { /* ignore */ }
-                        }
-                    }
-                }
-            )
-            "RESULT" -> PokeDojoResult(
-                score = score,
-                difficulty = difficulty,
-                onRetry = { gameState = "START" },
-                onExit = onNavigateBack
-            )
+            }
         }
         if (globalError != null) {
             PokemonAlertDialog(
@@ -269,9 +309,13 @@ fun RankRow(rank: String, ptsN: String, coinsN: String, ptsI: String, coinsI: St
 }
 
 @Composable
-fun PokeDojoGame(difficulty: DojoDifficulty, onGameEnd: (Int) -> Unit) {
+fun PokeDojoGame(
+    difficulty: DojoDifficulty, 
+    timeLeft: Int, 
+    onTimeUpdate: (Int) -> Unit, 
+    onGameEnd: (Int) -> Unit
+) {
     var score by remember { mutableIntStateOf(0) }
-    var timeLeft by remember { mutableIntStateOf(if (difficulty == DojoDifficulty.INFERNAL) 20 else 30) }
     
     val holes = remember { mutableStateListOf<HoleState>().apply { 
         repeat(9) { add(HoleState(it)) }
@@ -280,9 +324,11 @@ fun PokeDojoGame(difficulty: DojoDifficulty, onGameEnd: (Int) -> Unit) {
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        while (timeLeft > 0) {
+        var time = timeLeft
+        while (time > 0) {
             delay(1000)
-            timeLeft--
+            time--
+            onTimeUpdate(time)
         }
         onGameEnd(score)
     }
@@ -329,22 +375,7 @@ fun PokeDojoGame(difficulty: DojoDifficulty, onGameEnd: (Int) -> Unit) {
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text("PUNTOS", color = Color.LightGray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
-                RetroText("$score", fontSize = 32.sp)
-            }
-            
-            Column(horizontalAlignment = Alignment.End) {
-                Text("TIEMPO", color = Color.LightGray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
-                RetroText("$timeLeft s", color = if (timeLeft < 5) Color.Red else Color.White, fontSize = 32.sp)
-            }
-        }
-
+        // Stats Header removed and moved to SafariRetroHeader
         PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
 
         if (difficulty == DojoDifficulty.INFERNAL) {

@@ -36,31 +36,13 @@ import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
+import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.PokemonConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
-
-// Lista de los 151 Pokémon de Kanto
-private val KANTO_POKEMON = listOf(
-    "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie", 
-    "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate", 
-    "Spearow", "Fearow", "Ekans", "Arbok", "Pikachu", "Raichu", "Sandshrew", "Sandslash", "Nidoran♀", "Nidorina", 
-    "Nidoqueen", "Nidoran♂", "Nidorino", "Nidoking", "Clefairy", "Clefable", "Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff", 
-    "Zubat", "Golbat", "Oddish", "Gloom", "Vileplume", "Paras", "Parasect", "Venonat", "Venomoth", "Diglett", 
-    "Dugtrio", "Meowth", "Persian", "Psyduck", "Golduck", "Mankey", "Primeape", "Growlithe", "Arcanine", "Poliwag", 
-    "Poliwhirl", "Poliwrath", "Abra", "Kadabra", "Alakazam", "Machop", "Machoke", "Machamp", "Bellsprout", "Weepinbell", 
-    "Victreebel", "Tentacool", "Tentacruel", "Geodude", "Graveler", "Golem", "Ponyta", "Rapidash", "Slowpoke", "Slowbro", 
-    "Magnemite", "Magneton", "Farfetch'd", "Doduo", "Dodrio", "Seel", "Dewgong", "Grimer", "Muk", "Shellder", 
-    "Cloyster", "Gastly", "Haunter", "Gengar", "Onix", "Drowzee", "Hypno", "Krabby", "Kingler", "Voltorb", 
-    "Electrode", "Exeggcute", "Exeggutor", "Cubone", "Marowak", "Hitmonlee", "Hitmonchan", "Lickitung", "Koffing", "Weezing", 
-    "Rhyhorn", "Rhydon", "Chansey", "Tangela", "Kangaskhan", "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu", 
-    "Starmie", "Mr. Mime", "Scyther", "Jynx", "Electabuzz", "Magmar", "Pinsir", "Tauros", "Magikarp", "Gyarados", 
-    "Lapras", "Ditto", "Eevee", "Vaporeon", "Jolteon", "Flareon", "Porygon", "Omanyte", "Omastar", "Kabuto", 
-    "Kabutops", "Aerodactyl", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonair", "Dragonite", "Mewtwo", 
-    "Mew"
-)
 
 // Grupos de confusión para respuestas falsas realistas
 private val CONFUSION_GROUPS = listOf(
@@ -283,7 +265,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
         }
         
         currentOptions = optionsSet.toList().shuffled().map { id ->
-            Pair(id, KANTO_POKEMON[id - 1])
+            Pair(id, PokemonConstants.KANTO_POKEMON_LIST[id - 1])
         }
     }
 
@@ -343,7 +325,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                     isProcessing = true
                     scope.launch {
                         try {
-                            Network.api.rewardUser(RewardRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId = 0, coinsEarned = sessionCoins))
+                            Network.api.rewardUser(RewardRequest(userId = SessionManager.currentUserId, levelId = 0, coinsEarned = sessionCoins))
                             withContext(Dispatchers.Main) { showRewardDialog = true }
                         } catch(e: Exception) {
                             withContext(Dispatchers.Main) {
@@ -355,6 +337,23 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 } else if (!isProcessing) {
                     onNavigateBack()
                 }
+            },
+            extraContent = {
+                Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (difficulty != Difficulty.EASY) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("SEG", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                Text("$timeLeft", color = if (timeLeft <= 2) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                            }
+                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text("COINS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                            Text("$sessionCoins 💰", color = GoldPoke, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                        }
+                    }
+                }
             }
         )
 
@@ -364,51 +363,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Monedas (Ahora en una fila para evitar solapamiento con el título)
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Surface(
-                    color = Color.Black,
-                    shape = RoundedCornerShape(4.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White)
-                ) {
-                    Text(
-                        text = "💰 $sessionCoins",
-                        color = GoldPoke,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-            }
-
-            
-            if (difficulty != Difficulty.EASY) {
-                val timerColor = if (timeLeft <= 2) {
-                    if (flashTimer) Color.Red else Color.Yellow
-                } else {
-                    Color.Green
-                }
-                
-                val timerProgress by animateFloatAsState(
-                    targetValue = timeLeft.toFloat() / maxTime.toFloat(),
-                    animationSpec = tween(1000)
-                )
-                
-                LinearProgressIndicator(
-                    progress = { timerProgress },
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(10.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .border(2.dp, Color.Black, RoundedCornerShape(2.dp)),
-                    color = timerColor,
-                    trackColor = Color.DarkGray
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            } else {
+            if (difficulty == Difficulty.EASY) {
                 RetroText(
                     text = "¿QUIÉN ES ESE POKÉMON?",
                     fontSize = 22.sp,

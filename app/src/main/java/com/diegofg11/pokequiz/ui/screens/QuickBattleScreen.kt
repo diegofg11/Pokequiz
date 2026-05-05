@@ -29,6 +29,7 @@ import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.SafariGameState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -87,7 +88,7 @@ fun QuickBattleScreen(
     onNavigateBack: () -> Unit,
     onStateChange: (Boolean) -> Unit = {}
 ) {
-    var gameState by remember { mutableStateOf("START") } // START, PLAYING, RESULT
+    var gameState by remember { mutableStateOf(SafariGameState.START) }
     var hasWon by remember { mutableStateOf(false) }
     var currentRound by remember { mutableIntStateOf(0) }
     var isInverseMode by remember { mutableStateOf(false) }
@@ -96,67 +97,95 @@ fun QuickBattleScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(gameState) {
-        onStateChange(gameState == "START")
+        onStateChange(gameState == SafariGameState.START)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        when (gameState) {
-            "START" -> QuickBattleStart(
-                onStart = { inverse ->
-                    isInverseMode = inverse
-                    val cost = if (inverse) -50 else -30
-                    scope.launch {
-                        try {
-                            val response = Network.api.rewardUser(RewardRequest(
-                                userId = SessionManager.currentUserId,
-                                levelId = 0,
-                                coinsEarned = cost
-                            ))
-                            if (response.isSuccessful) {
-                                currentRound = 1
-                                gameState = "PLAYING"
-                            } else {
-                                globalError = "No tienes suficientes monedas para entrar."
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header visible only during game or result
+            if (gameState != SafariGameState.START) {
+                SafariRetroHeader(
+                    title = "BATALLA RÁPIDA",
+                    onBackClick = {
+                        if (gameState == SafariGameState.PLAYING) {
+                            gameState = SafariGameState.RESULT // Or just back to start
+                        } else {
+                            gameState = SafariGameState.START
+                        }
+                    },
+                    extraContent = {
+                        if (gameState == SafariGameState.PLAYING) {
+                            Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                                RetroText(
+                                    "RONDA $currentRound / 3",
+                                    fontSize = 14.sp
+                                )
                             }
-                        } catch (e: Exception) {
-                            globalError = "Error de conexión: ${e.localizedMessage}"
                         }
                     }
-                }
-            )
-            "PLAYING" -> QuickBattleGame(
-                round = currentRound,
-                isInverse = isInverseMode,
-                onRoundWin = {
-                    if (currentRound < 3) {
-                        currentRound++
-                    } else {
-                        hasWon = true
-                        gameState = "RESULT"
-                        // Reward
-                        scope.launch {
-                            try {
-                                val reward = if (isInverseMode) 200 else 100
-                                Network.api.rewardUser(RewardRequest(
-                                    userId = SessionManager.currentUserId,
-                                    levelId = 0,
-                                    coinsEarned = reward
-                                ))
-                            } catch (e: Exception) { /* ignore */ }
+                )
+            }
+
+            Box(modifier = Modifier.weight(1f)) {
+                when (gameState) {
+                    SafariGameState.START -> QuickBattleStart(
+                        onStart = { inverse ->
+                            isInverseMode = inverse
+                            val cost = if (inverse) -50 else -30
+                            scope.launch {
+                                try {
+                                    val response = Network.api.rewardUser(RewardRequest(
+                                        userId = SessionManager.currentUserId,
+                                        levelId = 0,
+                                        coinsEarned = cost
+                                    ))
+                                    if (response.isSuccessful) {
+                                        currentRound = 1
+                                        gameState = SafariGameState.PLAYING
+                                    } else {
+                                        globalError = "No tienes suficientes monedas para entrar."
+                                    }
+                                } catch (e: Exception) {
+                                    globalError = "Error de conexión: ${e.localizedMessage}"
+                                }
+                            }
                         }
-                    }
-                },
-                onGameOver = {
-                    hasWon = false
-                    gameState = "RESULT"
+                    )
+                    SafariGameState.PLAYING -> QuickBattleGame(
+                        round = currentRound,
+                        isInverse = isInverseMode,
+                        onRoundWin = {
+                            if (currentRound < 3) {
+                                currentRound++
+                            } else {
+                                hasWon = true
+                                gameState = SafariGameState.RESULT
+                                // Reward
+                                scope.launch {
+                                    try {
+                                        val reward = if (isInverseMode) 200 else 100
+                                        Network.api.rewardUser(RewardRequest(
+                                            userId = SessionManager.currentUserId,
+                                            levelId = 0,
+                                            coinsEarned = reward
+                                        ))
+                                    } catch (e: Exception) { /* ignore */ }
+                                }
+                            }
+                        },
+                        onGameOver = {
+                            hasWon = false
+                            gameState = SafariGameState.RESULT
+                        }
+                    )
+                    SafariGameState.RESULT -> QuickBattleResult(
+                        hasWon = hasWon,
+                        isInverse = isInverseMode,
+                        onRetry = { gameState = SafariGameState.START },
+                        onExit = onNavigateBack
+                    )
                 }
-            )
-            "RESULT" -> QuickBattleResult(
-                hasWon = hasWon,
-                isInverse = isInverseMode,
-                onRetry = { gameState = "START" },
-                onExit = onNavigateBack
-            )
+            }
         }
         if (globalError != null) {
             PokemonAlertDialog(
@@ -261,24 +290,15 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Indicador de ronda
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RetroText(
-                "RONDA $round / 3",
-                fontSize = 18.sp
-            )
-            
+        // Indicador de modo (Clásico/Inverso)
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             RetroMenuBox(
                 backgroundColor = if (isInverse) Color(0xFF9C27B0).copy(alpha = 0.8f) else Color(0xFF4CAF50).copy(alpha = 0.8f),
                 borderColor = Color.White,
                 modifier = Modifier.wrapContentSize()
             ) {
                 Text(
-                    if (isInverse) " INVERSO " else " CLÁSICO ",
+                    if (isInverse) " MODO INVERSO " else " MODO CLÁSICO ",
                     color = Color.White,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,

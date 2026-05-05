@@ -345,48 +345,37 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         ) {
             // Barra superior
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {
+            SafariRetroHeader(
+                title = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
+                onBackClick = {
                     if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
                         showExitWarning = true
                     } else if (!isProcessing) {
                         onNavigateBack()
                     }
-                }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
-                }
-                RetroText(
-                    text = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
-                    color = if (difficulty == MemoryDifficulty.INFERNAL) Color(0xFFE53935) else Color.White,
-                    fontSize = 20.sp,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                
-                // Vidas
-                RetroMenuBox(
-                    backgroundColor = Color(0x33000000),
-                    borderColor = Color.White.copy(alpha = 0.5f),
-                    modifier = Modifier.wrapContentSize()
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Favorite, contentDescription = "Vidas", tint = Color(0xFFE53935), modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            fontSize = 12.sp
-                        )
+                },
+                extraContent = {
+                    Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                        RetroMenuBox(
+                            backgroundColor = Color(0x33000000),
+                            borderColor = Color.White.copy(alpha = 0.5f),
+                            modifier = Modifier.wrapContentSize()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Favorite, contentDescription = "Vidas", tint = Color(0xFFE53935), modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
                     }
                 }
-            }
+            )
             
             // Barra de tiempo para el modo Infernal
             if (difficulty == MemoryDifficulty.INFERNAL) {

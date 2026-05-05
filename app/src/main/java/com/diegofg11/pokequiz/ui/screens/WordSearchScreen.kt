@@ -23,8 +23,8 @@ import com.diegofg11.pokequiz.ui.theme.BackgroundMid
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
-import com.diegofg11.pokequiz.api.Network
-import com.diegofg11.pokequiz.models.RewardRequest
+import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.PokemonConstants
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.geometry.Offset
@@ -73,7 +73,7 @@ fun WordSearchScreen(
                 scope.launch {
                     try {
                         val response = Network.api.rewardUser(RewardRequest(
-                            userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId,
+                            userId = SessionManager.currentUserId,
                             levelId = 0,
                             coinsEarned = cost
                         ))
@@ -167,27 +167,52 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
     }
 }
 
-// Lista de los 151 Pokémon de Kanto
-private val POKEMON_LIST = listOf(
-    "BULBASAUR", "IVYSAUR", "VENUSAUR", "CHARMANDER", "CHARMELEON", "CHARIZARD", "SQUIRTLE", "WARTORTLE", "BLASTOISE", "CATERPIE",
-    "METAPOD", "BUTTERFREE", "WEEDLE", "KAKUNA", "BEEDRILL", "PIDGEY", "PIDGEOTTO", "PIDGEOT", "RATTATA", "RATICATE",
-    "SPEAROW", "FEAROW", "EKANS", "ARBOK", "PIKACHU", "RAICHU", "SANDSHREW", "SANDSLASH", "NIDORAN", "NIDORINA",
-    "NIDOQUEEN", "NIDORINO", "NIDOKING", "CLEFAIRY", "CLEFABLE", "VULPIX", "NINETALES", "JIGGLYPUFF", "WIGGLYTUFF",
-    "ZUBAT", "GOLBAT", "ODDISH", "GLOOM", "VILEPLUME", "PARAS", "PARASECT", "VENONAT", "VENOMOTH", "DIGLETT",
-    "DUGTRIO", "MEOWTH", "PERSIAN", "PSYDUCK", "GOLDUCK", "MANKEY", "PRIMEAPE", "GROWLITHE", "ARCANINE", "POLIWAG",
-    "POLIWHIRL", "POLIWRATH", "ABRA", "KADABRA", "ALAKAZAM", "MACHOP", "MACHOKE", "MACHAMP", "BELLSPROUT", "WEEPINBELL",
-    "VICTREEBEL", "TENTACOOL", "TENTACRUEL", "GEODUDE", "GRAVELER", "GOLEM", "PONYTA", "RAPIDASH", "SLOWPOKE", "SLOWBRO",
-    "MAGNEMITE", "MAGNETON", "FARFETCHD", "DODUO", "DODRIO", "SEEL", "DEWGONG", "GRIMER", "MUK", "SHELLDER",
-    "CLOYSTER", "GASTLY", "HAUNTER", "GENGAR", "ONIX", "DROWZEE", "HYPNO", "KRABBY", "KINGLER", "VOLTORB",
-    "ELECTRODE", "EXEGGCUTE", "EXEGGUTOR", "CUBONE", "MAROWAK", "HITMONLEE", "HITMONCHAN", "LICKITUNG", "KOFFING", "WEEZING",
-    "RHYHORN", "RHYDON", "CHANSEY", "TANGELA", "KANGASKHAN", "HORSEA", "SEADRA", "GOLDEEN", "SEAKING", "STARYU",
-    "STARMIE", "MRMIME", "SCYTHER", "JYNX", "ELECTABUZZ", "MAGMAR", "PINSIR", "TAUROS", "MAGIKARP", "GYARADOS",
-    "LAPRAS", "DITTO", "EEVEE", "VAPOREON", "JOLTEON", "FLAREON", "PORYGON", "OMANYTE", "OMASTAR", "KABUTO",
-    "KABUTOPS", "AERODACTYL", "SNORLAX", "ARTICUNO", "ZAPDOS", "MOLTRES", "DRATINI", "DRAGONAIR", "DRAGONITE", "MEWTWO",
-    "MEW"
-)
+@Composable
+fun WordSearchCell(
+    char: Char,
+    isSelected: Boolean,
+    isFound: Boolean,
+    difficulty: WordSearchDifficulty
+) {
+    // Efecto Infernal: Vibración de letras
+    val infiniteTransition = rememberInfiniteTransition(label = "vibration")
+    val rotation by if (difficulty == WordSearchDifficulty.INFERNAL && !isFound && !isSelected) {
+        infiniteTransition.animateFloat(
+            initialValue = -15f,
+            targetValue = 15f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 300 + Random.nextInt(200), easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "rotation"
+        )
+    } else {
+        remember { mutableFloatStateOf(0f) }
+    }
 
-data class GridCell(val row: Int, val col: Int, val char: Char)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                when {
+                    isSelected -> Color(0xAAFFC107) // Amber
+                    isFound -> Color(0xAA4CAF50) // Green
+                    else -> Color.Transparent
+                },
+                RoundedCornerShape(2.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = char.toString(),
+            color = if (isSelected || isFound) Color.Black else Color.White,
+            fontWeight = FontWeight.Black,
+            fontSize = 16.sp,
+            modifier = Modifier.rotate(rotation),
+            fontFamily = FontFamily.Monospace
+        )
+    }
+}
 
 @Composable
 fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
@@ -231,19 +256,19 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         hasWon = false
         isGridReady = false
 
-        val filteredWords = POKEMON_LIST.filter { 
+        val filteredWords = (0 until 151).filter { 
+            val name = PokemonConstants.getCleanPokemonName(it)
             when (difficulty) {
-                WordSearchDifficulty.NORMAL -> it.length in 3..6
-                WordSearchDifficulty.HARD -> it.length in 4..8
-                WordSearchDifficulty.INFERNAL -> it.length >= 5
+                WordSearchDifficulty.NORMAL -> name.length in 3..6
+                WordSearchDifficulty.HARD -> name.length in 4..8
+                WordSearchDifficulty.INFERNAL -> name.length >= 5
             }
-        }.shuffled().take(wordsToFindCount)
+        }.shuffled().take(wordsToFindCount).map { PokemonConstants.getCleanPokemonName(it) }
         
         wordsToFind = filteredWords
         
         // Generar cuadrícula
         val newGrid = Array(gridSize) { CharArray(gridSize) { ' ' } }
-        val placedCells = mutableSetOf<Pair<Int, Int>>()
         
         for (word in filteredWords) {
             var placed = false
@@ -331,7 +356,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
             scope.launch {
                 try {
                     Network.api.rewardUser(RewardRequest(
-                        userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId,
+                        userId = SessionManager.currentUserId,
                         levelId = 0,
                         coinsEarned = reward
                     ))
@@ -351,28 +376,24 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         // Header Retro
         SafariRetroHeader(
             title = "SOPA DE LETRAS",
-            onBackClick = onGameEnd
+            onBackClick = onGameEnd,
+            extraContent = {
+                Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text("TIME", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                            Text("00:${timeRemaining.toString().padStart(2, '0')}", color = if (timeRemaining <= 10) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                        }
+                        Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text("WORDS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                            Text("${foundWords.size}/$wordsToFindCount", color = GoldPoke, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                        }
+                    }
+                }
+            }
         )
 
-        // Stats Row
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RetroText(
-                    text = "00:${timeRemaining.toString().padStart(2, '0')}",
-                    color = if (timeRemaining <= 10) Color.Red else Color.White,
-                    fontSize = 28.sp
-                )
-                
-                RetroText(
-                    text = "${foundWords.size} / $wordsToFindCount",
-                    color = GoldPoke,
-                    fontSize = 22.sp
-                )
-            }
-            
             PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -475,42 +496,16 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                                     val isSelected = selectedCells.contains(Pair(r, c))
                                     val isFound = foundCells.contains(Pair(r, c))
                                     
-                                    // Efecto Infernal: Vibración de letras
-                                    val infiniteTransition = rememberInfiniteTransition()
-                                    val rotation by if (difficulty == WordSearchDifficulty.INFERNAL && !isFound && !isSelected) {
-                                        infiniteTransition.animateFloat(
-                                            initialValue = -15f,
-                                            targetValue = 15f,
-                                            animationSpec = infiniteRepeatable(
-                                                animation = tween(durationMillis = 300 + Random.nextInt(200), easing = LinearEasing),
-                                                repeatMode = RepeatMode.Reverse
-                                            )
-                                        )
-                                    } else {
-                                        remember { mutableFloatStateOf(0f) }
-                                    }
-                                    
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
                                             .fillMaxHeight()
-                                            .background(
-                                                when {
-                                                    isSelected -> Color(0xAAFFC107) // Amber
-                                                    isFound -> Color(0xAA4CAF50) // Green
-                                                    else -> Color.Transparent
-                                                },
-                                                RoundedCornerShape(2.dp)
-                                            ),
-                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Text(
-                                            text = grid[r][c].toString(),
-                                            color = if (isSelected || isFound) Color.Black else Color.White,
-                                            fontWeight = FontWeight.Black,
-                                            fontSize = 16.sp,
-                                            modifier = Modifier.rotate(rotation),
-                                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                        WordSearchCell(
+                                            char = grid[r][c],
+                                            isSelected = isSelected,
+                                            isFound = isFound,
+                                            difficulty = difficulty
                                         )
                                     }
                                 }
