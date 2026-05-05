@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -97,18 +98,7 @@ fun WordSearchScreen(
 
 @Composable
 fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,20 +106,18 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            RetroText(
                 text = "SOPA DE LETRAS",
-                color = Color.White,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
             )
 
             // Grid de Selección de Dificultad
@@ -341,18 +329,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -365,30 +342,30 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
 
         // Stats Row
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                RetroText(
                     text = "00:${timeRemaining.toString().padStart(2, '0')}",
                     color = if (timeRemaining <= 10) Color.Red else Color.White,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 28.sp
                 )
                 
-                Text(
+                RetroText(
                     text = "${foundWords.size} / $wordsToFindCount",
                     color = GoldPoke,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 22.sp
                 )
             }
+            
+            PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
             
             Spacer(modifier = Modifier.height(24.dp))
             
             // Words List
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 wordsToFind.forEach { word ->
@@ -397,7 +374,8 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                         color = if (foundWords.contains(word)) Color.Gray else Color.White,
                         textDecoration = if (foundWords.contains(word)) androidx.compose.ui.text.style.TextDecoration.LineThrough else null,
                         fontWeight = if (foundWords.contains(word)) FontWeight.Normal else FontWeight.Bold,
-                        fontSize = 12.sp
+                        fontSize = 10.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                     )
                 }
             }
@@ -508,16 +486,17 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                                                     isFound -> Color(0xAA4CAF50) // Green
                                                     else -> Color.Transparent
                                                 },
-                                                RoundedCornerShape(4.dp)
+                                                RoundedCornerShape(2.dp)
                                             ),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = grid[r][c].toString(),
                                             color = if (isSelected || isFound) Color.Black else Color.White,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 18.sp,
-                                            modifier = Modifier.rotate(rotation)
+                                            fontWeight = FontWeight.Black,
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.rotate(rotation),
+                                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                                         )
                                     }
                                 }

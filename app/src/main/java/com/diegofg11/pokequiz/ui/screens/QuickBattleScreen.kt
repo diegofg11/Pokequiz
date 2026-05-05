@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -98,18 +99,7 @@ fun QuickBattleScreen(
         onStateChange(gameState == "START")
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         when (gameState) {
             "START" -> QuickBattleStart(
                 onStart = { inverse ->
@@ -168,6 +158,7 @@ fun QuickBattleScreen(
                 onExit = onNavigateBack
             )
         }
+    }
 
         if (globalError != null) {
             PokemonAlertDialog(
@@ -177,7 +168,6 @@ fun QuickBattleScreen(
             )
         }
     }
-}
 
 @Composable
 fun QuickBattleStart(onStart: (Boolean) -> Unit) {
@@ -192,20 +182,18 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            RetroText(
                 "BATALLA RÁPIDA",
-                color = Color.White,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 "Selecciona un modo para empezar",
                 color = Color.LightGray,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
             )
 
             // Selector de Modo
@@ -276,30 +264,31 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
     ) {
         // Round Indicator
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            RetroText(
                 "RONDA $round / 3",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Black
+                fontSize = 18.sp
             )
             
-            Surface(
-                color = if (isInverse) Color(0xFF9C27B0) else Color(0xFF4CAF50),
-                shape = RoundedCornerShape(8.dp)
+            RetroMenuBox(
+                backgroundColor = if (isInverse) Color(0xFF9C27B0).copy(alpha = 0.8f) else Color(0xFF4CAF50).copy(alpha = 0.8f),
+                borderColor = Color.White,
+                modifier = Modifier.wrapContentSize()
             ) {
                 Text(
-                    if (isInverse) " MODO INVERSO " else " MODO CLÁSICO ",
+                    if (isInverse) " INVERSO " else " CLÁSICO ",
                     color = Color.White,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(4.dp)
+                    fontFamily = FontFamily.Monospace
                 )
             }
         }
+
+        PixelDivider(modifier = Modifier.padding(vertical = 12.dp))
 
         // Timer Bar
         LinearProgressIndicator(
@@ -331,11 +320,9 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
             }
         }
         
-        Text(
+        RetroText(
             opponent.name,
-            color = Color.White,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
+            fontSize = 24.sp,
             modifier = Modifier.padding(top = 16.dp)
         )
 
@@ -357,8 +344,8 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
             modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)
         ) {
             items(typeButtons) { type ->
-                Button(
-                    onClick = {
+                RetroMenuBox(
+                    modifier = Modifier.height(70.dp).clickable {
                         if (!isAnswered) {
                             isAnswered = true
                             val targetList = if (isInverse) opponent.resistances else opponent.weaknesses
@@ -369,11 +356,18 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
                             }
                         }
                     },
-                    modifier = Modifier.height(60.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = type.color),
-                    shape = RoundedCornerShape(12.dp)
+                    backgroundColor = type.color,
+                    borderColor = Color.Black
                 ) {
-                    Text(type.name, fontWeight = FontWeight.Bold)
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            type.name, 
+                            fontWeight = FontWeight.Black, 
+                            color = if (type == PokeType.ELECTRIC) Color.Black else Color.White,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
         }

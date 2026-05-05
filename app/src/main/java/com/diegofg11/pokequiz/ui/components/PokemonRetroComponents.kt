@@ -23,6 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.TextStyle
 import com.diegofg11.pokequiz.ui.theme.*
 
 @Composable
@@ -34,14 +38,121 @@ fun RetroMenuBox(
 ) {
     Box(
         modifier = modifier
-            .border(4.dp, borderColor, RoundedCornerShape(8.dp))
+            .border(4.dp, borderColor, RoundedCornerShape(2.dp))
             .padding(2.dp)
-            .border(2.dp, Color.White, RoundedCornerShape(6.dp))
-            .background(backgroundColor, RoundedCornerShape(6.dp))
-            .padding(16.dp)
+            .border(2.dp, Color.White, RoundedCornerShape(1.dp))
+            .background(backgroundColor)
     ) {
-        Column {
+        // Subtle grid pattern
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val step = 8.dp.toPx()
+            for (x in 0..size.width.toInt() step step.toInt()) {
+                drawLine(Color.Black.copy(alpha = 0.03f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height), strokeWidth = 1f)
+            }
+            for (y in 0..size.height.toInt() step step.toInt()) {
+                drawLine(Color.Black.copy(alpha = 0.03f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()), strokeWidth = 1f)
+            }
+        }
+
+        // Decorative corner dots
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.TopStart))
+            Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.TopEnd))
+            Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.BottomStart))
+            Box(modifier = Modifier.size(6.dp).background(borderColor).align(Alignment.BottomEnd))
+        }
+        
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
             content()
+        }
+    }
+}
+
+@Composable
+fun RetroBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFF2D5A27))
+    ) {
+        // Pixel Pattern Overlay
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val step = 16.dp.toPx()
+            for (x in 0..size.width.toInt() step step.toInt()) {
+                for (y in 0..size.height.toInt() step step.toInt()) {
+                    drawRect(
+                        color = Color.Black.copy(alpha = 0.05f),
+                        topLeft = Offset(x.toFloat(), y.toFloat()),
+                        size = Size(4.dp.toPx(), 4.dp.toPx())
+                    )
+                }
+            }
+        }
+
+        // Screen Border
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .border(4.dp, Color.Black.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+        )
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            content = content
+        )
+    }
+}
+
+@Composable
+fun RetroText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.White,
+    fontSize: androidx.compose.ui.unit.TextUnit = 14.sp,
+    textAlign: TextAlign = TextAlign.Start,
+    fontWeight: FontWeight = FontWeight.Bold,
+    shadowColor: Color = Color.Black
+) {
+    Box(modifier = modifier) {
+        // Shadow (More defined)
+        Text(
+            text = text,
+            color = shadowColor,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            fontFamily = FontFamily.Monospace,
+            modifier = Modifier.offset(x = 2.dp, y = 2.dp)
+        )
+        // Main Text
+        Text(
+            text = text,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            fontFamily = FontFamily.Monospace
+        )
+    }
+}
+
+@Composable
+fun PixelDivider(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier.fillMaxWidth().height(4.dp)) {
+        val width = size.width
+        val step = 8.dp.toPx()
+        for (i in 0..(width / step).toInt()) {
+            drawRect(
+                color = if (i % 2 == 0) Color.Black.copy(alpha = 0.2f) else Color.Transparent,
+                topLeft = Offset(i * step, 0f),
+                size = Size(step, 4.dp.toPx())
+            )
         }
     }
 }
@@ -165,16 +276,18 @@ fun SafariRetroHeader(
         // Título en Caja Retro
         RetroMenuBox(
             modifier = Modifier.weight(1f),
-            backgroundColor = Color(0xFFF8F8F8)
+            backgroundColor = Color(0xFFF8F8F8),
+            borderColor = Color(0xFF5D4037)
         ) {
             Text(
-                text = title,
+                text = title.uppercase(),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.Black,
-                letterSpacing = 1.sp
+                letterSpacing = 2.sp,
+                fontFamily = FontFamily.Monospace
             )
         }
     }
@@ -190,39 +303,76 @@ fun RetroDifficultyCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val borderColor = color.copy(alpha = 0.8f)
+    
     Box(
         modifier = modifier
+            .height(130.dp) // Fixed height to reduce empty space
             .clickable { onClick() }
-            .border(4.dp, Color.Black, RoundedCornerShape(12.dp))
+            .border(4.dp, Color.Black, RoundedCornerShape(4.dp))
             .padding(2.dp)
-            .border(2.dp, Color.White, RoundedCornerShape(10.dp))
-            .background(color.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+            .border(2.dp, Color.White, RoundedCornerShape(2.dp))
+            .background(color.copy(alpha = 0.2f))
             .padding(12.dp)
     ) {
+        // Mini corner ornaments
+        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.TopStart))
+        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.TopEnd))
+        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.BottomStart))
+        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.BottomEnd))
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
                 text = title,
                 color = color,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 16.sp,
-                letterSpacing = 1.sp
+                fontWeight = FontWeight.Black,
+                fontSize = 18.sp,
+                letterSpacing = 1.sp,
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.Center
             )
-            Text(
-                text = subtitle,
-                color = Color.DarkGray,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Surface(
+                color = color.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                Text(
+                    text = subtitle,
+                    color = Color.Black,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                    fontFamily = FontFamily.Monospace
+                )
+            }
+            
+            Spacer(modifier = Modifier.weight(1f))
+            
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(cost, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Text(reward, color = Color(0xFFBF8F00), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text(
+                    cost, 
+                    color = Color.Black, 
+                    fontWeight = FontWeight.ExtraBold, 
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace
+                )
+                Text(
+                    reward, 
+                    color = Color(0xFFD4AF37), // Gold more saturated
+                    fontWeight = FontWeight.ExtraBold, 
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace
+                )
             }
         }
     }

@@ -34,6 +34,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version = "2.7.0" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 [plugins]

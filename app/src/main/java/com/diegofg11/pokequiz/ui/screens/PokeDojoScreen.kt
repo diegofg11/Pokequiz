@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -76,18 +77,7 @@ fun PokeDojoScreen(
         onStateChange(gameState == "START")
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         when (gameState) {
             "START" -> PokeDojoStart(
                 onStart = { selectedDifficulty ->
@@ -155,6 +145,7 @@ fun PokeDojoScreen(
                 onExit = onNavigateBack
             )
         }
+    }
 
         if (globalError != null) {
             PokemonAlertDialog(
@@ -165,7 +156,6 @@ fun PokeDojoScreen(
             )
         }
     }
-}
 
 @Composable
 fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
@@ -178,19 +168,18 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            RetroText(
                 "POKÉ-DOJO",
-                color = Color.White,
                 fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
             Text(
                 "Selecciona un modo para empezar",
                 color = Color.LightGray,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
             )
 
             // Dificultad Cards
@@ -221,29 +210,27 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+                PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
             
-            Text(
+            RetroText(
                 "RANGOS Y PUNTUACIÓN",
-                color = Color.White,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
             // Reward Table (Mini)
-            Surface(
+            RetroMenuBox(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White.copy(alpha = 0.05f),
-                shape = RoundedCornerShape(16.dp)
+                backgroundColor = Color.White.copy(alpha = 0.05f),
+                borderColor = Color.White.copy(alpha = 0.2f)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("RANGO", color = Color.LightGray, fontSize = 10.sp, modifier = Modifier.weight(1f))
-                        Text("NORMAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f))
-                        Text("INFERNAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f))
+                        Text("RANGO", color = Color.LightGray, fontSize = 10.sp, modifier = Modifier.weight(1f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
+                        Text("NORMAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
+                        Text("INFERNAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
                     }
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = Color.White.copy(alpha = 0.1f))
+                    PixelDivider(modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
                     RankRow("Bronce", "100", "60", "200", "120")
                     RankRow("Plata", "300", "180", "600", "350")
                     RankRow("Oro", "500", "350", "1000", "750")
@@ -255,15 +242,16 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
 
 @Composable
 fun RankRow(rank: String, ptsN: String, coinsN: String, ptsI: String, coinsI: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(rank, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+    Row(modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(rank, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
         
         Text(
             text = "$ptsN ($coinsN 💰)", 
             color = Color.LightGray, 
             fontSize = 10.sp,
             textAlign = TextAlign.End,
-            modifier = Modifier.weight(1.5f)
+            modifier = Modifier.weight(1.5f),
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
         )
         
         Text(
@@ -272,7 +260,8 @@ fun RankRow(rank: String, ptsN: String, coinsN: String, ptsI: String, coinsI: St
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.End,
-            modifier = Modifier.weight(1.5f)
+            modifier = Modifier.weight(1.5f),
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
         )
     }
 }
@@ -339,20 +328,22 @@ fun PokeDojoGame(difficulty: DojoDifficulty, onGameEnd: (Int) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("PUNTOS", color = Color.LightGray, fontSize = 12.sp)
-                Text("$score", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Black)
+                Text("PUNTOS", color = Color.LightGray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+                RetroText("$score", fontSize = 32.sp)
             }
             
             Column(horizontalAlignment = Alignment.End) {
-                Text("TIEMPO", color = Color.LightGray, fontSize = 12.sp)
-                Text("$timeLeft s", color = if (timeLeft < 5) Color.Red else Color.White, fontSize = 32.sp, fontWeight = FontWeight.Black)
+                Text("TIEMPO", color = Color.LightGray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+                RetroText("$timeLeft s", color = if (timeLeft < 5) Color.Red else Color.White, fontSize = 32.sp)
             }
         }
+
+        PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
 
         if (difficulty == DojoDifficulty.INFERNAL) {
             Text("¡MODO INFERNAL!", color = Color(0xFFE53935), fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)

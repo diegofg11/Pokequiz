@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -115,18 +116,7 @@ fun GuessPokemonScreen(
 
 @Composable
 fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -134,20 +124,18 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            RetroText(
                 text = "¿QUIÉN ES ESE POKÉMON?",
-                color = Color.White,
                 fontSize = 24.sp,
-                lineHeight = 30.sp,
-                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
             )
 
             // Grid de Selección de Dificultad
@@ -340,18 +328,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         // Barra superior
         SafariRetroHeader(
             title = "ZONA SAFARI",
@@ -415,19 +392,17 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                     progress = { timerProgress },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
-                        .height(12.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .border(1.dp, Color.White, RoundedCornerShape(6.dp)),
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(2.dp)),
                     color = timerColor,
                     trackColor = Color.DarkGray
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             } else {
-                Text(
-                    text = "¿Quién es ese Pokémon?",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
+                RetroText(
+                    text = "¿QUIÉN ES ESE POKÉMON?",
+                    fontSize = 22.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
@@ -545,21 +520,21 @@ fun OptionButton(
     
     val textColor = if (isRevealed && (isCorrect || isSelected)) Color.White else Color.Black
 
-    Surface(
+    RetroMenuBox(
         modifier = modifier
-            .height(60.dp)
+            .height(65.dp)
             .clickable(enabled = !isRevealed) { onClick() },
-        shape = RoundedCornerShape(4.dp),
-        color = backgroundColor,
-        border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black)
+        backgroundColor = backgroundColor,
+        borderColor = Color.Black
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Text(
                 text = text.uppercase(),
                 color = textColor,
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
-                textAlign = TextAlign.Center
+                fontWeight = FontWeight.Black,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
             )
         }
     }

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -75,18 +76,7 @@ fun MemoryGameScreen(
 
 @Composable
 fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -94,19 +84,18 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            RetroText(
                 text = "MEMORAMA",
                 fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Selecciona un modo para empezar",
                 color = Color.LightGray,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp, bottom = 48.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
             )
 
             // Modo Selección de Tarjetas
@@ -348,18 +337,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27))
-    ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.3f
-        )
+    RetroBackground {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -379,29 +357,31 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
-                Text(
+                RetroText(
                     text = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
                     color = if (difficulty == MemoryDifficulty.INFERNAL) Color(0xFFE53935) else Color.White,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
                 
                 // Vidas
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .background(Color(0x33000000), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                RetroMenuBox(
+                    backgroundColor = Color(0x33000000),
+                    borderColor = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier.wrapContentSize()
                 ) {
-                    Icon(Icons.Default.Favorite, contentDescription = "Lives", tint = Color(0xFFE53935), modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Lives", tint = Color(0xFFE53935), modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
             }
             
