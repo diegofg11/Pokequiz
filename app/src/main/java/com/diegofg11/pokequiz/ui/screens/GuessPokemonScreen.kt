@@ -69,7 +69,7 @@ fun GuessPokemonScreen(
 
     if (difficulty == null) {
         SafariSelectionScreen(
-            title = "¿QUIÉN ES ESE POKÉMON?",
+            title = "¿CUAL ES ESTE POKÉMON?",
             subtitle = "Selecciona un modo para empezar",
             cards = listOf(
                 DifficultyCardData("FÁCIL", "Sin límites", "-30", "15", Color(0xFF4CAF50), { difficulty = GuessDifficulty.EASY }),

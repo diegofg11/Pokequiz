@@ -661,6 +661,42 @@ fun SafariSelectionScreen(
     }
 }
 
+
+@Composable
+fun RetroButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = Color(0xFF2D5A27).copy(alpha = 0.8f),
+    contentColor: Color = Color.White,
+    borderColor: Color = Color(0xFF1B3022),
+    fontSize: androidx.compose.ui.unit.TextUnit = 16.sp,
+    enabled: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .height(56.dp)
+            .border(2.dp, borderColor, RoundedCornerShape(8.dp)),
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.5f),
+            disabledContentColor = contentColor.copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(8.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+    ) {
+        Text(
+            text = text.uppercase(),
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Monospace,
+            fontSize = fontSize
+        )
+    }
+}
+
 data class DifficultyCardData(
     val title: String,
     val subtitle: String,
