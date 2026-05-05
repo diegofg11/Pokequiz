@@ -446,57 +446,13 @@ fun PokeDojoResult(score: Int, difficulty: DojoDifficulty, onRetry: () -> Unit, 
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("¡FIN DE LA SESIÓN!", color = Color.LightGray, fontSize = 16.sp)
-        Text("$score PTS", color = if (difficulty == DojoDifficulty.INFERNAL) Color(0xFFE53935) else Color.White, fontSize = 56.sp, fontWeight = FontWeight.Black)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f)),
-            shape = RoundedCornerShape(24.dp),
-            border = androidx.compose.foundation.BorderStroke(2.dp, if (reward > 0) GoldPoke else Color.Gray)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("RANGO ALCANZADO (${difficulty.name}):", color = Color.LightGray, fontSize = 10.sp)
-                Text(rank, color = when(rank) {
-                    "ORO" -> GoldPoke
-                    "PLATA" -> Color(0xFFC0C0C0)
-                    "BRONCE" -> Color(0xFFCD7F32)
-                    else -> Color.Gray
-                }, fontSize = 32.sp, fontWeight = FontWeight.Black)
-                
-                if (reward > 0) {
-                    Text("RECOMPENSA: +$reward 💰", color = Color.Green, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
-                } else {
-                    Text("¡Sigue practicando!", color = Color.White.copy(alpha = 0.6f), modifier = Modifier.padding(top = 8.dp))
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Button(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f)),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("INTENTAR DE NUEVO", fontWeight = FontWeight.Bold)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = onExit) {
-            Text("VOLVER AL MENÚ", color = Color.White.copy(alpha = 0.7f))
-        }
-    }
+    SafariResultScreen(
+        title = if (reward > 0) "¡SESIÓN FINALIZADA!" else "SESIÓN FINALIZADA",
+        subtitle = "POKÉ-DOJO - RANGO $rank",
+        description = "Has conseguido un total de $score puntos en el modo ${difficulty.name}.",
+        isVictory = reward > 0,
+        coinsEarned = reward,
+        onRetry = onRetry,
+        onExit = onExit
+    )
 }

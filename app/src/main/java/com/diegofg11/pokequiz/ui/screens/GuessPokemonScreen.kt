@@ -317,14 +317,20 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
     }
 
     if (showRewardDialog) {
-        PokemonAlertDialog(
-            title = if (sessionCoins > 0) "¡Fin de la partida!" else "Fin de la partida",
-            message = if (sessionCoins > 0) "Has ganado $sessionCoins monedas en total." else "Has perdido ${-sessionCoins} monedas en total.",
-            isError = false,
-            onDismiss = { 
+        SafariResultScreen(
+            title = if (sessionCoins >= 0) "¡VICTORIA!" else "DERROTA",
+            subtitle = "MODO ${difficulty.name}",
+            description = if (sessionCoins >= 0) 
+                "¡Increíble! Tienes un ojo experto para las siluetas Pokémon." 
+                else "La silueta te ha confundido esta vez. ¡Sigue practicando!",
+            isVictory = sessionCoins >= 0,
+            coinsEarned = sessionCoins,
+            onRetry = {
+                sessionCoins = 0
+                generateNewRound()
                 showRewardDialog = false
-                onNavigateBack()
-            }
+            },
+            onExit = onNavigateBack
         )
     }
 

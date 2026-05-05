@@ -375,72 +375,15 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
 
 @Composable
 fun QuickBattleResult(hasWon: Boolean, isInverse: Boolean, onRetry: () -> Unit, onExit: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .background(if (hasWon) Color(0xFF4CAF50) else Color(0xFFF44336), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                if (hasWon) "🏆" else "❌",
-                fontSize = 60.sp
-            )
-        }
-
-        Text(
-            if (hasWon) "¡VICTORIA!" else "¡DERROTA!",
-            color = Color.White,
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.padding(top = 24.dp)
-        )
-
-        val modeName = if (isInverse) "Inverso" else "Clásico"
-        Text(
-            "Modo $modeName",
-            color = if (isInverse) Color(0xFFCE93D8) else Color(0xFFA5D6A7),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            if (hasWon) "Has vencido a los 3 rivales.\n¡Eres un maestro de los tipos!" 
-            else "No has logrado completar el desafío.\n¡Sigue practicando!",
-            color = Color.LightGray,
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 16.dp, bottom = 48.dp)
-        )
-
-        if (hasWon) {
-            val reward = if (isInverse) 200 else 100
-            Text(
-                "+$reward MONEDAS",
-                color = GoldPoke,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-        }
-
-        Button(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f)),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("INTENTAR DE NUEVO", fontWeight = FontWeight.Bold)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = onExit) {
-            Text("VOLVER AL MENÚ", color = Color.White.copy(alpha = 0.7f))
-        }
-    }
+    SafariResultScreen(
+        title = if (hasWon) "¡VICTORIA!" else "DERROTA",
+        subtitle = "BATALLA RÁPIDA - ${if (isInverse) "INVERSO" else "CLÁSICO"}",
+        description = if (hasWon) 
+            "¡Eres un maestro de los tipos! Has vencido a todos los rivales." 
+            else "No has logrado superar el desafío. ¡Sigue entrenando!",
+        isVictory = hasWon,
+        coinsEarned = if (hasWon) (if (isInverse) 200 else 100) else 0,
+        onRetry = onRetry,
+        onExit = onExit
+    )
 }

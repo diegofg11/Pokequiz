@@ -215,17 +215,20 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     }
 
     if (showResultDialog) {
-        val title = if (hasWon) "¡VICTORIA!" else "DERROTA"
-        val message = if (hasWon) "¡Has encontrado todas las parejas!\nPremio gordo: +$winReward Monedas." else "Te has quedado sin oportunidades...\nEntrada cobrada: -$losePenalty Monedas."
-        
-        PokemonAlertDialog(
-            title = title,
-            message = message,
-            isError = !hasWon,
-            onDismiss = { 
+        SafariResultScreen(
+            title = if (hasWon) "¡VICTORIA!" else "DERROTA",
+            subtitle = "MEMORAMA - ${difficulty.name}",
+            description = if (hasWon) 
+                "¡Excelente memoria! Has encontrado todas las parejas Pokémon." 
+                else "¡No te rindas! Entrena tu memoria para la próxima vez.",
+            isVictory = hasWon,
+            coinsEarned = if (hasWon) winReward else -losePenalty,
+            onRetry = {
+                initializeGame()
                 showResultDialog = false
-                onNavigateBack()
-            }
+                hasWon = false
+            },
+            onExit = onNavigateBack
         )
     }
 

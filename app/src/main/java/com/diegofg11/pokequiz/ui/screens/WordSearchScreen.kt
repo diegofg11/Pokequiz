@@ -212,13 +212,25 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
     var hasWon by remember { mutableStateOf(false) }
     var showResultDialog by remember { mutableStateOf(false) }
     var isGridReady by remember { mutableStateOf(false) }
+    var gameId by remember { mutableIntStateOf(0) }
     
     // Selection state
     var selectedCells by remember { mutableStateOf<List<Pair<Int, Int>>>(emptyList()) }
     var foundCells by remember { mutableStateOf<Set<Pair<Int, Int>>>(emptySet()) }
 
     // Init Game
-    LaunchedEffect(Unit) {
+    LaunchedEffect(gameId) {
+        timeRemaining = when (difficulty) {
+            WordSearchDifficulty.NORMAL -> 60
+            WordSearchDifficulty.HARD -> 45
+            WordSearchDifficulty.INFERNAL -> 30
+        }
+        foundWords = emptySet()
+        foundCells = emptySet()
+        isGameOver = false
+        hasWon = false
+        isGridReady = false
+
         val filteredWords = POKEMON_LIST.filter { 
             when (difficulty) {
                 WordSearchDifficulty.NORMAL -> it.length in 3..6
@@ -520,17 +532,23 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
     }
     
     if (showResultDialog) {
-        PokemonAlertDialog(
-            title = if (hasWon) "¡ENCONTRADOS!" else "¡TIEMPO AGOTADO!",
-            message = if (hasWon) "Has encontrado todos los Pokémon a tiempo. ¡Buen ojo!" else "No has logrado encontrar todas las palabras. ¡Más suerte la próxima vez!",
-            onDismiss = {
+        SafariResultScreen(
+            title = if (hasWon) "¡VICTORIA!" else "DERROTA",
+            subtitle = "SOPA DE LETRAS - ${difficulty.name}",
+            description = if (hasWon) 
+                "¡Increíble! Has encontrado todos los Pokémon ocultos." 
+                else "Las palabras estaban bien escondidas... ¡Inténtalo de nuevo!",
+            isVictory = hasWon,
+            coinsEarned = if (hasWon) (when(difficulty) {
+                WordSearchDifficulty.NORMAL -> 30
+                WordSearchDifficulty.HARD -> 60
+                WordSearchDifficulty.INFERNAL -> 120
+            }) else -20,
+            onRetry = {
+                gameId++
                 showResultDialog = false
-                onGameEnd()
             },
-            onConfirm = {
-                showResultDialog = false
-                onGameEnd()
-            }
+            onExit = onGameEnd
         )
     }
 }

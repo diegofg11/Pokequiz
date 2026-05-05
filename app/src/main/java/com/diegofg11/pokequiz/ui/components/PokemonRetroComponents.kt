@@ -463,5 +463,136 @@ private fun InfoItem(label: String, value: String, color: Color) {
                 fontFamily = FontFamily.Monospace
             )
         }
+        }
+    }
+}
+
+@Composable
+fun SafariResultScreen(
+    title: String,
+    subtitle: String,
+    description: String,
+    isVictory: Boolean,
+    coinsEarned: Int,
+    onRetry: () -> Unit,
+    onExit: () -> Unit
+) {
+    RetroBackground {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Icono de Resultado
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), CircleShape)
+                    .border(4.dp, Color.Black.copy(alpha = 0.2f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    if (isVictory) "🏆" else "❌",
+                    fontSize = 50.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Título Principal
+            RetroText(
+                text = title.uppercase(),
+                fontSize = 38.sp,
+                textAlign = TextAlign.Center,
+                color = if (isVictory) Color.White else Color(0xFF1B3022)
+            )
+
+            // Subtítulo (Modo)
+            Text(
+                text = subtitle,
+                color = if (isVictory) Color(0xFF2D5A27) else Color(0xFF1B3022).copy(alpha = 0.7f),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Descripción
+            Text(
+                text = description,
+                color = Color(0xFF1B3022).copy(alpha = 0.8f),
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily.Monospace,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Monedas Ganadas
+            RetroMenuBox(
+                backgroundColor = Color.Black.copy(alpha = 0.05f),
+                borderColor = if (isVictory) GoldPoke else Color.Gray,
+                modifier = Modifier.wrapContentSize()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
+                        color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Monospace
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("💰", fontSize = 18.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Botones de Acción
+            Button(
+                onClick = onRetry,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2D5A27).copy(alpha = 0.2f),
+                    contentColor = Color(0xFF1B3022)
+                ),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(2.dp, Color(0xFF1B3022).copy(alpha = 0.5f))
+            ) {
+                Text(
+                    "INTENTAR DE NUEVO",
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(
+                onClick = onExit,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "VOLVER AL MENÚ",
+                    color = Color(0xFF1B3022).copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 12.sp
+                )
+            }
+        }
     }
 }
