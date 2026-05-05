@@ -351,29 +351,32 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
             }
         )
 
-        // Monedas (Flotante a la derecha)
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 80.dp, end = 16.dp), contentAlignment = Alignment.TopEnd) {
-            Surface(
-                color = Color.Black,
-                shape = RoundedCornerShape(4.dp),
-                border = androidx.compose.foundation.BorderStroke(2.dp, Color.White)
-            ) {
-                Text(
-                    text = "💰 $sessionCoins",
-                    color = GoldPoke,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                )
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Monedas (Ahora en una fila para evitar solapamiento con el título)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Surface(
+                    color = Color.Black,
+                    shape = RoundedCornerShape(4.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White)
+                ) {
+                    Text(
+                        text = "💰 $sessionCoins",
+                        color = GoldPoke,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+            }
+
             
             if (difficulty != Difficulty.EASY) {
                 val timerColor = if (timeLeft <= 2) {
