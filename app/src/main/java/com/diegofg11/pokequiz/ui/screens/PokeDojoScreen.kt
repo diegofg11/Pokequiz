@@ -145,8 +145,6 @@ fun PokeDojoScreen(
                 onExit = onNavigateBack
             )
         }
-    }
-
         if (globalError != null) {
             PokemonAlertDialog(
                 title = "Error",
@@ -156,6 +154,7 @@ fun PokeDojoScreen(
             )
         }
     }
+}
 
 @Composable
 fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {

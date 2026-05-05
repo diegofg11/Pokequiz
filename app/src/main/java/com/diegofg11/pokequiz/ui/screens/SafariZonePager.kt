@@ -22,12 +22,14 @@ import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.ui.components.*
 import kotlinx.coroutines.launch
 
+private const val PAGE_COUNT = 5
+
 @Composable
 fun SafariZonePager(
     initialPage: Int = 0,
     onNavigateBack: () -> Unit
 ) {
-    val pagerState = rememberPagerState(initialPage = initialPage) { 5 }
+    val pagerState = rememberPagerState(initialPage = initialPage) { PAGE_COUNT }
     val scope = rememberCoroutineScope()
     
     // Estado para saber si mostrar las flechas (solo en selección de modo)
@@ -88,7 +90,7 @@ fun SafariZonePager(
                     }
 
                     // Flecha Derecha
-                    if (pagerState.currentPage < 4) {
+                    if (pagerState.currentPage < PAGE_COUNT - 1) {
                         NavigationArrow(
                             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             modifier = Modifier
@@ -101,7 +103,7 @@ fun SafariZonePager(
                     // Indicadores de página (Pokeballs)
                     PokeballPageIndicator(
                         pagerState = pagerState.currentPage,
-                        pageCount = 5,
+                        pageCount = PAGE_COUNT,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .padding(bottom = 16.dp)
@@ -119,34 +121,34 @@ fun SafariZonePager(
                 3 -> "BATALLA RÁPIDA"
                 else -> "POKÉ-DOJO"
             }
-            
-            com.diegofg11.pokequiz.ui.components.PokemonHelpDialog(
+
+            PokemonHelpDialog(
                 title = title,
                 onDismiss = { showHelp = false }
             ) {
                 when(pagerState.currentPage) {
                     0 -> Column {
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO FÁCIL", "Adivina el Pokémon por su silueta. Sin límite de tiempo.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO DIFÍCIL", "Pokémon rotado aleatoriamente. Tienes 5 segundos.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "Siluetas distorsionadas, efectos visuales y solo 4 segundos.")
+                        HelpSection("MODO FÁCIL", "Adivina el Pokémon por su silueta. Sin límite de tiempo.")
+                        HelpSection("MODO DIFÍCIL", "Pokémon rotado aleatoriamente. Tienes 5 segundos.")
+                        HelpSection("MODO INFERNAL", "Siluetas distorsionadas, efectos visuales y solo 4 segundos.")
                     }
                     1 -> Column {
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO NORMAL", "Encuentra todas las parejas de Pokémon antes de que se acabe el tiempo.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "¡Cuidado! Hay bombas ocultas que restan tiempo si las pulsas.")
+                        HelpSection("MODO NORMAL", "Encuentra todas las parejas de Pokémon antes de que se acabe el tiempo.")
+                        HelpSection("MODO INFERNAL", "¡Cuidado! Hay bombas ocultas que restan tiempo si las pulsas.")
                     }
                     2 -> Column {
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO NORMAL", "Busca los nombres de los Pokémon en la cuadrícula.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO DIFÍCIL", "Más palabras y menos tiempo.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "Palabras en todas direcciones, incluso invertidas.")
+                        HelpSection("MODO NORMAL", "Busca los nombres de los Pokémon en la cuadrícula.")
+                        HelpSection("MODO DIFÍCIL", "Más palabras y menos tiempo.")
+                        HelpSection("MODO INFERNAL", "Palabras en todas direcciones, incluso invertidas.")
                     }
                     3 -> Column {
-                        com.diegofg11.pokequiz.ui.components.HelpSection("REGLAS", "Vence a 3 entrenadores seguidos eligiendo el tipo de ataque correcto.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INVERSO", "Las debilidades se invierten. ¡Usa ataques que normalmente no serían efectivos!")
+                        HelpSection("REGLAS", "Vence a 3 entrenadores seguidos eligiendo el tipo de ataque correcto.")
+                        HelpSection("MODO INVERSO", "Las debilidades se invierten. ¡Usa ataques que normalmente no serían efectivos!")
                     }
                     4 -> Column {
-                        com.diegofg11.pokequiz.ui.components.HelpSection("OBJETIVO", "Golpea a los Diglett que salgan de los agujeros para ganar puntos.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("PELIGRO", "No golpees a los Voltorb o perderás puntos y tiempo.")
-                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "¡Más velocidad y más Voltorbs explosivos!")
+                        HelpSection("OBJETIVO", "Golpea a los Diglett que salgan de los agujeros para ganar puntos.")
+                        HelpSection("PELIGRO", "No golpees a los Voltorb o perderás puntos y tiempo.")
+                        HelpSection("MODO INFERNAL", "¡Más velocidad y más Voltorbs explosivos!")
                     }
                 }
             }

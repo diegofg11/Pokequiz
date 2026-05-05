@@ -211,6 +211,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
     var isGameOver by remember { mutableStateOf(false) }
     var hasWon by remember { mutableStateOf(false) }
     var showResultDialog by remember { mutableStateOf(false) }
+    var isGridReady by remember { mutableStateOf(false) }
     
     // Selection state
     var selectedCells by remember { mutableStateOf<List<Pair<Int, Int>>>(emptyList()) }
@@ -285,11 +286,12 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
         }
         
         grid = newGrid.map { it.toList() }
+        isGridReady = true
     }
     
     // Timer
-    LaunchedEffect(isGameOver) {
-        if (!isGameOver) {
+    LaunchedEffect(isGameOver, isGridReady) {
+        if (!isGameOver && isGridReady) {
             while (timeRemaining > 0) {
                 delay(1000L)
                 timeRemaining--

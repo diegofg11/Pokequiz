@@ -57,7 +57,7 @@ data class QuickBattleOpponent(
     val resistances: List<PokeType>
 )
 
-val OPPONENTS_POOL = listOf(
+private val OPPONENTS_POOL = listOf(
     QuickBattleOpponent("CHARIZARD", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png", listOf(PokeType.WATER, PokeType.ELECTRIC), listOf(PokeType.FIRE, PokeType.GRASS, PokeType.FIGHTING)),
     QuickBattleOpponent("BLASTOISE", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png", listOf(PokeType.GRASS, PokeType.ELECTRIC), listOf(PokeType.FIRE, PokeType.WATER, PokeType.ICE)),
     QuickBattleOpponent("VENUSAUR", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png", listOf(PokeType.FIRE, PokeType.ICE, PokeType.FLYING, PokeType.PSYCHIC), listOf(PokeType.WATER, PokeType.GRASS, PokeType.ELECTRIC, PokeType.FIGHTING)),
@@ -158,8 +158,6 @@ fun QuickBattleScreen(
                 onExit = onNavigateBack
             )
         }
-    }
-
         if (globalError != null) {
             PokemonAlertDialog(
                 title = "Error",
@@ -168,6 +166,7 @@ fun QuickBattleScreen(
             )
         }
     }
+}
 
 @Composable
 fun QuickBattleStart(onStart: (Boolean) -> Unit) {
