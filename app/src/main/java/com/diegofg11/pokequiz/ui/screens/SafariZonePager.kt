@@ -26,6 +26,7 @@ fun SafariZonePager(
     
     // Estado para saber si mostrar las flechas (solo en selección de modo)
     var showNavigation by remember { mutableStateOf(true) }
+    var showHelp by remember { mutableStateOf(false) }
 
     // Contenedor principal con el fondo oficial para evitar bordes blancos
     Box(
@@ -42,12 +43,10 @@ fun SafariZonePager(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
-            // Usamos contentPadding en lugar de Modifier.padding para no ver el fondo de la app
             contentPadding = PaddingValues(horizontal = if (showNavigation) 44.dp else 0.dp),
             userScrollEnabled = showNavigation,
             beyondViewportPageCount = 1
         ) { page ->
-            // Envolvemos cada pantalla para asegurar que el fondo se extienda si es necesario
             Box(modifier = Modifier.fillMaxSize()) {
                 when (page) {
                     0 -> GuessPokemonScreen(
@@ -70,6 +69,84 @@ fun SafariZonePager(
                         onNavigateBack = onNavigateBack,
                         onStateChange = { showNavigation = it }
                     )
+                }
+            }
+        }
+
+        // --- BARRA SUPERIOR GLOBAL ---
+        AnimatedVisibility(
+            visible = showNavigation,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Botón Atrás
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.background(Color.Black.copy(alpha = 0.2f), CircleShape)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
+                }
+
+                // Botón Ayuda
+                Surface(
+                    onClick = { showHelp = true },
+                    modifier = Modifier.size(40.dp),
+                    shape = CircleShape,
+                    color = Color.Black.copy(alpha = 0.2f),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    }
+                }
+            }
+        }
+
+        // --- DIÁLOGO DE AYUDA GLOBAL ---
+        if (showHelp) {
+            val title = when(pagerState.currentPage) {
+                0 -> "¿QUIÉN ES ESE POKÉMON?"
+                1 -> "MEMORAMA"
+                2 -> "SOPA DE LETRAS"
+                3 -> "BATALLA RÁPIDA"
+                else -> "POKÉ-DOJO"
+            }
+            
+            com.diegofg11.pokequiz.ui.components.PokemonHelpDialog(
+                title = title,
+                onDismiss = { showHelp = false }
+            ) {
+                when(pagerState.currentPage) {
+                    0 -> Column {
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO FÁCIL", "Adivina el Pokémon por su silueta. Sin límite de tiempo.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO DIFÍCIL", "Pokémon rotado aleatoriamente. Tienes 5 segundos.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "Siluetas distorsionadas, efectos visuales y solo 4 segundos.")
+                    }
+                    1 -> Column {
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO NORMAL", "Encuentra todas las parejas de Pokémon antes de que se acabe el tiempo.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "¡Cuidado! Hay bombas ocultas que restan tiempo si las pulsas.")
+                    }
+                    2 -> Column {
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO NORMAL", "Busca los nombres de los Pokémon en la cuadrícula.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO DIFÍCIL", "Más palabras y menos tiempo.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "Palabras en todas direcciones, incluso invertidas.")
+                    }
+                    3 -> Column {
+                        com.diegofg11.pokequiz.ui.components.HelpSection("REGLAS", "Vence a 3 entrenadores seguidos eligiendo el tipo de ataque correcto.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INVERSO", "Las debilidades se invierten. ¡Usa ataques que normalmente no serían efectivos!")
+                    }
+                    4 -> Column {
+                        com.diegofg11.pokequiz.ui.components.HelpSection("OBJETIVO", "Golpea a los Diglett que salgan de los agujeros para ganar puntos.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("PELIGRO", "No golpees a los Voltorb o perderás puntos y tiempo.")
+                        com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "¡Más velocidad y más Voltorbs explosivos!")
+                    }
                 }
             }
         }

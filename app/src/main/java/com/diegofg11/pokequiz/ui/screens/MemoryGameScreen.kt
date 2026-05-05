@@ -65,8 +65,7 @@ fun MemoryGameScreen(
     
     if (difficulty == null) {
         MemoryDifficultySelectionScreen(
-            onSelect = { difficulty = it },
-            onBack = onNavigateBack
+            onSelect = { difficulty = it }
         )
     } else {
         MemoryGameBoard(
@@ -77,7 +76,7 @@ fun MemoryGameScreen(
 }
 
 @Composable
-fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack: () -> Unit) {
+fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -87,45 +86,6 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit, onBack
                 )
             )
     ) {
-        var showHelp by remember { mutableStateOf(false) }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
-            }
-
-            // Botón de Ayuda
-            Surface(
-                onClick = { showHelp = true },
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = Color.White.copy(alpha = 0.2f),
-                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                }
-            }
-        }
-
-        if (showHelp) {
-            PokemonHelpDialog(
-                title = "INSTRUCCIONES",
-                onDismiss = { showHelp = false }
-            ) {
-                Column {
-                    HelpSection("MODO NORMAL", "Encuentra todas las parejas de Pokémon antes de que se agoten tus 5 vidas.")
-                    HelpSection("MODO INFERNAL", "¡Sin vidas! Debes encontrar todas las parejas en menos de 20 segundos. Además, las cartas pueden cambiar de sitio.")
-                }
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()

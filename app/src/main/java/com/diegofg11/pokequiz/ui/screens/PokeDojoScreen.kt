@@ -85,7 +85,6 @@ fun PokeDojoScreen(
     ) {
         when (gameState) {
             "START" -> PokeDojoStart(
-                onBack = onNavigateBack,
                 onStart = { selectedDifficulty ->
                     difficulty = selectedDifficulty
                     val cost = if (difficulty == DojoDifficulty.INFERNAL) -50 else -20
@@ -100,10 +99,10 @@ fun PokeDojoScreen(
                                 score = 0
                                 gameState = "PLAYING"
                             } else {
-                                globalError = "No tienes suficientes monedas ($cost)."
+                                globalError = "No tienes suficientes monedas para entrar."
                             }
                         } catch (e: Exception) {
-                            globalError = "Error de conexión: ${e.localizedMessage}"
+                            globalError = "Error de red: ${e.localizedMessage}"
                         }
                     }
                 }
@@ -164,46 +163,6 @@ fun PokeDojoScreen(
 }
 
 @Composable
-fun PokeDojoStart(onBack: () -> Unit, onStart: (DojoDifficulty) -> Unit) {
-    var showHelp by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
-            }
-
-            // Botón de Ayuda
-            Surface(
-                onClick = { showHelp = true },
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = Color.White.copy(alpha = 0.2f),
-                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                }
-            }
-        }
-
-        if (showHelp) {
-            PokemonHelpDialog(
-                title = "INSTRUCCIONES",
-                onDismiss = { showHelp = false }
-            ) {
-                Column {
-                    HelpSection("OBJETIVO", "Golpea a los Pokémon que salen de los agujeros para ganar puntos antes de que acabe el tiempo.")
-                    HelpSection("PUNTUACIÓN", "• Diglett: +10 pts\n• Dugtrio: +25 pts\n• Pikachu: +50 pts\n• Voltorb: -20 pts (¡Evítalo!)")
-                    HelpSection("MEDALLAS Y PREMIOS", "Al final de la partida, tus puntos determinarán tu rango (Bronce, Plata u Oro). ¡Cada rango tiene una recompensa en monedas (💰) diferente!")
-                    HelpSection("MODO NORMAL", "30 segundos de juego con aparición estándar de Pokémon.")
-                    HelpSection("MODO INFERNAL", "Solo 20 segundos. Los Voltorb aparecen mucho más a menudo y los Pokémon desaparecen muy rápido. ¡Premios dobles!")
-                }
-            }
         }
 
         Column(

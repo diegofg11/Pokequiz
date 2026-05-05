@@ -104,8 +104,7 @@ fun GuessPokemonScreen(
 
     if (difficulty == null) {
         DifficultySelectionScreen(
-            onSelect = { difficulty = it },
-            onBack = onNavigateBack
+            onSelect = { difficulty = it }
         )
     } else {
         GuessPokemonGame(
@@ -117,7 +116,7 @@ fun GuessPokemonScreen(
 }
 
 @Composable
-fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit) {
+fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -127,47 +126,6 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit, onBack: () -> Unit
                 )
             )
     ) {
-        var showHelp by remember { mutableStateOf(false) }
-
-        // Top bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
-            }
-
-            // Botón de Ayuda
-            Surface(
-                onClick = { showHelp = true },
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = Color.White.copy(alpha = 0.2f),
-                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                }
-            }
-        }
-
-        if (showHelp) {
-            PokemonHelpDialog(
-                title = "INSTRUCCIONES",
-                onDismiss = { showHelp = false }
-            ) {
-                Column {
-                    HelpSection("MODO FÁCIL", "Adivina el Pokémon por su silueta. No hay límite de tiempo para responder.")
-                    HelpSection("MODO DIFÍCIL", "El Pokémon aparecerá rotado aleatoriamente y solo tendrás 5 segundos.")
-                    HelpSection("MODO INFERNAL", "¡El caos! Siluetas distorsionadas, solo 4 segundos y efectos visuales que dificultan la visión.")
-                }
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()

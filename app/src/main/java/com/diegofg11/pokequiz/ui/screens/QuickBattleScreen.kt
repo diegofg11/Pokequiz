@@ -107,7 +107,6 @@ fun QuickBattleScreen(
     ) {
         when (gameState) {
             "START" -> QuickBattleStart(
-                onBack = onNavigateBack,
                 onStart = { inverse ->
                     isInverseMode = inverse
                     val cost = if (inverse) -50 else -30
@@ -176,47 +175,15 @@ fun QuickBattleScreen(
 }
 
 @Composable
-fun QuickBattleStart(onBack: () -> Unit, onStart: (Boolean) -> Unit) {
-    var showHelp by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
-            }
-
-            // Botón de Ayuda
-            Surface(
-                onClick = { showHelp = true },
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = Color.White.copy(alpha = 0.2f),
-                border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                }
-            }
-        }
-
-        if (showHelp) {
-            PokemonHelpDialog(
-                title = "INSTRUCCIONES",
-                onDismiss = { showHelp = false }
-            ) {
-                Column {
-                    HelpSection("MODO CLÁSICO", "Vence a 3 rivales seguidos. Debes elegir el tipo de movimiento que sea SUPEREFICAZ (debilidad) contra el rival.")
-                    HelpSection("MODO INVERSO", "¡El mundo al revés! Debes elegir el tipo de movimiento al que el rival sea RESISTENTE (o inmune). ¡Piensa al revés!")
-                }
-            }
-        }
-
+fun QuickBattleStart(onStart: (Boolean) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

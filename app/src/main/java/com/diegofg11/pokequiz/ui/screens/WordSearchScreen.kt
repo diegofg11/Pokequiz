@@ -86,83 +86,30 @@ fun WordSearchScreen(
                         globalError = "Error de red: ${e.localizedMessage}"
                     }
                 }
-            },
-            onNavigateBack = onNavigateBack
+            }
         )
     } else {
         WordSearchGame(
             difficulty = selectedDifficulty!!,
-            onNavigateBack = {
-                // Return to selection
-                selectedDifficulty = null
-            }
+            onGameEnd = { selectedDifficulty = null }
         )
     }
 }
 
 @Composable
-fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit, onNavigateBack: () -> Unit) {
-    var showHelp by remember { mutableStateOf(false) }
-
+fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd)
-                )
-            )
+            .background(Brush.verticalGradient(listOf(BackgroundStart, BackgroundMid, BackgroundEnd)))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // Header with Back Button
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
-                }
-
-                // Botón de Ayuda
-                Surface(
-                    onClick = { showHelp = true },
-                    modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.2f),
-                    border = BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    }
-                }
-            }
-
-            if (showHelp) {
-                PokemonHelpDialog(
-                    title = "INSTRUCCIONES",
-                    onDismiss = { showHelp = false },
-                    content = {
-                        Column {
-                            HelpSection("MODO NORMAL", "60 segundos para encontrar los nombres de Pokémon. Las palabras aparecen en horizontal y vertical.")
-                            HelpSection("MODO DIFÍCIL", "Solo tienes 45 segundos y las palabras también pueden aparecer en diagonal.")
-                            HelpSection("MODO INFERNAL", "¡El desafío supremo! 30 segundos, palabras invertidas y en todas las direcciones posibles.")
-                        }
-                    }
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
             Text(
                 text = "SOPA DE LETRAS",
                 color = Color.White,
