@@ -33,9 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
-import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
-import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
-import com.diegofg11.pokequiz.ui.components.HelpSection
+import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

@@ -19,8 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.ui.theme.BackgroundStart
 import com.diegofg11.pokequiz.ui.theme.BackgroundMid
-import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
-import com.diegofg11.pokequiz.ui.components.HelpSection
+import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.BackgroundEnd
 import com.diegofg11.pokequiz.ui.theme.GoldPoke
 import com.diegofg11.pokequiz.api.Network
