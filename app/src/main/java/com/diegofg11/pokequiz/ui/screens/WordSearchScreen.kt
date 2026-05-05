@@ -200,7 +200,6 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
         }
     }
 }
-}
 
 // Lista de los 151 Pokémon de Kanto
 private val POKEMON_LIST = listOf(
@@ -225,7 +224,7 @@ private val POKEMON_LIST = listOf(
 data class GridCell(val row: Int, val col: Int, val char: Char)
 
 @Composable
-fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit) {
+fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
     val scope = rememberCoroutineScope()
     
     val gridSize = 10
@@ -547,7 +546,7 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
             Spacer(modifier = Modifier.weight(1f))
             
             Button(
-                onClick = onNavigateBack,
+                onClick = onGameEnd,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
             ) {
                 Text("Abandonar", color = Color.White)
@@ -561,11 +560,11 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onNavigateBack: () -> Unit)
             message = if (hasWon) "Has encontrado todos los Pokémon a tiempo. ¡Buen ojo!" else "No has logrado encontrar todas las palabras. ¡Más suerte la próxima vez!",
             onDismiss = {
                 showResultDialog = false
-                onNavigateBack()
+                onGameEnd()
             },
             onConfirm = {
                 showResultDialog = false
-                onNavigateBack()
+                onGameEnd()
             }
         )
     }
