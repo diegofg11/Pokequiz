@@ -56,7 +56,7 @@ fun SafariZonePager(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(0.dp), // Sin padding lateral para foco total
+                    contentPadding = PaddingValues(0.dp),
                     userScrollEnabled = showNavigation,
                     beyondViewportPageCount = 1
                 ) { page ->
@@ -70,19 +70,17 @@ fun SafariZonePager(
                         }
                     }
                 }
-            }
 
-            // Capa de navegación inferior
-            AnimatedVisibility(
-                visible = showNavigation,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                // Capa de navegación inferior integrada en el flujo
+                AnimatedVisibility(
+                    visible = showNavigation,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+                ) {
                     Column(
                         modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 24.dp),
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp, top = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Indicadores de página (Pokeballs)
@@ -99,7 +97,6 @@ fun SafariZonePager(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Flecha Izquierda
                             NavigationArrow(
                                 icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 modifier = Modifier.alpha(if (pagerState.currentPage > 0) 1f else 0.3f),
@@ -110,7 +107,6 @@ fun SafariZonePager(
                                 }
                             )
 
-                            // Flecha Derecha
                             NavigationArrow(
                                 icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 modifier = Modifier.alpha(if (pagerState.currentPage < PAGE_COUNT - 1) 1f else 0.3f),

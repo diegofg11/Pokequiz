@@ -617,9 +617,10 @@ fun SafariSelectionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .padding(top = 24.dp), // Espacio extra arriba
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             RetroText(
                 text = title.uppercase(),
