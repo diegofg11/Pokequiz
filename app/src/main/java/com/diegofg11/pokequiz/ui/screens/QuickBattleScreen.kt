@@ -99,7 +99,7 @@ fun QuickBattleScreen(
         onStateChange(gameState == "START")
     }
 
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         when (gameState) {
             "START" -> QuickBattleStart(
                 onStart = { inverse ->

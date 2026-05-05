@@ -98,7 +98,7 @@ fun WordSearchScreen(
 
 @Composable
 fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

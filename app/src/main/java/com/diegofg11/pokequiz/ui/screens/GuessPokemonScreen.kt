@@ -116,11 +116,11 @@ fun GuessPokemonScreen(
 
 @Composable
 fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -328,7 +328,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
         )
     }
 
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         // Barra superior
         SafariRetroHeader(
             title = "ZONA SAFARI",

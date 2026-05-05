@@ -77,7 +77,7 @@ fun PokeDojoScreen(
         onStateChange(gameState == "START")
     }
 
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         when (gameState) {
             "START" -> PokeDojoStart(
                 onStart = { selectedDifficulty ->

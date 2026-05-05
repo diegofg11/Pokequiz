@@ -100,10 +100,10 @@ fun RetroBackground(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp)
-                .background(Color(0xFFD4E1D1), RoundedCornerShape(4.dp)) // Verde pálido tipo LCD retro
-                .border(4.dp, Color(0xFF2D5A27), RoundedCornerShape(4.dp)) // Borde verde medio
-                .border(6.dp, Color.Black.copy(alpha = 0.2f), RoundedCornerShape(4.dp)) // Sombra interna
+                .padding(8.dp) // Less padding for more space
+                .background(Color(0xFF94A684), RoundedCornerShape(4.dp)) // Proper Olive Green
+                .border(2.dp, Color(0xFF2D5A27), RoundedCornerShape(4.dp))
+                .border(4.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
         ) {
             // Grid de fondo muy sutil para la "pantalla"
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -134,25 +134,26 @@ fun RetroText(
     fontWeight: FontWeight = FontWeight.Bold,
     shadowColor: Color = Color.Black
 ) {
+    val style = TextStyle(
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        textAlign = textAlign,
+        fontFamily = FontFamily.Monospace,
+        lineHeight = fontSize * 1.2f // Prevent overlapping
+    )
+
     Box(modifier = modifier) {
-        // Shadow (More defined)
+        // Shadow
         Text(
             text = text,
-            color = shadowColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            fontFamily = FontFamily.Monospace,
+            style = style.copy(color = shadowColor),
             modifier = Modifier.offset(x = 2.dp, y = 2.dp)
         )
         // Main Text
         Text(
             text = text,
-            color = color,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            fontFamily = FontFamily.Monospace
+            style = style
         )
     }
 }
@@ -328,14 +329,14 @@ fun RetroDifficultyCard(
     
     Box(
         modifier = modifier
-            .height(160.dp) // Increased height
-            .width(150.dp) // Added width to prevent text breaking
+            .height(140.dp) // Slightly less height but more width efficiency
+            .fillMaxWidth() // Fill available width in the grid
             .clickable { onClick() }
             .border(4.dp, Color.Black, RoundedCornerShape(4.dp))
             .padding(2.dp)
             .border(2.dp, Color.White, RoundedCornerShape(2.dp))
             .background(color.copy(alpha = 0.2f))
-            .padding(12.dp)
+            .padding(8.dp) // Balanced padding
     ) {
         // Mini corner ornaments
         Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.TopStart))

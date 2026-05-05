@@ -76,7 +76,7 @@ fun MemoryGameScreen(
 
 @Composable
 fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -337,7 +337,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         }
     }
 
-    RetroBackground {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {

@@ -34,64 +34,80 @@ fun SafariZonePager(
     var showNavigation by remember { mutableStateOf(true) }
     var showHelp by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF2D5A27)) // Un verde selva base
-    ) {
-        // Fondo temático
-        androidx.compose.foundation.Image(
-            painter = painterResource(id = R.drawable.fondo_zona_safari),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            alpha = 0.4f // Sutil para no distraer
-        )
+    RetroBackground {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // --- BARRA SUPERIOR INTEGRADA ---
+                AnimatedVisibility(
+                    visible = showNavigation,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    SafariRetroHeader(
+                        title = "ZONA SAFARI",
+                        onBackClick = onNavigateBack,
+                        onHelpClick = { showHelp = true }
+                    )
+                }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = if (showNavigation) 44.dp else 0.dp),
-            userScrollEnabled = showNavigation,
-            beyondViewportPageCount = 1
-        ) { page ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                when (page) {
-                    0 -> GuessPokemonScreen(
-                        onNavigateBack = onNavigateBack,
-                        onStateChange = { showNavigation = it }
-                    )
-                    1 -> MemoryGameScreen(
-                        onNavigateBack = onNavigateBack,
-                        onStateChange = { showNavigation = it }
-                    )
-                    2 -> WordSearchScreen(
-                        onNavigateBack = onNavigateBack,
-                        onStateChange = { showNavigation = it }
-                    )
-                    3 -> QuickBattleScreen(
-                        onNavigateBack = onNavigateBack,
-                        onStateChange = { showNavigation = it }
-                    )
-                    4 -> PokeDojoScreen(
-                        onNavigateBack = onNavigateBack,
-                        onStateChange = { showNavigation = it }
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = if (showNavigation) 20.dp else 0.dp),
+                    userScrollEnabled = showNavigation,
+                    beyondViewportPageCount = 1
+                ) { page ->
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        when (page) {
+                            0 -> GuessPokemonScreen(onNavigateBack = onNavigateBack, onStateChange = { showNavigation = it })
+                            1 -> MemoryGameScreen(onNavigateBack = onNavigateBack, onStateChange = { showNavigation = it })
+                            2 -> WordSearchScreen(onNavigateBack = onNavigateBack, onStateChange = { showNavigation = it })
+                            3 -> QuickBattleScreen(onNavigateBack = onNavigateBack, onStateChange = { showNavigation = it })
+                            4 -> PokeDojoScreen(onNavigateBack = onNavigateBack, onStateChange = { showNavigation = it })
+                        }
+                    }
+                }
+            }
+
+            // Flechas de navegación (Capa superior, dentro del marco)
+            AnimatedVisibility(
+                visible = showNavigation,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // Flecha Izquierda
+                    if (pagerState.currentPage > 0) {
+                        NavigationArrow(
+                            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .padding(start = 4.dp),
+                            onClick = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) } }
+                        )
+                    }
+
+                    // Flecha Derecha
+                    if (pagerState.currentPage < 4) {
+                        NavigationArrow(
+                            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 4.dp),
+                            onClick = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } }
+                        )
+                    }
+
+                    // Indicadores de página (Pokeballs)
+                    PokeballPageIndicator(
+                        pagerState = pagerState.currentPage,
+                        pageCount = 5,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp)
                     )
                 }
             }
-        }
-
-        // --- BARRA SUPERIOR GLOBAL ---
-        AnimatedVisibility(
-            visible = showNavigation,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            SafariRetroHeader(
-                title = "ZONA SAFARI",
-                onBackClick = onNavigateBack,
-                onHelpClick = { showHelp = true }
-            )
         }
 
         // --- DIÁLOGO DE AYUDA GLOBAL ---
@@ -133,54 +149,6 @@ fun SafariZonePager(
                         com.diegofg11.pokequiz.ui.components.HelpSection("MODO INFERNAL", "¡Más velocidad y más Voltorbs explosivos!")
                     }
                 }
-            }
-        }
-
-        // Flechas de navegación (Capa superior)
-        AnimatedVisibility(
-            visible = showNavigation,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Flecha Izquierda
-                if (pagerState.currentPage > 0) {
-                    NavigationArrow(
-                        icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .padding(start = 4.dp),
-                        onClick = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                            }
-                        }
-                    )
-                }
-
-                // Flecha Derecha
-                if (pagerState.currentPage < 4) {
-                    NavigationArrow(
-                        icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 4.dp),
-                        onClick = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }
-                        }
-                    )
-                }
-
-                // Indicadores de página (Pokeballs)
-                PokeballPageIndicator(
-                    pagerState = pagerState.currentPage,
-                    pageCount = 5,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 24.dp)
-                )
             }
         }
     }
