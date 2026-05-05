@@ -134,7 +134,8 @@ fun RetroText(
     fontSize: androidx.compose.ui.unit.TextUnit = 14.sp,
     textAlign: TextAlign = TextAlign.Start,
     fontWeight: FontWeight = FontWeight.Bold,
-    shadowColor: Color = Color.Black
+    shadowColor: Color = Color.Black,
+    showShadow: Boolean = true
 ) {
     val style = TextStyle(
         color = color,
@@ -146,12 +147,14 @@ fun RetroText(
     )
 
     Box(modifier = modifier) {
-        // Shadow
-        Text(
-            text = text,
-            style = style.copy(color = shadowColor),
-            modifier = Modifier.offset(x = 2.dp, y = 2.dp)
-        )
+        if (showShadow) {
+            // Shadow
+            Text(
+                text = text,
+                style = style.copy(color = shadowColor),
+                modifier = Modifier.offset(x = 2.dp, y = 2.dp)
+            )
+        }
         // Main Text
         Text(
             text = text,

@@ -217,7 +217,8 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
             RetroText(
                 "RANGOS Y PUNTUACIÓN",
                 fontSize = 14.sp,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                showShadow = false
             )
 
             // Reward Table (Mini)
