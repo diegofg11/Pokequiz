@@ -190,8 +190,9 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
             Text(
                 "BATALLA RÁPIDA",
                 color = Color.White,
-                fontSize = 32.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.sp,
                 textAlign = TextAlign.Center
             )
             Text(
