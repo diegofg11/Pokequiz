@@ -1,7 +1,7 @@
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.navigation.NavController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -10,11 +10,14 @@ import com.diegofg11.pokequiz.ui.theme.*
 
 @Composable
 fun MinigamesScreen(navController: NavController? = null) {
+    var showHelp by remember { mutableStateOf(false) }
+
     RetroBackground {
         Column(modifier = Modifier.fillMaxSize()) {
             SafariRetroHeader(
                 title = "ZONA SAFARI",
-                onBackClick = { navController?.navigateUp() }
+                onBackClick = { navController?.navigateUp() },
+                onHelpClick = { showHelp = true }
             )
 
             SafariSelectionScreen(
@@ -64,6 +67,20 @@ fun MinigamesScreen(navController: NavController? = null) {
                     )
                 )
             )
+        }
+
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = "ZONA SAFARI",
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection("¿QUÉ ES?", "La Zona Safari es el lugar donde puedes conseguir Monedas Poké gratis jugando a diversos minijuegos.")
+                    HelpSection("MONEDAS", "Cada juego tiene un coste de entrada pero ofrece grandes recompensas si logras superar los retos.")
+                    HelpSection("DIFICULTAD", "Dentro de cada juego podrás elegir entre varios niveles. ¡A mayor dificultad, mayor será el premio!")
+                    HelpSection("USO", "Usa las monedas ganadas en la Tienda Gacha para completar tu Pokédex.")
+                }
+            }
         }
     }
 }
