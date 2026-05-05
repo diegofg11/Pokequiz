@@ -355,7 +355,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                         onNavigateBack()
                     }
                 }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
                 RetroText(
                     text = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
