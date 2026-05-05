@@ -419,18 +419,26 @@ fun RetroDifficultyCard(
             
             Spacer(modifier = Modifier.weight(1f))
             
-            // Info Bar para Coste y Premio (Diseño más robusto)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
-                    .padding(vertical = 6.dp, horizontal = 4.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                InfoItem(label = costLabel, value = cost, color = Color(0xFFB71C1C)) // Rojo oscuro
-                Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.Black.copy(alpha = 0.1f)))
-                InfoItem(label = rewardLabel, value = reward, color = Color(0xFF1B5E20)) // Verde oscuro
+            // Info Bar para Coste y Premio (Solo si hay valores)
+            if (cost.isNotEmpty() || reward.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
+                        .padding(vertical = 6.dp, horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (cost.isNotEmpty()) {
+                        InfoItem(label = costLabel, value = cost, color = Color(0xFFB71C1C))
+                        if (reward.isNotEmpty()) {
+                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.Black.copy(alpha = 0.1f)))
+                        }
+                    }
+                    if (reward.isNotEmpty()) {
+                        InfoItem(label = rewardLabel, value = reward, color = Color(0xFF1B5E20))
+                    }
+                }
             }
         }
     }
@@ -656,8 +664,8 @@ fun SafariSelectionScreen(
 data class DifficultyCardData(
     val title: String,
     val subtitle: String,
-    val cost: String,
-    val reward: String,
+    val cost: String = "",
+    val reward: String = "",
     val color: Color,
     val onClick: () -> Unit,
     val rewardLabel: String = "GANA",
