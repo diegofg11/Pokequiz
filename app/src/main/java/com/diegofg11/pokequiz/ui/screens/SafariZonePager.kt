@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -71,43 +72,56 @@ fun SafariZonePager(
                 }
             }
 
-            // Flechas de navegación (Capa superior, dentro del marco)
+            // Capa de navegación inferior
             AnimatedVisibility(
                 visible = showNavigation,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Flecha Izquierda
-                    if (pagerState.currentPage > 0) {
-                        NavigationArrow(
-                            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            modifier = Modifier
-                                .align(Alignment.CenterStart)
-                                .padding(start = 4.dp),
-                            onClick = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) } }
-                        )
-                    }
-
-                    // Flecha Derecha
-                    if (pagerState.currentPage < PAGE_COUNT - 1) {
-                        NavigationArrow(
-                            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(end = 4.dp),
-                            onClick = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } }
-                        )
-                    }
-
-                    // Indicadores de página (Pokeballs)
-                    PokeballPageIndicator(
-                        pagerState = pagerState.currentPage,
-                        pageCount = PAGE_COUNT,
+                    Column(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 16.dp)
-                    )
+                            .padding(bottom = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Indicadores de página (Pokeballs)
+                        PokeballPageIndicator(
+                            pagerState = pagerState.currentPage,
+                            pageCount = PAGE_COUNT
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Botones de navegación cuadrados
+                        Row(
+                            modifier = Modifier.fillMaxWidth(0.5f),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Flecha Izquierda
+                            NavigationArrow(
+                                icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                modifier = Modifier.alpha(if (pagerState.currentPage > 0) 1f else 0.3f),
+                                onClick = { 
+                                    if (pagerState.currentPage > 0) {
+                                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) } 
+                                    }
+                                }
+                            )
+
+                            // Flecha Derecha
+                            NavigationArrow(
+                                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                modifier = Modifier.alpha(if (pagerState.currentPage < PAGE_COUNT - 1) 1f else 0.3f),
+                                onClick = { 
+                                    if (pagerState.currentPage < PAGE_COUNT - 1) {
+                                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } 
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

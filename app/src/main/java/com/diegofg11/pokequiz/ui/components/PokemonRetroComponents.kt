@@ -349,17 +349,17 @@ fun NavigationArrow(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.size(40.dp),
-        shape = CircleShape,
-        color = Color.Black.copy(alpha = 0.3f), // Transparente y elegante
+        modifier = modifier.size(48.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = Color(0xFF2D5A27),
         contentColor = Color.White,
-        border = BorderStroke(1.5.dp, Color.White.copy(alpha = 0.4f))
+        border = BorderStroke(2.dp, Color(0xFF1B3022))
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
     }
