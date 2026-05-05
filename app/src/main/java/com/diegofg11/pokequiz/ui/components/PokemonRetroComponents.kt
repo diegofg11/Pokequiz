@@ -295,12 +295,25 @@ fun SafariRetroHeader(
             )
         }
 
-        // Botón Atrás (Izquierda)
-        NavigationArrow(
-            icon = Icons.AutoMirrored.Filled.ArrowBack,
-            modifier = Modifier.align(Alignment.CenterStart),
-            onClick = onBackClick
-        )
+        // Botón Atrás (Izquierda) - Ahora a juego con el de ayuda
+        Surface(
+            onClick = onBackClick,
+            modifier = Modifier
+                .size(36.dp)
+                .align(Alignment.CenterStart),
+            shape = CircleShape,
+            color = Color(0xFF2D5A27),
+            contentColor = Color.White,
+            border = BorderStroke(2.dp, Color(0xFF1B3022))
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
 
         // Botón Ayuda (Derecha)
         if (onHelpClick != null) {
