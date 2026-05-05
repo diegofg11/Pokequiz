@@ -276,41 +276,57 @@ fun SafariRetroHeader(
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Botón Retro Atrás
-        Surface(
-            onClick = onBackClick,
-            modifier = Modifier
-                .size(40.dp)
-                .align(Alignment.CenterStart),
-            shape = RoundedCornerShape(4.dp),
-            color = Color.Black,
-            contentColor = Color.White
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-        
-        // Título en Caja Retro
+        // Título en Caja Retro (Centro)
         RetroMenuBox(
-            modifier = Modifier.fillMaxWidth(0.6f),
-            backgroundColor = Color(0xFF94A684),
-            borderColor = Color(0xFF2D5A27)
+            modifier = Modifier.fillMaxWidth(0.55f),
+            backgroundColor = Color(0xFF2D5A27),
+            borderColor = Color(0xFF1B3022)
         ) {
             Text(
                 text = title.uppercase(),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.Black,
-                letterSpacing = 2.sp,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White,
                 fontFamily = FontFamily.Monospace
             )
+        }
+
+        // Botón Atrás (Izquierda)
+        Surface(
+            onClick = onBackClick,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .size(36.dp)
+                .align(Alignment.CenterStart),
+            shape = CircleShape,
+            color = Color(0xFF2D5A27),
+            contentColor = Color.White,
+            border = BorderStroke(2.dp, Color(0xFF1B3022))
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(20.dp))
+            }
+        }
+
+        // Botón Ayuda (Derecha)
+        if (onHelpClick != null) {
+            Surface(
+                onClick = onHelpClick,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(36.dp)
+                    .align(Alignment.CenterEnd),
+                shape = CircleShape,
+                color = Color(0xFF2D5A27),
+                contentColor = Color.White,
+                border = BorderStroke(2.dp, Color(0xFF1B3022))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("?", fontWeight = FontWeight.Black, fontSize = 18.sp)
+                }
+            }
         }
     }
 }
@@ -329,75 +345,67 @@ fun RetroDifficultyCard(
     
     Box(
         modifier = modifier
-            .height(140.dp) // Slightly less height but more width efficiency
-            .fillMaxWidth() // Fill available width in the grid
+            .height(150.dp)
+            .fillMaxWidth()
             .clickable { onClick() }
-            .border(4.dp, Color.Black, RoundedCornerShape(4.dp))
-            .padding(2.dp)
-            .border(2.dp, Color.White, RoundedCornerShape(2.dp))
-            .background(color.copy(alpha = 0.2f))
-            .padding(8.dp) // Balanced padding
+            .border(3.dp, Color(0xFF1B3022), RoundedCornerShape(8.dp))
+            .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
+            .padding(4.dp)
     ) {
-        // Mini corner ornaments
-        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.TopStart))
-        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.TopEnd))
-        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.BottomStart))
-        Box(modifier = Modifier.size(4.dp).background(Color.Black).align(Alignment.BottomEnd))
-
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = title,
+                text = title.uppercase(),
                 color = color,
                 fontWeight = FontWeight.Black,
-                fontSize = 20.sp, // Larger font
-                letterSpacing = 1.sp,
+                fontSize = 18.sp,
                 fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                maxLines = 1
+                textAlign = TextAlign.Center
             )
             
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Surface(
-                color = color.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                Text(
-                    text = subtitle,
-                    color = Color.Black,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                    fontFamily = FontFamily.Monospace
-                )
-            }
+            Text(
+                text = subtitle,
+                color = Color(0xFF2D5A27),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = 4.dp),
+                lineHeight = 12.sp
+            )
             
             Spacer(modifier = Modifier.weight(1f))
             
+            // Info Bar para Coste y Premio
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    cost, 
-                    color = Color.Black, 
-                    fontWeight = FontWeight.ExtraBold, 
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-                Text(
-                    reward, 
-                    color = Color(0xFFD4AF37), // Gold more saturated
-                    fontWeight = FontWeight.ExtraBold, 
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Monospace
-                )
+                InfoItem(label = "ENTRA", value = cost, color = Color(0xFFD32F2F))
+                Box(modifier = Modifier.width(1.dp).height(12.dp).background(Color.Gray))
+                InfoItem(label = "GANA", value = reward, color = Color(0xFF2E7D32))
             }
+        }
+    }
+}
+
+@Composable
+private fun InfoItem(label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Poké", fontSize = 8.sp, color = Color(0xFF795548), fontWeight = FontWeight.Black)
+            Spacer(modifier = Modifier.width(2.dp))
+            Text(value, fontSize = 11.sp, fontWeight = FontWeight.Black, color = color)
         }
     }
 }

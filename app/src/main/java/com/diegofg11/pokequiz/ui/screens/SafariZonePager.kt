@@ -53,7 +53,7 @@ fun SafariZonePager(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(horizontal = if (showNavigation) 20.dp else 0.dp),
+                    contentPadding = PaddingValues(0.dp), // Sin padding lateral para foco total
                     userScrollEnabled = showNavigation,
                     beyondViewportPageCount = 1
                 ) { page ->
