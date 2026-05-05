@@ -14,9 +14,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import com.diegofg11.pokequiz.R
+import com.diegofg11.pokequiz.ui.components.*
 import kotlinx.coroutines.launch
 
 @Composable
@@ -31,18 +31,20 @@ fun SafariZonePager(
     var showNavigation by remember { mutableStateOf(true) }
     var showHelp by remember { mutableStateOf(false) }
 
-    // Contenedor principal con el fondo oficial para evitar bordes blancos
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(androidx.compose.ui.graphics.Brush.verticalGradient(
-                colors = listOf(
-                    com.diegofg11.pokequiz.ui.theme.BackgroundStart,
-                    com.diegofg11.pokequiz.ui.theme.BackgroundMid,
-                    com.diegofg11.pokequiz.ui.theme.BackgroundEnd
-                )
-            ))
+            .background(Color(0xFF2D5A27)) // Un verde selva base
     ) {
+        // Fondo temático
+        androidx.compose.foundation.Image(
+            painter = painterResource(id = R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.4f // Sutil para no distraer
+        )
+
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
@@ -82,34 +84,10 @@ fun SafariZonePager(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Botón Atrás
-                IconButton(
-                    onClick = onNavigateBack,
-                    modifier = Modifier.background(Color.Black.copy(alpha = 0.2f), CircleShape)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
-                }
-
-                // Botón Ayuda
-                Surface(
-                    onClick = { showHelp = true },
-                    modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
-                    color = Color.Black.copy(alpha = 0.2f),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text("?", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    }
-                }
-            }
+            SafariRetroHeader(
+                title = "ZONA SAFARI",
+                onBackClick = onNavigateBack
+            )
         }
 
         // --- DIÁLOGO DE AYUDA GLOBAL ---
@@ -191,25 +169,14 @@ fun SafariZonePager(
                     )
                 }
 
-                // Indicadores de página (Dots)
-                Row(
-                    Modifier
-                        .height(50.dp)
-                        .fillMaxWidth()
+                // Indicadores de página (Pokeballs)
+                PokeballPageIndicator(
+                    pagerState = pagerState.currentPage,
+                    pageCount = 5,
+                    modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    repeat(5) { iteration ->
-                        val color = if (pagerState.currentPage == iteration) Color.White else Color.White.copy(alpha = 0.3f)
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .background(color, CircleShape)
-                                .size(8.dp)
-                        )
-                    }
-                }
+                        .padding(bottom = 24.dp)
+                )
             }
         }
     }
@@ -223,16 +190,17 @@ fun NavigationArrow(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.size(40.dp), // Reducido de 48dp a 40dp
-        shape = CircleShape,
-        color = Color.Black.copy(alpha = 0.15f), // Más sutil
-        contentColor = Color.White
+        modifier = modifier.size(44.dp),
+        shape = RoundedCornerShape(4.dp),
+        color = Color.Black.copy(alpha = 0.7f),
+        contentColor = Color.White,
+        border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
     }

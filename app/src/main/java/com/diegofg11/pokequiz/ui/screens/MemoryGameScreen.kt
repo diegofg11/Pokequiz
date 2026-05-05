@@ -80,12 +80,15 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd)
-                )
-            )
+            .background(Color(0xFF2D5A27))
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.3f
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,42 +117,26 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Normal Mode Card
-                Card(
-                    modifier = Modifier.weight(1f).clickable { onSelect(MemoryDifficulty.NORMAL) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF4CAF50))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("NORMAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("5 Vidas | Relajado", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+80 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                    }
-                }
+                RetroDifficultyCard(
+                    title = "NORMAL",
+                    subtitle = "5 Vidas | Relajado",
+                    cost = "-20 💰",
+                    reward = "+80 💰",
+                    color = Color(0xFF4CAF50),
+                    onClick = { onSelect(MemoryDifficulty.NORMAL) },
+                    modifier = Modifier.weight(1f)
+                )
 
                 // Infernal Mode Card
-                Card(
-                    modifier = Modifier.weight(1f).clickable { onSelect(MemoryDifficulty.INFERNAL) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF212121).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFE53935))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("INFERNAL", color = Color(0xFFE53935), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("Caótico | 20s", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.Center)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+200 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                    }
-                }
+                RetroDifficultyCard(
+                    title = "INFERNAL",
+                    subtitle = "Caótico | 20s",
+                    cost = "-50 💰",
+                    reward = "+200 💰",
+                    color = Color(0xFFE53935),
+                    onClick = { onSelect(MemoryDifficulty.INFERNAL) },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -366,12 +353,15 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd)
-                )
-            )
+            .background(Color(0xFF2D5A27))
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.3f
+        )
         Column(
             modifier = Modifier.fillMaxSize()
         ) {

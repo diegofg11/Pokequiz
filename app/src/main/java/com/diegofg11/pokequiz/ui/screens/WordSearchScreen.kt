@@ -101,8 +101,15 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(BackgroundStart, BackgroundMid, BackgroundEnd)))
+            .background(Color(0xFF2D5A27))
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.3f
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,67 +142,38 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
             ) {
                 // Normal Mode
                 item {
-                    Card(
-                        modifier = Modifier.clickable { onSelect(WordSearchDifficulty.NORMAL) },
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)),
-                        shape = RoundedCornerShape(20.dp),
-                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF4CAF50))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("NORMAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("60s | Estándar", color = Color.LightGray, fontSize = 10.sp)
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+30 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                        }
-                    }
+                    RetroDifficultyCard(
+                        title = "NORMAL",
+                        subtitle = "60s | Estándar",
+                        cost = "-20 💰",
+                        reward = "+30 💰",
+                        color = Color(0xFF4CAF50),
+                        onClick = { onSelect(WordSearchDifficulty.NORMAL) }
+                    )
                 }
 
                 // Hard Mode
                 item {
-                    Card(
-                        modifier = Modifier.clickable { onSelect(WordSearchDifficulty.HARD) },
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800).copy(alpha = 0.2f)),
-                        shape = RoundedCornerShape(20.dp),
-                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFFF9800))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("DIFÍCIL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("45s | Diagonal", color = Color.LightGray, fontSize = 10.sp)
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                            Text("+60 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                        }
-                    }
+                    RetroDifficultyCard(
+                        title = "DIFÍCIL",
+                        subtitle = "45s | Diagonal",
+                        cost = "-20 💰",
+                        reward = "+60 💰",
+                        color = Color(0xFFFF9800),
+                        onClick = { onSelect(WordSearchDifficulty.HARD) }
+                    )
                 }
 
                 // Infernal Mode
                 item(span = { GridItemSpan(2) }) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().clickable { onSelect(WordSearchDifficulty.INFERNAL) },
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF212121).copy(alpha = 0.2f)),
-                        shape = RoundedCornerShape(20.dp),
-                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFE53935))
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("INFERNAL", color = Color(0xFFE53935), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("30s | Invertidas | El reto supremo", color = Color.LightGray, fontSize = 10.sp)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                                Text("+120 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
+                    RetroDifficultyCard(
+                        title = "INFERNAL",
+                        subtitle = "30s | Invertidas | El reto supremo",
+                        cost = "-20 💰",
+                        reward = "+120 💰",
+                        color = Color(0xFFE53935),
+                        onClick = { onSelect(WordSearchDifficulty.INFERNAL) }
+                    )
                 }
             }
         }
@@ -367,12 +345,15 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd)
-                )
-            )
+            .background(Color(0xFF2D5A27))
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.3f
+        )
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
