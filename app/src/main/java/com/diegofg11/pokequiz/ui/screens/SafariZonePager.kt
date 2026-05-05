@@ -154,26 +154,3 @@ fun SafariZonePager(
     }
 }
 
-@Composable
-fun NavigationArrow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier.size(44.dp),
-        shape = RoundedCornerShape(4.dp),
-        color = Color.Black.copy(alpha = 0.7f),
-        contentColor = Color.White,
-        border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-    }
-}

@@ -295,28 +295,17 @@ fun SafariRetroHeader(
         }
 
         // Botón Atrás (Izquierda)
-        Surface(
-            onClick = onBackClick,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .size(36.dp)
-                .align(Alignment.CenterStart),
-            shape = CircleShape,
-            color = Color(0xFF2D5A27),
-            contentColor = Color.White,
-            border = BorderStroke(2.dp, Color(0xFF1B3022))
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(20.dp))
-            }
-        }
+        NavigationArrow(
+            icon = Icons.AutoMirrored.Filled.ArrowBack,
+            modifier = Modifier.align(Alignment.CenterStart),
+            onClick = onBackClick
+        )
 
         // Botón Ayuda (Derecha)
         if (onHelpClick != null) {
             Surface(
                 onClick = onHelpClick,
                 modifier = Modifier
-                    .padding(end = 8.dp)
                     .size(36.dp)
                     .align(Alignment.CenterEnd),
                 shape = CircleShape,
@@ -328,6 +317,30 @@ fun SafariRetroHeader(
                     Text("?", fontWeight = FontWeight.Black, fontSize = 18.sp)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun NavigationArrow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.size(40.dp),
+        shape = CircleShape,
+        color = Color.Black.copy(alpha = 0.3f), // Transparente y elegante
+        contentColor = Color.White,
+        border = BorderStroke(1.5.dp, Color.White.copy(alpha = 0.4f))
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -371,13 +384,13 @@ fun RetroDifficultyCard(
             
             Text(
                 text = subtitle,
-                color = Color(0xFF2D5A27),
-                fontSize = 10.sp,
+                color = Color(0xFF1B3022), // Mucho más oscuro para contraste
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(vertical = 4.dp),
-                lineHeight = 12.sp
+                lineHeight = 13.sp
             )
             
             Spacer(modifier = Modifier.weight(1f))
@@ -402,11 +415,28 @@ fun RetroDifficultyCard(
 @Composable
 private fun InfoItem(label: String, value: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
+        Text(
+            text = label, 
+            fontSize = 8.sp, 
+            fontWeight = FontWeight.Black, 
+            color = Color(0xFF1B3022), // Contraste alto
+            fontFamily = FontFamily.Monospace
+        )
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Poké", fontSize = 8.sp, color = Color(0xFF795548), fontWeight = FontWeight.Black)
-            Spacer(modifier = Modifier.width(2.dp))
-            Text(value, fontSize = 11.sp, fontWeight = FontWeight.Black, color = color)
+            Icon(
+                painter = painterResource(id = com.diegofg11.pokequiz.R.drawable.ic_coin),
+                contentDescription = null,
+                modifier = Modifier.size(10.dp),
+                tint = color
+            )
+            Spacer(modifier = Modifier.width(3.dp))
+            Text(
+                text = value, 
+                fontSize = 12.sp, 
+                fontWeight = FontWeight.ExtraBold, 
+                color = color,
+                fontFamily = FontFamily.Monospace
+            )
         }
     }
 }
