@@ -163,9 +163,11 @@ fun PokeDojoScreen(
 }
 
 @Composable
-        }
-
-        Column(
+fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
             modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
