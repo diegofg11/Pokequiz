@@ -2,24 +2,20 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -29,27 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.diegofg11.pokequiz.api.Network
-import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
-import com.diegofg11.pokequiz.utils.SessionManager
-import kotlinx.coroutines.Dispatchers
+import com.diegofg11.pokequiz.utils.SafariUtils
+import com.diegofg11.pokequiz.models.MemoryDifficulty
+import com.diegofg11.pokequiz.models.MemoryCardData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.random.Random
-
-data class MemoryCardData(
-    val id: Int,
-    val pokemonId: Int,
-    var isFlipped: Boolean = false,
-    var isMatched: Boolean = false
-)
-
-enum class MemoryDifficulty {
-    NORMAL, INFERNAL
-}
 
 @Composable
 fun MemoryGameScreen(
@@ -63,8 +45,13 @@ fun MemoryGameScreen(
     }
     
     if (difficulty == null) {
-        MemoryDifficultySelectionScreen(
-            onSelect = { difficulty = it }
+        SafariSelectionScreen(
+            title = "MEMORAMA",
+            subtitle = "Selecciona un modo para empezar",
+            cards = listOf(
+                DifficultyCardData("NORMAL", "5 Vidas | Relajado", "-20", "80", Color(0xFF4CAF50), { difficulty = MemoryDifficulty.NORMAL }),
+                DifficultyCardData("INFERNAL", "Caótico | 20s", "-50", "200", Color(0xFFE53935), { difficulty = MemoryDifficulty.INFERNAL })
+            )
         )
     } else {
         MemoryGameBoard(
@@ -75,65 +62,10 @@ fun MemoryGameScreen(
 }
 
 @Composable
-fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            RetroText(
-                text = "MEMORAMA",
-                fontSize = 42.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Selecciona un modo para empezar",
-                color = Color(0xFF333333),
-                fontSize = 12.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
-            )
-
-            // Modo Selección de Tarjetas
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Normal Mode Card
-                RetroDifficultyCard(
-                    title = "NORMAL",
-                    subtitle = "5 Vidas | Relajado",
-                    cost = "-20",
-                    reward = "+80",
-                    color = Color(0xFF4CAF50),
-                    onClick = { onSelect(MemoryDifficulty.NORMAL) },
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Infernal Mode Card
-                RetroDifficultyCard(
-                    title = "INFERNAL",
-                    subtitle = "Caótico | 20s",
-                    cost = "-50",
-                    reward = "+200",
-                    color = Color(0xFFE53935),
-                    onClick = { onSelect(MemoryDifficulty.INFERNAL) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     
-    var cards by remember { mutableStateOf<List<MemoryCardData>>(emptyList()) }
+    val cards = remember { mutableStateListOf<MemoryCardData>() }
     var selectedIndices by remember { mutableStateOf<List<Int>>(emptyList()) }
     var lives by remember { mutableIntStateOf(5) }
     var isProcessing by remember { mutableStateOf(false) }
@@ -152,24 +84,14 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     var flashTimer by remember { mutableStateOf(false) }
 
     fun initializeGame() {
-        val uniquePokemonIds = mutableSetOf<Int>()
-        while (uniquePokemonIds.size < 6) { // 3x4 grid = 12 cards = 6 pairs
-            uniquePokemonIds.add(Random.nextInt(1, 152))
-        }
-        
-        val deck = mutableListOf<MemoryCardData>()
-        var cardId = 0
-        uniquePokemonIds.forEach { pokeId ->
-            deck.add(MemoryCardData(id = cardId++, pokemonId = pokeId))
-            deck.add(MemoryCardData(id = cardId++, pokemonId = pokeId))
-        }
-        
-        cards = deck.shuffled()
+        cards.clear()
+        cards.addAll(SafariUtils.generateMemoryDeck(6))
         lives = if (difficulty == MemoryDifficulty.INFERNAL) 999 else 5
         timeLeft = maxTime
         selectedIndices = emptyList()
         isProcessing = false
         gameStarted = true
+        hasWon = false
     }
 
     LaunchedEffect(Unit) {
@@ -188,19 +110,18 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }
             }
             if (timeLeft == 0 && lives > 0 && !hasWon) {
-                // Tiempo agotado
                 lives = 0
                 isProcessing = true
                 hasWon = false
-                try {
-                    Network.api.rewardUser(RewardRequest(userId = SessionManager.currentUserId, levelId = 0, coinsEarned = -losePenalty))
-                    withContext(Dispatchers.Main) { showResultDialog = true }
-                } catch(e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        globalError = "Error de red al cobrar la entrada."
+                SafariUtils.rewardUser(
+                    scope = scope,
+                    coins = -losePenalty,
+                    onSuccess = { showResultDialog = true },
+                    onError = { 
+                        globalError = it
                         isProcessing = false
                     }
-                }
+                )
             }
         }
     }
@@ -226,7 +147,6 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
             onRetry = {
                 initializeGame()
                 showResultDialog = false
-                hasWon = false
             },
             onExit = onNavigateBack
         )
@@ -241,14 +161,12 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
             onConfirm = {
                 showExitWarning = false
                 isProcessing = true
-                scope.launch {
-                    try {
-                        Network.api.rewardUser(RewardRequest(userId = SessionManager.currentUserId, levelId = 0, coinsEarned = -losePenalty))
-                        withContext(Dispatchers.Main) { onNavigateBack() }
-                    } catch(e: Exception) {
-                        withContext(Dispatchers.Main) { onNavigateBack() }
-                    }
-                }
+                SafariUtils.rewardUser(
+                    scope = scope,
+                    coins = -losePenalty,
+                    onSuccess = { onNavigateBack() },
+                    onError = { onNavigateBack() }
+                )
             },
             onDismiss = { showExitWarning = false }
         )
@@ -257,63 +175,48 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     fun handleCardClick(index: Int) {
         if (isProcessing || cards[index].isFlipped || cards[index].isMatched || lives <= 0) return
         
-        // Voltear la carta
-        val newCards = cards.toMutableList()
-        newCards[index] = newCards[index].copy(isFlipped = true)
-        cards = newCards
-        
-        val newSelected = selectedIndices.toMutableList()
-        newSelected.add(index)
-        selectedIndices = newSelected
+        cards[index] = cards[index].copy(isFlipped = true)
+        selectedIndices = selectedIndices + index
         
         if (selectedIndices.size == 2) {
             isProcessing = true
             scope.launch {
-                delay(800) // Esperar a que el usuario vea las cartas
+                delay(800)
                 
                 val idx1 = selectedIndices[0]
                 val idx2 = selectedIndices[1]
                 
-                var updatedCards = cards.toMutableList()
-                
-                if (updatedCards[idx1].pokemonId == updatedCards[idx2].pokemonId) {
-                    // Pareja encontrada
-                    updatedCards[idx1] = updatedCards[idx1].copy(isMatched = true)
-                    updatedCards[idx2] = updatedCards[idx2].copy(isMatched = true)
+                if (cards[idx1].pokemonId == cards[idx2].pokemonId) {
+                    cards[idx1] = cards[idx1].copy(isMatched = true)
+                    cards[idx2] = cards[idx2].copy(isMatched = true)
                     
-                    // Tablero Caótico en Infernal
-                    if (difficulty == MemoryDifficulty.INFERNAL && !updatedCards.all { it.isMatched }) {
-                        val unmatchedCards = updatedCards.filter { !it.isMatched }.shuffled()
+                    if (difficulty == MemoryDifficulty.INFERNAL && !cards.all { it.isMatched }) {
+                        val unmatchedCards = cards.filter { !it.isMatched }.shuffled()
                         var unmatchIdx = 0
-                        for (i in updatedCards.indices) {
-                            if (!updatedCards[i].isMatched) {
-                                updatedCards[i] = unmatchedCards[unmatchIdx++]
+                        for (i in cards.indices) {
+                            if (!cards[i].isMatched) {
+                                cards[i] = unmatchedCards[unmatchIdx++]
                             }
                         }
                     }
                     
-                    cards = updatedCards
-                    
-                    // Check win condition
                     if (cards.all { it.isMatched }) {
                         hasWon = true
-                        try {
-                            Network.api.rewardUser(RewardRequest(userId = SessionManager.currentUserId, levelId = 0, coinsEarned = winReward))
-                            withContext(Dispatchers.Main) { showResultDialog = true }
-                        } catch(e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                globalError = "Error de red al guardar tu premio."
+                        SafariUtils.rewardUser(
+                            scope = scope,
+                            coins = winReward,
+                            onSuccess = { showResultDialog = true },
+                            onError = { 
+                                globalError = it
                                 isProcessing = false
                             }
-                        }
+                        )
                     } else {
                         isProcessing = false
                     }
                 } else {
-                    // Sin pareja
-                    updatedCards[idx1] = updatedCards[idx1].copy(isFlipped = false)
-                    updatedCards[idx2] = updatedCards[idx2].copy(isFlipped = false)
-                    cards = updatedCards
+                    cards[idx1] = cards[idx1].copy(isFlipped = false)
+                    cards[idx2] = cards[idx2].copy(isFlipped = false)
                     
                     if (difficulty == MemoryDifficulty.NORMAL) {
                         lives -= 1
@@ -321,30 +224,26 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     
                     if (lives <= 0 && difficulty == MemoryDifficulty.NORMAL) {
                         hasWon = false
-                        try {
-                            Network.api.rewardUser(RewardRequest(userId = SessionManager.currentUserId, levelId = 0, coinsEarned = -losePenalty))
-                            withContext(Dispatchers.Main) { showResultDialog = true }
-                        } catch(e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                globalError = "Error de red al cobrar la entrada."
+                        SafariUtils.rewardUser(
+                            scope = scope,
+                            coins = -losePenalty,
+                            onSuccess = { showResultDialog = true },
+                            onError = { 
+                                globalError = it
                                 isProcessing = false
                             }
-                        }
+                        )
                     } else {
                         isProcessing = false
                     }
                 }
-                
                 selectedIndices = emptyList()
             }
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Barra superior
+        Column(modifier = Modifier.fillMaxSize()) {
             SafariRetroHeader(
                 title = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
                 onBackClick = {
@@ -368,7 +267,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                                     text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                    fontFamily = FontFamily.Monospace,
                                     fontSize = 12.sp
                                 )
                             }
@@ -377,14 +276,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }
             )
             
-            // Barra de tiempo para el modo Infernal
             if (difficulty == MemoryDifficulty.INFERNAL) {
-                val timerColor = if (timeLeft <= 5) {
-                    if (flashTimer) Color.Red else Color.Yellow
-                } else {
-                    Color.Green
-                }
-                
                 val timerProgress by animateFloatAsState(
                     targetValue = timeLeft.toFloat() / maxTime.toFloat(),
                     animationSpec = tween(1000)
@@ -401,7 +293,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                             .height(8.dp)
                             .clip(RoundedCornerShape(4.dp))
                             .border(1.dp, Color.White, RoundedCornerShape(4.dp)),
-                        color = timerColor,
+                        color = if (timeLeft <= 5) (if (flashTimer) Color.Red else Color.Yellow) else Color.Green,
                         trackColor = Color.DarkGray
                     )
                 }
@@ -409,7 +301,6 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Cuadrícula de Cartas (3x4)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(16.dp),
@@ -418,9 +309,8 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(cards.size) { index ->
-                    val card = cards[index]
                     MemoryCard(
-                        cardData = card,
+                        cardData = cards[index],
                         onClick = { handleCardClick(index) }
                     )
                 }
@@ -431,7 +321,6 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
 
 @Composable
 fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
-    // Animación de rotación 3D
     val rotation by animateFloatAsState(
         targetValue = if (cardData.isFlipped || cardData.isMatched) 180f else 0f,
         animationSpec = tween(durationMillis = 400)
@@ -449,11 +338,10 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
             .clickable(enabled = !cardData.isMatched) { onClick() }
     ) {
         if (isFrontVisible) {
-            // Cara Frontal (Pokémon)
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer { rotationY = 180f }, // Rotar de vuelta para que el contenido no se vea en espejo
+                    .graphicsLayer { rotationY = 180f },
                 shape = RoundedCornerShape(8.dp),
                 color = if (cardData.isMatched) Color(0xFFE8F5E9) else Color.White,
                 border = androidx.compose.foundation.BorderStroke(2.dp, if (cardData.isMatched) Color(0xFF4CAF50) else Color(0xFFB0BEC5))
@@ -466,31 +354,24 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
                         contentScale = ContentScale.Fit
                     )
                     if (cardData.isMatched) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color(0x664CAF50))
-                        )
+                        Box(modifier = Modifier.fillMaxSize().background(Color(0x664CAF50)))
                     }
                 }
             }
         } else {
-            // Reverso de la Carta (Pokéball pattern)
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(8.dp),
-                color = Color(0xFFE53935), // Rojo Pokéball
+                color = Color(0xFFE53935),
                 border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFB71C1C))
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    // Círculo central blanco estilo Pokéball
                     Surface(
                         modifier = Modifier.size(32.dp),
                         shape = RoundedCornerShape(50),
                         color = Color.White,
                         border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black)
                     ) {}
-                    // Círculo interno
                     Surface(
                         modifier = Modifier.size(16.dp),
                         shape = RoundedCornerShape(50),

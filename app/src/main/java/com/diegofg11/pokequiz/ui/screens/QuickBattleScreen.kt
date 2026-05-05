@@ -72,16 +72,12 @@ private val OPPONENTS_POOL = listOf(
     QuickBattleOpponent("ARCANINE", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/59.png", listOf(PokeType.WATER, PokeType.GROUND), listOf(PokeType.FIRE, PokeType.GRASS, PokeType.ICE)),
     QuickBattleOpponent("JOLTEON", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/135.png", listOf(PokeType.GROUND), listOf(PokeType.ELECTRIC, PokeType.FLYING)),
     QuickBattleOpponent("VAPOREON", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/134.png", listOf(PokeType.GRASS, PokeType.ELECTRIC), listOf(PokeType.FIRE, PokeType.WATER, PokeType.ICE)),
-    QuickBattleOpponent("FLAREON", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/136.png", listOf(PokeType.WATER, PokeType.GROUND), listOf(PokeType.FIRE, PokeType.GRASS, PokeType.ICE)),
-    QuickBattleOpponent("PIDGEOT", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/18.png", listOf(PokeType.ELECTRIC, PokeType.ICE), listOf(PokeType.GRASS, PokeType.FIGHTING)),
-    QuickBattleOpponent("GOLEM", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/76.png", listOf(PokeType.WATER, PokeType.GRASS, PokeType.ICE, PokeType.FIGHTING, PokeType.GROUND), listOf(PokeType.FIRE, PokeType.ELECTRIC, PokeType.FLYING)),
-    QuickBattleOpponent("SCYTHER", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/123.png", listOf(PokeType.FIRE, PokeType.ELECTRIC, PokeType.ICE, PokeType.FLYING), listOf(PokeType.GRASS, PokeType.FIGHTING)),
-    QuickBattleOpponent("ELECTABUZZ", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/125.png", listOf(PokeType.GROUND), listOf(PokeType.ELECTRIC, PokeType.FLYING)),
-    QuickBattleOpponent("MAGMAR", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/126.png", listOf(PokeType.WATER, PokeType.GROUND), listOf(PokeType.FIRE, PokeType.GRASS, PokeType.ICE)),
-    QuickBattleOpponent("MOLTRES", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/146.png", listOf(PokeType.WATER, PokeType.ELECTRIC), listOf(PokeType.FIRE, PokeType.GRASS, PokeType.FIGHTING))
+    QuickBattleOpponent("CHARIZARD", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png", listOf(PokeType.WATER, PokeType.GROUND), listOf(PokeType.GRASS, PokeType.FIRE)),
+    QuickBattleOpponent("BLASTOISE", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png", listOf(PokeType.ELECTRIC, PokeType.GRASS), listOf(PokeType.FIRE, PokeType.WATER)),
+    QuickBattleOpponent("VENUSAUR", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png", listOf(PokeType.FIRE, PokeType.FLYING, PokeType.ICE), listOf(PokeType.WATER, PokeType.ELECTRIC)),
+    QuickBattleOpponent("GYARADOS", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/130.png", listOf(PokeType.ELECTRIC, PokeType.ROCK_POKE), listOf(PokeType.FIGHTING, PokeType.WATER)),
+    QuickBattleOpponent("DRAGONITE", "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png", listOf(PokeType.ICE, PokeType.ROCK_POKE), listOf(PokeType.FIRE, PokeType.WATER, PokeType.GRASS, PokeType.ELECTRIC))
 )
-
-// --- Pantallas ---
 
 @Composable
 fun QuickBattleScreen(
@@ -89,9 +85,9 @@ fun QuickBattleScreen(
     onStateChange: (Boolean) -> Unit = {}
 ) {
     var gameState by remember { mutableStateOf(SafariGameState.START) }
-    var hasWon by remember { mutableStateOf(false) }
-    var currentRound by remember { mutableIntStateOf(0) }
-    var isInverseMode by remember { mutableStateOf(false) }
+    var currentOpponent by remember { mutableStateOf<QuickBattleOpponent?>(null) }
+    var roundCount by remember { mutableIntStateOf(0) }
+    var victories by remember { mutableIntStateOf(0) }
     var globalError by remember { mutableStateOf<String?>(null) }
     
     val scope = rememberCoroutineScope()
@@ -100,15 +96,23 @@ fun QuickBattleScreen(
         onStateChange(gameState == SafariGameState.START)
     }
 
+    if (globalError != null) {
+        PokemonAlertDialog(
+            title = "Error",
+            message = globalError ?: "",
+            onDismiss = { globalError = null },
+            onConfirm = { globalError = null }
+        )
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Header visible only during game or result
             if (gameState != SafariGameState.START) {
                 SafariRetroHeader(
                     title = "BATALLA RÁPIDA",
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {
-                            gameState = SafariGameState.RESULT // Or just back to start
+                            gameState = SafariGameState.RESULT
                         } else {
                             gameState = SafariGameState.START
                         }
@@ -116,10 +120,17 @@ fun QuickBattleScreen(
                     extraContent = {
                         if (gameState == SafariGameState.PLAYING) {
                             Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
-                                RetroText(
-                                    "RONDA $currentRound / 3",
-                                    fontSize = 14.sp
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text("RONDA", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                        Text("${roundCount + 1}/3", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                                    }
+                                    Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text("VICTORIAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                        Text("$victories", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                                    }
+                                }
                             }
                         }
                     }
@@ -128,114 +139,55 @@ fun QuickBattleScreen(
 
             Box(modifier = Modifier.weight(1f)) {
                 when (gameState) {
-                    SafariGameState.START -> QuickBattleStart(
-                        onStart = { inverse ->
-                            isInverseMode = inverse
-                            val cost = if (inverse) -50 else -30
-                            scope.launch {
-                                try {
-                                    val response = Network.api.rewardUser(RewardRequest(
-                                        userId = SessionManager.currentUserId,
-                                        levelId = 0,
-                                        coinsEarned = cost
-                                    ))
-                                    if (response.isSuccessful) {
-                                        currentRound = 1
-                                        gameState = SafariGameState.PLAYING
-                                    } else {
-                                        globalError = "No tienes suficientes monedas para entrar."
-                                    }
-                                } catch (e: Exception) {
-                                    globalError = "Error de conexión: ${e.localizedMessage}"
-                                }
-                            }
-                        }
+                    SafariGameState.START -> SafariSelectionScreen(
+                        title = "BATALLA RÁPIDA",
+                        subtitle = "Demuestra tu conocimiento de tipos",
+                        cards = listOf(
+                            DifficultyCardData(
+                                "COMBATIR", 
+                                "3 Rondas | 1 Intento", 
+                                "-20", 
+                                "150", 
+                                Color(0xFFE53935), 
+                                {
+                                    SafariUtils.rewardUser(
+                                        scope = scope,
+                                        coins = -20,
+                                        onSuccess = {
+                                            victories = 0
+                                            roundCount = 0
+                                            currentOpponent = OPPONENTS_POOL.random()
+                                            gameState = SafariGameState.PLAYING
+                                        },
+                                        onError = { globalError = it }
+                                    )
+                                },
+                                span = 2
+                            )
+                        )
                     )
                     SafariGameState.PLAYING -> QuickBattleGame(
-                        round = currentRound,
-                        isInverse = isInverseMode,
-                        onRoundWin = {
-                            if (currentRound < 3) {
-                                currentRound++
-                            } else {
-                                hasWon = true
+                        opponent = currentOpponent!!,
+                        onResult = { isVictory ->
+                            if (isVictory) victories++
+                            roundCount++
+                            if (roundCount >= 3) {
                                 gameState = SafariGameState.RESULT
-                                // Reward
-                                scope.launch {
-                                    try {
-                                        val reward = if (isInverseMode) 200 else 100
-                                        Network.api.rewardUser(RewardRequest(
-                                            userId = SessionManager.currentUserId,
-                                            levelId = 0,
-                                            coinsEarned = reward
-                                        ))
-                                    } catch (e: Exception) { /* ignore */ }
-                                }
+                                val reward = if (victories == 3) 150 else if (victories == 2) 60 else 20
+                                SafariUtils.rewardUser(scope = scope, coins = reward)
+                            } else {
+                                currentOpponent = OPPONENTS_POOL.filter { it != currentOpponent }.random()
                             }
-                        },
-                        onGameOver = {
-                            hasWon = false
-                            gameState = SafariGameState.RESULT
                         }
                     )
                     SafariGameState.RESULT -> QuickBattleResult(
-                        hasWon = hasWon,
-                        isInverse = isInverseMode,
+                        victories = victories,
                         onRetry = { gameState = SafariGameState.START },
                         onExit = onNavigateBack
                     )
                 }
             }
         }
-        if (globalError != null) {
-            PokemonAlertDialog(
-                title = "Error",
-                message = globalError ?: "",
-                onDismiss = { globalError = null }
-            )
-        }
-    }
-}
-
-@Composable
-fun QuickBattleStart(onStart: (Boolean) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            RetroText(
-                "BATALLA RÁPIDA",
-                fontSize = 42.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                "Selecciona un modo para empezar",
-                color = Color(0xFF333333),
-                fontSize = 12.sp,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
-            )
-
-            // Selector de Modo
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Tarjeta Modo Clásico
-                RetroDifficultyCard(
-                    title = "CLÁSICO",
-                    subtitle = "Usa debilidades",
-                    cost = "-30",
-                    reward = "+100",
-                    color = Color(0xFF4CAF50),
                     onClick = { onStart(false) },
                     modifier = Modifier.weight(1f)
                 )

@@ -30,154 +30,277 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.draw.rotate
-import androidx.compose.animation.core.*
-import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
+import com.diegofg11.pokequiz.utils.SafariUtils
+import com.diegofg11.pokequiz.models.WordSearchDifficulty
 import kotlinx.coroutines.delay
-import kotlin.random.Random
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-
-enum class WordSearchDifficulty {
-    NORMAL, HARD, INFERNAL
-}
+import kotlinx.coroutines.launch
 
 @Composable
 fun WordSearchScreen(
     onNavigateBack: () -> Unit,
     onStateChange: (Boolean) -> Unit = {}
 ) {
-    var selectedDifficulty by remember { mutableStateOf<WordSearchDifficulty?>(null) }
+    var difficulty by remember { mutableStateOf<WordSearchDifficulty?>(null) }
     var globalError by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(selectedDifficulty) {
-        onStateChange(selectedDifficulty == null)
+    LaunchedEffect(difficulty) {
+        onStateChange(difficulty == null)
     }
 
     if (globalError != null) {
         PokemonAlertDialog(
             title = "Error",
             message = globalError ?: "",
-            onDismiss = { globalError = null }
+            onDismiss = { globalError = null },
+            onConfirm = { globalError = null }
         )
     }
 
-    if (selectedDifficulty == null) {
-        WordSearchDifficultySelection(
-            onSelect = { difficulty ->
-                val cost = -20
-                scope.launch {
-                    try {
-                        val response = Network.api.rewardUser(RewardRequest(
-                            userId = SessionManager.currentUserId,
-                            levelId = 0,
-                            coinsEarned = cost
-                        ))
-                        if (response.isSuccessful) {
-                            selectedDifficulty = difficulty
-                        } else {
-                            globalError = "Error al cobrar la entrada. Inténtalo de nuevo."
-                        }
-                    } catch (e: Exception) {
-                        globalError = "Error de red: ${e.localizedMessage}"
-                    }
-                }
-            }
+    if (difficulty == null) {
+        SafariSelectionScreen(
+            title = "SOPA DE LETRAS",
+            subtitle = "Encuentra los Pokémon ocultos",
+            cards = listOf(
+                DifficultyCardData("NORMAL", "8x8 | 3 Palabras", "-20", "60", Color(0xFF4CAF50), { difficulty = WordSearchDifficulty.NORMAL }),
+                DifficultyCardData("DIFÍCIL", "10x10 | 5 Palabras", "-40", "120", Color(0xFFFF9800), { difficulty = WordSearchDifficulty.HARD }),
+                DifficultyCardData("INFERNAL", "¡Caos Visual! | 10x10", "-60", "250", Color(0xFFE53935), { difficulty = WordSearchDifficulty.INFERNAL }, span = 2)
+            )
         )
     } else {
         WordSearchGame(
-            difficulty = selectedDifficulty!!,
-            onGameEnd = { selectedDifficulty = null }
+            difficulty = difficulty!!,
+            onNavigateBack = { difficulty = null },
+            onError = { globalError = it }
         )
     }
 }
 
 @Composable
-fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
+fun WordSearchGame(
+    difficulty: WordSearchDifficulty,
+    onNavigateBack: () -> Unit,
+    onError: (String) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    
+    val gridSize = if (difficulty == WordSearchDifficulty.NORMAL) 8 else 10
+    val wordCount = when(difficulty) {
+        WordSearchDifficulty.NORMAL -> 3
+        WordSearchDifficulty.HARD -> 5
+        WordSearchDifficulty.INFERNAL -> 6
+    }
+    
+    var grid by remember { mutableStateOf<List<List<Char>>>(emptyList()) }
+    var targetWords by remember { mutableStateOf<List<String>>(emptyList()) }
+    var foundWords = remember { mutableStateListOf<String>() }
+    var selectedCells = remember { mutableStateListOf<Pair<Int, Int>>() }
+    
+    var timeLeft by remember { mutableIntStateOf(120) }
+    var isProcessing by remember { mutableStateOf(false) }
+    var showResultDialog by remember { mutableStateOf(false) }
+    var hasWon by remember { mutableStateOf(false) }
+
+    val rewardWin = when(difficulty) {
+        WordSearchDifficulty.NORMAL -> 60
+        WordSearchDifficulty.HARD -> 120
+        WordSearchDifficulty.INFERNAL -> 250
+    }
+    
+    val cost = when(difficulty) {
+        WordSearchDifficulty.NORMAL -> 20
+        WordSearchDifficulty.HARD -> 40
+        WordSearchDifficulty.INFERNAL -> 60
+    }
+
+    fun initializeGame() {
+        val words = PokemonConstants.KANTO_POKEMON_LIST.shuffled().take(wordCount).map { it.uppercase() }
+        targetWords = words
+        foundWords.clear()
+        selectedCells.clear()
+        
+        grid = SafariUtils.generateWordSearchGrid(
+            gridSize = gridSize,
+            words = words,
+            allowReverse = difficulty != WordSearchDifficulty.NORMAL,
+            maxDirections = if (difficulty == WordSearchDifficulty.NORMAL) 1 else 3
+        )
+        
+        timeLeft = if (difficulty == WordSearchDifficulty.INFERNAL) 60 else 120
+        isProcessing = false
+        hasWon = false
+    }
+
+    LaunchedEffect(Unit) {
+        initializeGame()
+    }
+
+    LaunchedEffect(timeLeft, hasWon) {
+        if (timeLeft > 0 && !hasWon) {
+            delay(1000)
+            timeLeft -= 1
+            if (timeLeft == 0) {
+                isProcessing = true
+                hasWon = false
+                SafariUtils.rewardUser(
+                    scope = scope,
+                    coins = -cost,
+                    onSuccess = { showResultDialog = true },
+                    onError = { 
+                        onError(it)
+                        isProcessing = false
+                    }
+                )
+            }
+        }
+    }
+
+    if (showResultDialog) {
+        SafariResultScreen(
+            title = if (hasWon) "¡VICTORIA!" else "TIEMPO AGOTADO",
+            subtitle = "SOPA POKÉMON - ${difficulty.name}",
+            description = if (hasWon) "¡Increíble! Has encontrado todos los nombres Pokémon." else "¡Casi los tienes! Inténtalo de nuevo.",
+            isVictory = hasWon,
+            coinsEarned = if (hasWon) rewardWin else -cost,
+            onRetry = {
+                initializeGame()
+                showResultDialog = false
+            },
+            onExit = onNavigateBack
+        )
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            RetroText(
-                text = "SOPA DE LETRAS",
-                fontSize = 38.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Selecciona un modo para empezar",
-                color = Color(0xFF333333),
-                fontSize = 12.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
+        Column(modifier = Modifier.fillMaxSize()) {
+            SafariRetroHeader(
+                title = "SOPA POKÉ",
+                onBackClick = onNavigateBack,
+                extraContent = {
+                    Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("PALABRAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                Text("${foundWords.size}/${targetWords.size}", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                            }
+                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("TIEMPO", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
+                                Text("$timeLeft", color = if (timeLeft < 10) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                            }
+                        }
+                    }
+                }
             )
 
-            // Grid de Selección de Dificultad
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Normal Mode
-                item {
-                    RetroDifficultyCard(
-                        title = "NORMAL",
-                        subtitle = "60s | Estándar",
-                        cost = "-20",
-                        reward = "+30",
-                        color = Color(0xFF4CAF50),
-                        onClick = { onSelect(WordSearchDifficulty.NORMAL) }
-                    )
+                RetroMenuBox(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    backgroundColor = Color.White.copy(alpha = 0.1f),
+                    borderColor = Color.Black.copy(alpha = 0.3f)
+                ) {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        targetWords.forEach { word ->
+                            val isFound = foundWords.contains(word)
+                            Text(
+                                text = word,
+                                color = if (isFound) Color(0xFF2D5A27) else Color.Black,
+                                fontSize = 10.sp,
+                                fontWeight = if (isFound) FontWeight.ExtraBold else FontWeight.Normal,
+                                fontFamily = FontFamily.Monospace,
+                                modifier = Modifier.padding(4.dp),
+                                style = if (isFound) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle.Default
+                            )
+                        }
+                    }
                 }
 
-                // Hard Mode
-                item {
-                    RetroDifficultyCard(
-                        title = "DIFÍCIL",
-                        subtitle = "45s | Diagonal",
-                        cost = "-20",
-                        reward = "+60",
-                        color = Color(0xFFFF9800),
-                        onClick = { onSelect(WordSearchDifficulty.HARD) }
-                    )
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
+                        .padding(4.dp)
+                ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        grid.forEachIndexed { r, row ->
+                            Row(modifier = Modifier.weight(1f)) {
+                                row.forEachIndexed { c, char ->
+                                    WordSearchCell(
+                                        char = char,
+                                        isHighlighted = selectedCells.contains(Pair(r, c)),
+                                        isInfernal = difficulty == WordSearchDifficulty.INFERNAL,
+                                        modifier = Modifier.weight(1f).fillMaxHeight()
+                                    ) {
+                                        if (!isProcessing) {
+                                            val cell = Pair(r, c)
+                                            if (selectedCells.contains(cell)) {
+                                                selectedCells.remove(cell)
+                                            } else {
+                                                selectedCells.add(cell)
+                                                val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
+                                                val reversedWord = word.reversed()
+                                                
+                                                targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
+                                                    foundWords.add(found)
+                                                    selectedCells.clear()
+                                                    if (foundWords.size == targetWords.size) {
+                                                        hasWon = true
+                                                        isProcessing = true
+                                                        SafariUtils.rewardUser(
+                                                            scope = scope,
+                                                            coins = rewardWin,
+                                                            onSuccess = { showResultDialog = true },
+                                                            onError = { 
+                                                                onError(it)
+                                                                isProcessing = false
+                                                            }
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-
-                // Infernal Mode
-                item(span = { GridItemSpan(2) }) {
-                    RetroDifficultyCard(
-                        title = "INFERNAL",
-                        subtitle = "30s | Invertidas | El reto supremo",
-                        cost = "-20",
-                        reward = "+120",
-                        color = Color(0xFFE53935),
-                        onClick = { onSelect(WordSearchDifficulty.INFERNAL) }
-                    )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Button(
+                    onClick = { selectedCells.clear() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black.copy(alpha = 0.1f)),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text("LIMPIAR SELECCIÓN", fontSize = 10.sp, color = Color.Black, fontFamily = FontFamily.Monospace)
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FlowRow(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    content: @Composable () -> Unit
+) {
+    androidx.compose.foundation.layout.FlowRow(
+        modifier = modifier,
+        horizontalArrangement = horizontalArrangement,
+        content = { content() }
+    )
+}
+
 @Composable
 fun WordSearchCell(
     char: Char,
-    isSelected: Boolean,
-    isFound: Boolean,
-    difficulty: WordSearchDifficulty
-) {
-    // Efecto Infernal: Vibración de letras
-    val infiniteTransition = rememberInfiniteTransition(label = "vibration")
-    val rotation by if (difficulty == WordSearchDifficulty.INFERNAL && !isFound && !isSelected) {
-        infiniteTransition.animateFloat(
             initialValue = -15f,
             targetValue = 15f,
             animationSpec = infiniteRepeatable(

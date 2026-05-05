@@ -2,26 +2,20 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
@@ -30,37 +24,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.diegofg11.pokequiz.api.Network
-import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
-import com.diegofg11.pokequiz.utils.SessionManager
 import com.diegofg11.pokequiz.utils.SafariGameState
+import com.diegofg11.pokequiz.utils.SafariUtils
+import com.diegofg11.pokequiz.models.DojoDifficulty
+import com.diegofg11.pokequiz.models.MoleType
+import com.diegofg11.pokequiz.models.HoleState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
-
-// --- Modelos y Enums ---
-
-enum class DojoDifficulty {
-    NORMAL, INFERNAL
-}
-
-enum class MoleType(val score: Int, val imageUrl: String, val duration: Long) {
-    EMPTY(0, "", 0L),
-    DIGLETT(10, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/50.png", 1200L),
-    DUGTRIO(25, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/51.png", 900L),
-    PIKACHU(50, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", 700L),
-    VOLTORB(-20, "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/100.png", 1000L)
-}
-
-data class HoleState(
-    val id: Int,
-    var type: MoleType = MoleType.EMPTY,
-    var isHit: Boolean = false
-)
-
-// --- Pantalla Principal ---
 
 @Composable
 fun PokeDojoScreen(
@@ -79,9 +52,17 @@ fun PokeDojoScreen(
         onStateChange(gameState == SafariGameState.START)
     }
 
+    if (globalError != null) {
+        PokemonAlertDialog(
+            title = "Error",
+            message = globalError ?: "",
+            onDismiss = { globalError = null },
+            onConfirm = { globalError = null }
+        )
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Header visible only during game or result
             if (gameState != SafariGameState.START) {
                 SafariRetroHeader(
                     title = "POKÉ-DOJO",
@@ -114,29 +95,37 @@ fun PokeDojoScreen(
 
             Box(modifier = Modifier.weight(1f)) {
                 when (gameState) {
-                    SafariGameState.START -> PokeDojoStart(
-                        onStart = { selectedDifficulty ->
-                            difficulty = selectedDifficulty
-                            val cost = if (difficulty == DojoDifficulty.INFERNAL) -50 else -20
-                            scope.launch {
-                                try {
-                                    val response = Network.api.rewardUser(RewardRequest(
-                                        userId = SessionManager.currentUserId,
-                                        levelId = 0,
-                                        coinsEarned = cost
-                                    ))
-                                    if (response.isSuccessful) {
+                    SafariGameState.START -> SafariSelectionScreen(
+                        title = "POKÉ-DOJO",
+                        subtitle = "¡Golpea a los Pokémon que asomen!",
+                        cards = listOf(
+                            DifficultyCardData("NORMAL", "30s | Estándar", "-20", "350", Color(0xFF795548), {
+                                difficulty = DojoDifficulty.NORMAL
+                                SafariUtils.rewardUser(
+                                    scope = scope,
+                                    coins = -20,
+                                    onSuccess = {
                                         score = 0
-                                        timeLeft = if (difficulty == DojoDifficulty.INFERNAL) 20 else 30
+                                        timeLeft = 30
                                         gameState = SafariGameState.PLAYING
-                                    } else {
-                                        globalError = "No tienes suficientes monedas para entrar."
-                                    }
-                                } catch (e: Exception) {
-                                    globalError = "Error de red: ${e.localizedMessage}"
-                                }
-                            }
-                        }
+                                    },
+                                    onError = { globalError = it }
+                                )
+                            }),
+                            DifficultyCardData("INFERNAL", "20s | ¡Caos!", "-50", "750", Color(0xFFE53935), {
+                                difficulty = DojoDifficulty.INFERNAL
+                                SafariUtils.rewardUser(
+                                    scope = scope,
+                                    coins = -50,
+                                    onSuccess = {
+                                        score = 0
+                                        timeLeft = 20
+                                        gameState = SafariGameState.PLAYING
+                                    },
+                                    onError = { globalError = it }
+                                )
+                            })
+                        )
                     )
                     SafariGameState.PLAYING -> PokeDojoGame(
                         difficulty = difficulty,
@@ -146,34 +135,22 @@ fun PokeDojoScreen(
                             score = finalScore
                             gameState = SafariGameState.RESULT
                             
-                            // Calcular premio por rangos
                             val reward = if (difficulty == DojoDifficulty.INFERNAL) {
                                 when {
-                                    finalScore >= 500 -> 400
-                                    finalScore >= 300 -> 200
-                                    finalScore >= 100 -> 100
+                                    finalScore >= 1000 -> 750
+                                    finalScore >= 600 -> 350
+                                    finalScore >= 200 -> 120
                                     else -> 0
                                 }
                             } else {
                                 when {
-                                    finalScore >= 250 -> 120
-                                    finalScore >= 150 -> 80
-                                    finalScore >= 50 -> 40
+                                    finalScore >= 500 -> 350
+                                    finalScore >= 300 -> 180
+                                    finalScore >= 100 -> 60
                                     else -> 0
                                 }
                             }
-                            
-                            if (reward > 0) {
-                                scope.launch {
-                                    try {
-                                        Network.api.rewardUser(RewardRequest(
-                                            userId = SessionManager.currentUserId,
-                                            levelId = 0,
-                                            coinsEarned = reward
-                                        ))
-                                    } catch (e: Exception) { /* ignore */ }
-                                }
-                            }
+                            SafariUtils.rewardUser(scope = scope, coins = reward)
                         }
                     )
                     SafariGameState.RESULT -> PokeDojoResult(
@@ -185,126 +162,6 @@ fun PokeDojoScreen(
                 }
             }
         }
-        if (globalError != null) {
-            PokemonAlertDialog(
-                title = "Error",
-                message = globalError ?: "",
-                onDismiss = { globalError = null },
-                onConfirm = { globalError = null }
-            )
-        }
-    }
-}
-
-@Composable
-fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            RetroText(
-                "POKÉ-DOJO",
-                fontSize = 42.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                "Selecciona un modo para empezar",
-                color = Color(0xFF333333),
-                fontSize = 12.sp,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
-            )
-
-            // Dificultad Cards
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Normal Mode Card
-                RetroDifficultyCard(
-                    title = "NORMAL",
-                    subtitle = "30s | Estándar",
-                    cost = "-20",
-                    reward = "350",
-                    rewardLabel = "HASTA",
-                    color = Color(0xFF795548),
-                    onClick = { onStart(DojoDifficulty.NORMAL) },
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Infernal Mode Card
-                RetroDifficultyCard(
-                    title = "INFERNAL",
-                    subtitle = "20s | ¡Caos!",
-                    cost = "-50",
-                    reward = "750",
-                    rewardLabel = "HASTA",
-                    color = Color(0xFFE53935),
-                    onClick = { onStart(DojoDifficulty.INFERNAL) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-                PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
-            
-            RetroText(
-                "RANGOS Y PUNTUACIÓN",
-                fontSize = 14.sp,
-                modifier = Modifier.padding(bottom = 12.dp),
-                showShadow = false
-            )
-
-            // Reward Table (Mini)
-            RetroMenuBox(
-                modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Color.White.copy(alpha = 0.05f),
-                borderColor = Color.White.copy(alpha = 0.2f)
-            ) {
-                Column {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("RANGO", color = Color.LightGray, fontSize = 10.sp, modifier = Modifier.weight(1f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                        Text("NORMAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                        Text("INFERNAL", color = Color.LightGray, fontSize = 10.sp, textAlign = TextAlign.End, modifier = Modifier.weight(1.5f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                    }
-                    PixelDivider(modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
-                    RankRow("Bronce", "100", "60", "200", "120")
-                    RankRow("Plata", "300", "180", "600", "350")
-                    RankRow("Oro", "500", "350", "1000", "750")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RankRow(rank: String, ptsN: String, coinsN: String, ptsI: String, coinsI: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(rank, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-        
-        Text(
-            text = "$ptsN ($coinsN 💰)", 
-            color = Color.LightGray, 
-            fontSize = 10.sp,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1.5f),
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-        )
-        
-        Text(
-            text = "$ptsI ($coinsI 💰)", 
-            color = Color(0xFFE53935), 
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1.5f),
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-        )
     }
 }
 
@@ -353,7 +210,6 @@ fun PokeDojoGame(
                         else -> MoleType.DIGLETT
                     }
                     
-                    // En infernal desaparecen mucho más rápido
                     val duration = if (difficulty == DojoDifficulty.INFERNAL) (type.duration * 0.6).toLong() else type.duration
                     
                     holes[index] = holes[index].copy(type = type, isHit = false)
@@ -375,7 +231,6 @@ fun PokeDojoGame(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Stats Header removed and moved to SafariRetroHeader
         PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
 
         if (difficulty == DojoDifficulty.INFERNAL) {

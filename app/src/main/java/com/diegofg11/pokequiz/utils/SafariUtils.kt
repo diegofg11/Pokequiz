@@ -1,0 +1,135 @@
+package com.diegofg11.pokequiz.utils
+
+import com.diegofg11.pokequiz.api.Network
+import com.diegofg11.pokequiz.models.RewardRequest
+import com.diegofg11.pokequiz.models.MemoryCardData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.random.Random
+
+object SafariUtils {
+
+    /**
+     * Helper to reward user and handle common UI states.
+     */
+    fun rewardUser(
+        scope: CoroutineScope,
+        coins: Int,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        if (coins == 0) {
+            onSuccess()
+            return
+        }
+        
+        scope.launch {
+            try {
+                val response = Network.api.rewardUser(
+                    RewardRequest(
+                        userId = SessionManager.currentUserId,
+                        levelId = 0,
+                        coinsEarned = coins
+                    )
+                )
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        onSuccess()
+                    } else {
+                        onError("No se pudo procesar la transacción.")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    onError("Error de conexión: ${e.localizedMessage}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates a deck of memory cards.
+     */
+    fun generateMemoryDeck(pairCount: Int): List<MemoryCardData> {
+        val uniquePokemonIds = mutableSetOf<Int>()
+        while (uniquePokemonIds.size < pairCount) {
+            uniquePokemonIds.add(Random.nextInt(1, 152))
+        }
+        
+        val deck = mutableListOf<MemoryCardData>()
+        var cardId = 0
+        uniquePokemonIds.forEach { pokeId ->
+            deck.add(MemoryCardData(id = cardId++, pokemonId = pokeId))
+            deck.add(MemoryCardData(id = cardId++, pokemonId = pokeId))
+        }
+        
+        return deck.shuffled()
+    }
+
+    /**
+     * Helper to generate Word Search grid.
+     */
+    fun generateWordSearchGrid(
+        gridSize: Int,
+        words: List<String>,
+        allowReverse: Boolean,
+        maxDirections: Int
+    ): List<List<Char>> {
+        val newGrid = Array(gridSize) { CharArray(gridSize) { ' ' } }
+        
+        for (word in words) {
+            var placed = false
+            var attempts = 0
+            while (!placed && attempts < 100) {
+                val isReversed = allowReverse && Random.nextBoolean()
+                val wordToPlace = if (isReversed) word.reversed() else word
+                
+                // Direcciones: 0=Horizontal, 1=Vertical, 2=DiagonalAbajoDerecha, 3=DiagonalArribaDerecha
+                val dir = Random.nextInt(maxDirections + 1)
+                
+                val startRow = Random.nextInt(gridSize)
+                val startCol = Random.nextInt(gridSize)
+                
+                var canPlace = true
+                val tempCells = mutableListOf<Pair<Int, Int>>()
+                
+                for (i in wordToPlace.indices) {
+                    val r = startRow + when(dir) { 1 -> i; 2 -> i; 3 -> -i; else -> 0 }
+                    val c = startCol + when(dir) { 0 -> i; 2 -> i; 3 -> i; else -> 0 }
+                    
+                    if (r !in 0 until gridSize || c !in 0 until gridSize) {
+                        canPlace = false
+                        break
+                    }
+                    if (newGrid[r][c] != ' ' && newGrid[r][c] != wordToPlace[i]) {
+                        canPlace = false
+                        break
+                    }
+                    tempCells.add(Pair(r, c))
+                }
+                
+                if (canPlace) {
+                    for (i in wordToPlace.indices) {
+                        val pos = tempCells[i]
+                        newGrid[pos.first][pos.second] = wordToPlace[i]
+                    }
+                    placed = true
+                }
+                attempts++
+            }
+        }
+        
+        // Rellenar espacios vacíos
+        for (r in 0 until gridSize) {
+            for (c in 0 until gridSize) {
+                if (newGrid[r][c] == ' ') {
+                    newGrid[r][c] = ('A'..'Z').random()
+                }
+            }
+        }
+        
+        return newGrid.map { it.toList() }
+    }
+}

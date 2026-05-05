@@ -598,3 +598,69 @@ fun SafariResultScreen(
         }
     }
 }
+@Composable
+fun SafariSelectionScreen(
+    title: String,
+    subtitle: String,
+    cards: List<DifficultyCardData>,
+    columns: Int = 2
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            RetroText(
+                text = title.uppercase(),
+                fontSize = 38.sp,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = subtitle,
+                color = Color(0xFF333333),
+                fontSize = 12.sp,
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
+            )
+
+            // Grid de Selección de Dificultad
+            androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                cards.forEach { card ->
+                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(card.span) }) {
+                        RetroDifficultyCard(
+                            title = card.title,
+                            subtitle = card.subtitle,
+                            cost = card.cost,
+                            reward = card.reward,
+                            rewardLabel = card.rewardLabel,
+                            color = card.color,
+                            onClick = card.onClick,
+                            modifier = card.modifier
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class DifficultyCardData(
+    val title: String,
+    val subtitle: String,
+    val cost: String,
+    val reward: String,
+    val color: Color,
+    val onClick: () -> Unit,
+    val rewardLabel: String = "GANA",
+    val span: Int = 1,
+    val modifier: Modifier = Modifier
+)

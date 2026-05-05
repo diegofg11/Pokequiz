@@ -2,27 +2,18 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -32,16 +23,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.diegofg11.pokequiz.api.Network
-import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import com.diegofg11.pokequiz.utils.PokemonConstants
-import kotlinx.coroutines.Dispatchers
+import com.diegofg11.pokequiz.utils.SafariUtils
+import com.diegofg11.pokequiz.models.GuessDifficulty
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 // Grupos de confusión para respuestas falsas realistas
@@ -57,19 +46,14 @@ private val CONFUSION_GROUPS = listOf(
     listOf(4, 5, 6, 7, 8, 9, 31, 34, 115, 149, 151) // Bípedos con cola/Saurios
 )
 
-enum class Difficulty {
-    EASY, HARD, INFERNAL
-}
-
 @Composable
 fun GuessPokemonScreen(
     onNavigateBack: () -> Unit,
     onStateChange: (Boolean) -> Unit = {}
 ) {
-    var difficulty by remember { mutableStateOf<Difficulty?>(null) }
+    var difficulty by remember { mutableStateOf<GuessDifficulty?>(null) }
     var globalError by remember { mutableStateOf<String?>(null) }
 
-    // Notificar al contenedor si estamos en modo selección o jugando
     LaunchedEffect(difficulty) {
         onStateChange(difficulty == null)
     }
@@ -84,8 +68,14 @@ fun GuessPokemonScreen(
     }
 
     if (difficulty == null) {
-        DifficultySelectionScreen(
-            onSelect = { difficulty = it }
+        SafariSelectionScreen(
+            title = "¿QUIÉN ES ESE POKÉMON?",
+            subtitle = "Selecciona un modo para empezar",
+            cards = listOf(
+                DifficultyCardData("FÁCIL", "Sin límites", "-30", "15", Color(0xFF4CAF50), { difficulty = GuessDifficulty.EASY }),
+                DifficultyCardData("DIFÍCIL", "5s | Rotado", "-40", "20", Color(0xFFFF9800), { difficulty = GuessDifficulty.HARD }),
+                DifficultyCardData("INFERNAL", "4s | Caos Visual", "-80", "40", Color(0xFFE53935), { difficulty = GuessDifficulty.INFERNAL }, span = 2)
+            )
         )
     } else {
         GuessPokemonGame(
@@ -97,83 +87,13 @@ fun GuessPokemonScreen(
 }
 
 @Composable
-fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            RetroText(
-                text = "¿QUIÉN ES ESE POKÉMON?",
-                fontSize = 36.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Selecciona un modo para empezar",
-                color = Color(0xFF333333),
-                fontSize = 12.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
-            )
-
-            // Grid de Selección de Dificultad
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Easy Mode
-                item {
-                    RetroDifficultyCard(
-                        title = "FÁCIL",
-                        subtitle = "Sin límites",
-                        cost = "-30",
-                        reward = "+15",
-                        color = Color(0xFF4CAF50),
-                        onClick = { onSelect(Difficulty.EASY) }
-                    )
-                }
-
-                // Hard Mode
-                item {
-                    RetroDifficultyCard(
-                        title = "DIFÍCIL",
-                        subtitle = "5s | Rotado",
-                        cost = "-40",
-                        reward = "+20",
-                        color = Color(0xFFFF9800),
-                        onClick = { onSelect(Difficulty.HARD) }
-                    )
-                }
-
-                // Infernal Mode
-                item(span = { GridItemSpan(2) }) {
-                    RetroDifficultyCard(
-                        title = "INFERNAL",
-                        subtitle = "4s | Caos Visual | El reto definitivo",
-                        cost = "-80",
-                        reward = "+40",
-                        color = Color(0xFFE53935),
-                        onClick = { onSelect(Difficulty.INFERNAL) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError: (String) -> Unit) {
+fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, onError: (String) -> Unit) {
     val scope = rememberCoroutineScope()
     
     var currentTargetId by remember { mutableIntStateOf(1) }
     var currentOptions by remember { mutableStateOf<List<Pair<Int, String>>>(emptyList()) }
     
+    // Silhouette transformation state
     var imageRotation by remember { mutableFloatStateOf(0f) }
     var isFlipped by remember { mutableStateOf(false) }
     var stretchX by remember { mutableFloatStateOf(1f) }
@@ -187,22 +107,22 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
     var sessionCoins by remember { mutableIntStateOf(0) }
     var isProcessing by remember { mutableStateOf(false) }
     
-    val maxTime = if (difficulty == Difficulty.INFERNAL) 4 else 5
+    val maxTime = if (difficulty == GuessDifficulty.INFERNAL) 4 else 5
     var timeLeft by remember { mutableIntStateOf(maxTime) }
     var flashTimer by remember { mutableStateOf(false) }
     
     var showRewardDialog by remember { mutableStateOf(false) }
 
     val rewardWin = when(difficulty) {
-        Difficulty.EASY -> 15
-        Difficulty.HARD -> 20
-        Difficulty.INFERNAL -> 40
+        GuessDifficulty.EASY -> 15
+        GuessDifficulty.HARD -> 20
+        GuessDifficulty.INFERNAL -> 40
     }
     
     val penaltyLose = when(difficulty) {
-        Difficulty.EASY -> 30
-        Difficulty.HARD -> 40
-        Difficulty.INFERNAL -> 80
+        GuessDifficulty.EASY -> 30
+        GuessDifficulty.HARD -> 40
+        GuessDifficulty.INFERNAL -> 80
     }
 
     fun generateNewRound() {
@@ -213,16 +133,16 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
         flashTimer = false
         
         when (difficulty) {
-            Difficulty.INFERNAL -> {
+            GuessDifficulty.INFERNAL -> {
                 imageRotation = Random.nextFloat() * 360f
                 isFlipped = Random.nextBoolean()
-                stretchX = Random.nextFloat() * 0.6f + 0.7f // entre 0.7 y 1.3
+                stretchX = Random.nextFloat() * 0.6f + 0.7f
                 stretchY = Random.nextFloat() * 0.6f + 0.7f
-                zoom = Random.nextFloat() * 1.8f + 0.7f // Zoom entre 0.7x (lejos) y 2.5x (cerca)
-                offsetX = Random.nextFloat() * 160f - 80f // Desplazamiento X para cortar imagen
-                offsetY = Random.nextFloat() * 160f - 80f // Desplazamiento Y para cortar imagen
+                zoom = Random.nextFloat() * 1.8f + 0.7f
+                offsetX = Random.nextFloat() * 160f - 80f
+                offsetY = Random.nextFloat() * 160f - 80f
             }
-            Difficulty.HARD -> {
+            GuessDifficulty.HARD -> {
                 imageRotation = Random.nextFloat() * 360f
                 isFlipped = false
                 stretchX = 1f
@@ -231,7 +151,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 offsetX = 0f
                 offsetY = 0f
             }
-            Difficulty.EASY -> {
+            GuessDifficulty.EASY -> {
                 imageRotation = 0f
                 isFlipped = false
                 stretchX = 1f
@@ -248,8 +168,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
         val optionsSet = mutableSetOf<Int>()
         optionsSet.add(correctId)
         
-        // Buscar el grupo de confusión para rellenar respuestas trampa
-        if (difficulty == Difficulty.HARD || difficulty == Difficulty.INFERNAL) {
+        if (difficulty != GuessDifficulty.EASY) {
             val group = CONFUSION_GROUPS.find { it.contains(correctId) }
             if (group != null) {
                 val available = group.filter { it != correctId }.shuffled()
@@ -259,7 +178,6 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
             }
         }
         
-        // Rellenar con aleatorios si faltan
         while (optionsSet.size < 4) {
             optionsSet.add(Random.nextInt(1, 152))
         }
@@ -274,7 +192,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
     }
     
     LaunchedEffect(currentTargetId, isRevealed) {
-        if (difficulty != Difficulty.EASY && !isRevealed && !isProcessing) {
+        if (difficulty != GuessDifficulty.EASY && !isRevealed && !isProcessing) {
             while (timeLeft > 0) {
                 delay(1000)
                 if (!isRevealed && !isProcessing) {
@@ -317,23 +235,20 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Barra superior
         SafariRetroHeader(
             title = "ZONA SAFARI",
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
-                    scope.launch {
-                        try {
-                            Network.api.rewardUser(RewardRequest(userId = SessionManager.currentUserId, levelId = 0, coinsEarned = sessionCoins))
-                            withContext(Dispatchers.Main) { showRewardDialog = true }
-                        } catch(e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                onError("No se pudieron guardar tus monedas al salir.")
-                                isProcessing = false
-                            }
+                    SafariUtils.rewardUser(
+                        scope = scope,
+                        coins = sessionCoins,
+                        onSuccess = { showRewardDialog = true },
+                        onError = { 
+                            onError(it)
+                            isProcessing = false
                         }
-                    }
+                    )
                 } else if (!isProcessing) {
                     onNavigateBack()
                 }
@@ -341,7 +256,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
             extraContent = {
                 Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (difficulty != Difficulty.EASY) {
+                        if (difficulty != GuessDifficulty.EASY) {
                             Column(horizontalAlignment = Alignment.End) {
                                 Text("SEG", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
                                 Text("$timeLeft", color = if (timeLeft <= 2) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
@@ -363,7 +278,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (difficulty == Difficulty.EASY) {
+            if (difficulty == GuessDifficulty.EASY) {
                 RetroText(
                     text = "¿QUIÉN ES ESE POKÉMON?",
                     fontSize = 22.sp,
@@ -372,7 +287,6 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 )
             }
 
-            // Contenedor de la Imagen
             RetroMenuBox(
                 modifier = Modifier.size(250.dp),
                 backgroundColor = Color(0xFFF0F0F0),
@@ -402,62 +316,34 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botones de Opciones
             if (currentOptions.isNotEmpty()) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     for (i in 0 until 4 step 2) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            OptionButton(
-                                text = currentOptions[i].second,
-                                isSelected = selectedId == currentOptions[i].first,
-                                isCorrect = currentOptions[i].first == currentTargetId,
-                                isRevealed = isRevealed,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                if (!isRevealed && !isProcessing) {
-                                    isProcessing = true
-                                    selectedId = currentOptions[i].first
-                                    isRevealed = true
-                                    
-                                    if (selectedId == currentTargetId) {
-                                        sessionCoins += rewardWin
-                                    } else {
-                                        sessionCoins -= penaltyLose
-                                    }
-                                    
-                                    scope.launch {
-                                        delay(1500)
-                                        generateNewRound()
-                                    }
-                                }
-                            }
-                            OptionButton(
-                                text = currentOptions[i + 1].second,
-                                isSelected = selectedId == currentOptions[i + 1].first,
-                                isCorrect = currentOptions[i + 1].first == currentTargetId,
-                                isRevealed = isRevealed,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                if (!isRevealed && !isProcessing) {
-                                    isProcessing = true
-                                    selectedId = currentOptions[i + 1].first
-                                    isRevealed = true
-                                    
-                                    if (selectedId == currentTargetId) {
-                                        sessionCoins += rewardWin
-                                    } else {
-                                        sessionCoins -= penaltyLose
-                                    }
-                                    
-                                    scope.launch {
-                                        delay(1500)
-                                        generateNewRound()
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                            repeat(2) { offset ->
+                                val option = currentOptions[i + offset]
+                                OptionButton(
+                                    text = option.second,
+                                    isSelected = selectedId == option.first,
+                                    isCorrect = option.first == currentTargetId,
+                                    isRevealed = isRevealed,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    if (!isRevealed && !isProcessing) {
+                                        isProcessing = true
+                                        selectedId = option.first
+                                        isRevealed = true
+                                        
+                                        if (selectedId == currentTargetId) {
+                                            sessionCoins += rewardWin
+                                        } else {
+                                            sessionCoins -= penaltyLose
+                                        }
+                                        
+                                        scope.launch {
+                                            delay(1500)
+                                            generateNewRound()
+                                        }
                                     }
                                 }
                             }
@@ -501,7 +387,7 @@ fun OptionButton(
                 fontWeight = FontWeight.Black,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                fontFamily = FontFamily.Monospace
             )
         }
     }
