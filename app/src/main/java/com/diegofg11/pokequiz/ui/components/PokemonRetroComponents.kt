@@ -353,8 +353,10 @@ fun RetroDifficultyCard(
     cost: String,
     reward: String,
     color: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    costLabel: String = "ENTRA",
+    rewardLabel: String = "GANA",
+    onClick: () -> Unit
 ) {
     val borderColor = color.copy(alpha = 0.8f)
     
@@ -407,9 +409,9 @@ fun RetroDifficultyCard(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                InfoItem(label = "ENTRA", value = cost, color = Color(0xFFB71C1C)) // Rojo oscuro
+                InfoItem(label = costLabel, value = cost, color = Color(0xFFB71C1C)) // Rojo oscuro
                 Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.Black.copy(alpha = 0.1f)))
-                InfoItem(label = "GANA", value = reward, color = Color(0xFF1B5E20)) // Verde oscuro
+                InfoItem(label = rewardLabel, value = reward, color = Color(0xFF1B5E20)) // Verde oscuro
             }
         }
     }
