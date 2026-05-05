@@ -150,8 +150,8 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
                     RetroDifficultyCard(
                         title = "FÁCIL",
                         subtitle = "Sin límites",
-                        cost = "-30 💰",
-                        reward = "+15 💰",
+                        cost = "-30",
+                        reward = "+15",
                         color = Color(0xFF4CAF50),
                         onClick = { onSelect(Difficulty.EASY) }
                     )
@@ -162,8 +162,8 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
                     RetroDifficultyCard(
                         title = "DIFÍCIL",
                         subtitle = "5s | Rotado",
-                        cost = "-40 💰",
-                        reward = "+20 💰",
+                        cost = "-40",
+                        reward = "+20",
                         color = Color(0xFFFF9800),
                         onClick = { onSelect(Difficulty.HARD) }
                     )
@@ -174,8 +174,8 @@ fun DifficultySelectionScreen(onSelect: (Difficulty) -> Unit) {
                     RetroDifficultyCard(
                         title = "INFERNAL",
                         subtitle = "4s | Caos Visual | El reto definitivo",
-                        cost = "-80 💰",
-                        reward = "+40 💰",
+                        cost = "-80",
+                        reward = "+40",
                         color = Color(0xFFE53935),
                         onClick = { onSelect(Difficulty.INFERNAL) }
                     )

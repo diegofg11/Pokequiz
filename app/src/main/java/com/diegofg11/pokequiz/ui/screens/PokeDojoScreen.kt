@@ -191,8 +191,8 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
                 RetroDifficultyCard(
                     title = "NORMAL",
                     subtitle = "30s | Estándar",
-                    cost = "-20 💰",
-                    reward = "Hasta 350 💰",
+                    cost = "-20",
+                    reward = "Hasta 350",
                     color = Color(0xFF795548),
                     onClick = { onStart(DojoDifficulty.NORMAL) },
                     modifier = Modifier.weight(1f)
@@ -202,8 +202,8 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
                 RetroDifficultyCard(
                     title = "INFERNAL",
                     subtitle = "20s | ¡Caos!",
-                    cost = "-50 💰",
-                    reward = "Hasta 750 💰",
+                    cost = "-50",
+                    reward = "Hasta 750",
                     color = Color(0xFFE53935),
                     onClick = { onStart(DojoDifficulty.INFERNAL) },
                     modifier = Modifier.weight(1f)

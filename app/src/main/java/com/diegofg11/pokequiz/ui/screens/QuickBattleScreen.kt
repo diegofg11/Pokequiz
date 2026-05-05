@@ -205,8 +205,8 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
                 RetroDifficultyCard(
                     title = "CLÁSICO",
                     subtitle = "Usa debilidades",
-                    cost = "-30 💰",
-                    reward = "+100 💰",
+                    cost = "-30",
+                    reward = "+100",
                     color = Color(0xFF4CAF50),
                     onClick = { onStart(false) },
                     modifier = Modifier.weight(1f)
@@ -216,8 +216,8 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
                 RetroDifficultyCard(
                     title = "INVERSO",
                     subtitle = "Usa resistencias",
-                    cost = "-50 💰",
-                    reward = "+200 💰",
+                    cost = "-50",
+                    reward = "+200",
                     color = Color(0xFF9C27B0),
                     onClick = { onStart(true) },
                     modifier = Modifier.weight(1f)

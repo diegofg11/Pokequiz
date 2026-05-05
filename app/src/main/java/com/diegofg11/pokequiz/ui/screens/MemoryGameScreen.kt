@@ -107,8 +107,8 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
                 RetroDifficultyCard(
                     title = "NORMAL",
                     subtitle = "5 Vidas | Relajado",
-                    cost = "-20 💰",
-                    reward = "+80 💰",
+                    cost = "-20",
+                    reward = "+80",
                     color = Color(0xFF4CAF50),
                     onClick = { onSelect(MemoryDifficulty.NORMAL) },
                     modifier = Modifier.weight(1f)
@@ -118,8 +118,8 @@ fun MemoryDifficultySelectionScreen(onSelect: (MemoryDifficulty) -> Unit) {
                 RetroDifficultyCard(
                     title = "INFERNAL",
                     subtitle = "Caótico | 20s",
-                    cost = "-50 💰",
-                    reward = "+200 💰",
+                    cost = "-50",
+                    reward = "+200",
                     color = Color(0xFFE53935),
                     onClick = { onSelect(MemoryDifficulty.INFERNAL) },
                     modifier = Modifier.weight(1f)

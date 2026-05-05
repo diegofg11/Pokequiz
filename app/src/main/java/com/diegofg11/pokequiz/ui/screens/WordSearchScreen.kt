@@ -132,8 +132,8 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
                     RetroDifficultyCard(
                         title = "NORMAL",
                         subtitle = "60s | Estándar",
-                        cost = "-20 💰",
-                        reward = "+30 💰",
+                        cost = "-20",
+                        reward = "+30",
                         color = Color(0xFF4CAF50),
                         onClick = { onSelect(WordSearchDifficulty.NORMAL) }
                     )
@@ -144,8 +144,8 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
                     RetroDifficultyCard(
                         title = "DIFÍCIL",
                         subtitle = "45s | Diagonal",
-                        cost = "-20 💰",
-                        reward = "+60 💰",
+                        cost = "-20",
+                        reward = "+60",
                         color = Color(0xFFFF9800),
                         onClick = { onSelect(WordSearchDifficulty.HARD) }
                     )
@@ -156,8 +156,8 @@ fun WordSearchDifficultySelection(onSelect: (WordSearchDifficulty) -> Unit) {
                     RetroDifficultyCard(
                         title = "INFERNAL",
                         subtitle = "30s | Invertidas | El reto supremo",
-                        cost = "-20 💰",
-                        reward = "+120 💰",
+                        cost = "-20",
+                        reward = "+120",
                         color = Color(0xFFE53935),
                         onClick = { onSelect(WordSearchDifficulty.INFERNAL) }
                     )
