@@ -130,7 +130,7 @@ fun RetroBackground(
 fun RetroText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.White,
+    color: Color = Color(0xFF1B3022), // Contraste alto por defecto
     fontSize: androidx.compose.ui.unit.TextUnit = 14.sp,
     textAlign: TextAlign = TextAlign.Start,
     fontWeight: FontWeight = FontWeight.Bold,
@@ -374,40 +374,42 @@ fun RetroDifficultyCard(
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Título de dificultad (Contraste alto garantizado)
             Text(
                 text = title.uppercase(),
-                color = color,
+                color = Color(0xFF1B3022), // Verde casi negro para máxima lectura
                 fontWeight = FontWeight.Black,
                 fontSize = 18.sp,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center
             )
             
+            // Subtítulo descriptivo
             Text(
                 text = subtitle,
-                color = Color(0xFF1B3022), // Mucho más oscuro para contraste
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
+                color = Color.Black.copy(alpha = 0.7f),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(vertical = 4.dp),
-                lineHeight = 13.sp
+                modifier = Modifier.padding(top = 2.dp, bottom = 8.dp),
+                lineHeight = 12.sp
             )
             
             Spacer(modifier = Modifier.weight(1f))
             
-            // Info Bar para Coste y Premio
+            // Info Bar para Coste y Premio (Diseño más robusto)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                    .padding(4.dp),
+                    .background(Color.Black.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
+                    .padding(vertical = 6.dp, horizontal = 4.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                InfoItem(label = "ENTRA", value = cost, color = Color(0xFFD32F2F))
-                Box(modifier = Modifier.width(1.dp).height(12.dp).background(Color.Gray))
-                InfoItem(label = "GANA", value = reward, color = Color(0xFF2E7D32))
+                InfoItem(label = "ENTRA", value = cost, color = Color(0xFFB71C1C)) // Rojo oscuro
+                Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.Black.copy(alpha = 0.1f)))
+                InfoItem(label = "GANA", value = reward, color = Color(0xFF1B5E20)) // Verde oscuro
             }
         }
     }
@@ -415,25 +417,30 @@ fun RetroDifficultyCard(
 
 @Composable
 private fun InfoItem(label: String, value: String, color: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         Text(
             text = label, 
-            fontSize = 8.sp, 
+            fontSize = 9.sp, 
             fontWeight = FontWeight.Black, 
-            color = Color(0xFF1B3022), // Contraste alto
+            color = Color.Black.copy(alpha = 0.5f),
             fontFamily = FontFamily.Monospace
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
             Text(
                 text = "💰",
-                fontSize = 10.sp,
-                color = color
+                fontSize = 12.sp,
+                modifier = Modifier.padding(end = 2.dp)
             )
-            Spacer(modifier = Modifier.width(3.dp))
             Text(
                 text = value, 
-                fontSize = 12.sp, 
-                fontWeight = FontWeight.ExtraBold, 
+                fontSize = 14.sp, 
+                fontWeight = FontWeight.Black, 
                 color = color,
                 fontFamily = FontFamily.Monospace
             )
