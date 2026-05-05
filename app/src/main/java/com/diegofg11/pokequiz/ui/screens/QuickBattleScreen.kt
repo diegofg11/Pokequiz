@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
-import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
-import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
-import com.diegofg11.pokequiz.ui.components.HelpSection
+import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.delay
@@ -103,8 +101,15 @@ fun QuickBattleScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(BackgroundStart, BackgroundMid, BackgroundEnd)))
+            .background(Color(0xFF2D5A27))
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.3f
+        )
         when (gameState) {
             "START" -> QuickBattleStart(
                 onStart = { inverse ->
@@ -209,42 +214,26 @@ fun QuickBattleStart(onStart: (Boolean) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Classic Mode Card
-                Card(
-                    modifier = Modifier.weight(1f).clickable { onStart(false) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF4CAF50))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("CLÁSICO", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("Usa debilidades", color = Color.LightGray, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("-30 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+100 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                    }
-                }
+                RetroDifficultyCard(
+                    title = "CLÁSICO",
+                    subtitle = "Usa debilidades",
+                    cost = "-30 💰",
+                    reward = "+100 💰",
+                    color = Color(0xFF4CAF50),
+                    onClick = { onStart(false) },
+                    modifier = Modifier.weight(1f)
+                )
 
                 // Inverse Mode Card
-                Card(
-                    modifier = Modifier.weight(1f).clickable { onStart(true) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF9C27B0).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF9C27B0))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("INVERSO", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("Usa resistencias", color = Color.LightGray, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("+200 💰", color = GoldPoke, fontWeight = FontWeight.Bold)
-                    }
-                }
+                RetroDifficultyCard(
+                    title = "INVERSO",
+                    subtitle = "Usa resistencias",
+                    cost = "-50 💰",
+                    reward = "+200 💰",
+                    color = Color(0xFF9C27B0),
+                    onClick = { onStart(true) },
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -327,19 +316,19 @@ fun QuickBattleGame(round: Int, isInverse: Boolean, onRoundWin: () -> Unit, onGa
         Spacer(modifier = Modifier.weight(0.5f))
 
         // Opponent area
-        Box(
-            modifier = Modifier
-                .size(220.dp)
-                .background(Color.White.copy(alpha = 0.1f), CircleShape)
-                .border(4.dp, if (isInverse) Color(0xFF9C27B0) else Color.White.copy(alpha = 0.3f), CircleShape),
-            contentAlignment = Alignment.Center
+        RetroMenuBox(
+            modifier = Modifier.size(220.dp),
+            backgroundColor = Color.White.copy(alpha = 0.1f),
+            borderColor = if (isInverse) Color(0xFF9C27B0) else Color.White.copy(alpha = 0.3f)
         ) {
-            AsyncImage(
-                model = opponent.imageUrl,
-                contentDescription = opponent.name,
-                modifier = Modifier.size(180.dp),
-                contentScale = ContentScale.Fit
-            )
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                AsyncImage(
+                    model = opponent.imageUrl,
+                    contentDescription = opponent.name,
+                    modifier = Modifier.size(180.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
         
         Text(

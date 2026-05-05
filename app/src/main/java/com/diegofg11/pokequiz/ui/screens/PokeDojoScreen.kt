@@ -31,9 +31,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.RewardRequest
-import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
-import com.diegofg11.pokequiz.ui.components.PokemonHelpDialog
-import com.diegofg11.pokequiz.ui.components.HelpSection
+import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.delay
@@ -81,8 +79,15 @@ fun PokeDojoScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(BackgroundStart, BackgroundMid, BackgroundEnd)))
+            .background(Color(0xFF2D5A27))
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.diegofg11.pokequiz.R.drawable.fondo_zona_safari),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            alpha = 0.3f
+        )
         when (gameState) {
             "START" -> PokeDojoStart(
                 onStart = { selectedDifficulty ->
@@ -194,42 +199,26 @@ fun PokeDojoStart(onStart: (DojoDifficulty) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Normal Mode Card
-                Card(
-                    modifier = Modifier.weight(1f).clickable { onStart(DojoDifficulty.NORMAL) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF795548).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF795548))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("NORMAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("30s | Estándar", color = Color.LightGray, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("-20 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Hasta 350 💰", color = GoldPoke, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
-                }
+                RetroDifficultyCard(
+                    title = "NORMAL",
+                    subtitle = "30s | Estándar",
+                    cost = "-20 💰",
+                    reward = "Hasta 350 💰",
+                    color = Color(0xFF795548),
+                    onClick = { onStart(DojoDifficulty.NORMAL) },
+                    modifier = Modifier.weight(1f)
+                )
 
                 // Infernal Mode Card
-                Card(
-                    modifier = Modifier.weight(1f).clickable { onStart(DojoDifficulty.INFERNAL) },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF212121).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFE53935))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("INFERNAL", color = Color(0xFFE53935), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("20s | ¡Caos!", color = Color.LightGray, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("-50 💰", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Hasta 750 💰", color = GoldPoke, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
-                }
+                RetroDifficultyCard(
+                    title = "INFERNAL",
+                    subtitle = "20s | ¡Caos!",
+                    cost = "-50 💰",
+                    reward = "Hasta 750 💰",
+                    color = Color(0xFFE53935),
+                    onClick = { onStart(DojoDifficulty.INFERNAL) },
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))

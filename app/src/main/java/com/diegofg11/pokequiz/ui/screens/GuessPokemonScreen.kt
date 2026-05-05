@@ -353,13 +353,9 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
             alpha = 0.3f
         )
         // Barra superior
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = {
+        SafariRetroHeader(
+            title = "ZONA SAFARI",
+            onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
                     scope.launch {
@@ -376,26 +372,21 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                 } else if (!isProcessing) {
                     onNavigateBack()
                 }
-            }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
-            Text(
-                text = "ZONA SAFARI",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
+        )
+
+        // Monedas (Flotante a la derecha)
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 80.dp, end = 16.dp), contentAlignment = Alignment.TopEnd) {
             Surface(
-                color = GoldPoke.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(8.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, GoldPoke)
+                color = Color.Black,
+                shape = RoundedCornerShape(4.dp),
+                border = androidx.compose.foundation.BorderStroke(2.dp, Color.White)
             ) {
                 Text(
-                    text = "Monedas: $sessionCoins",
+                    text = "💰 $sessionCoins",
                     color = GoldPoke,
                     fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                 )
             }
@@ -443,12 +434,10 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
             }
 
             // Contenedor de la Imagen
-            Surface(
-                modifier = Modifier
-                    .size(250.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                color = Color(0xFFF0F0F0),
-                border = androidx.compose.foundation.BorderStroke(4.dp, if (isRevealed) (if(selectedId == currentTargetId) Color(0xFF4CAF50) else Color(0xFFF44336)) else Color(0xFF333333))
+            RetroMenuBox(
+                modifier = Modifier.size(250.dp),
+                backgroundColor = Color(0xFFF0F0F0),
+                borderColor = if (isRevealed) (if(selectedId == currentTargetId) Color(0xFF4CAF50) else Color(0xFFF44336)) else Color.Black
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     AsyncImage(
@@ -456,7 +445,7 @@ fun GuessPokemonGame(difficulty: Difficulty, onNavigateBack: () -> Unit, onError
                         contentDescription = "Mistery Pokemon",
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp)
+                            .padding(8.dp)
                             .offset(x = offsetX.dp, y = offsetY.dp)
                             .rotate(imageRotation)
                             .scale(

@@ -357,11 +357,15 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Header
+        // Header Retro
+        SafariRetroHeader(
+            title = "SOPA DE LETRAS",
+            onBackClick = onGameEnd
+        )
+
+        // Stats Row
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -405,13 +409,10 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                 var gridWidth by remember { mutableStateOf(0f) }
                 var gridHeight by remember { mutableStateOf(0f) }
                 
-                Box(
+                RetroMenuBox(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
-                        .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-                        .border(2.dp, GoldPoke, RoundedCornerShape(16.dp))
-                        .padding(8.dp)
                         .onGloballyPositioned { layoutCoordinates ->
                             gridWidth = layoutCoordinates.size.width.toFloat()
                             gridHeight = layoutCoordinates.size.height.toFloat()
@@ -471,7 +472,9 @@ fun WordSearchGame(difficulty: WordSearchDifficulty, onGameEnd: () -> Unit) {
                                     selectedCells = emptyList()
                                 }
                             )
-                        }
+                        },
+                    backgroundColor = Color.White.copy(alpha = 0.1f),
+                    borderColor = GoldPoke
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         for (r in 0 until gridSize) {
