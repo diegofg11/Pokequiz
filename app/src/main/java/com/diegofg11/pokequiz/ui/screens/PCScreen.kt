@@ -4,6 +4,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.tooling.preview.Preview
 import com.diegofg11.pokequiz.ui.theme.PokequizTheme
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import com.diegofg11.pokequiz.ui.components.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,7 +58,7 @@ fun PCScreen() {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var warningMessage by remember { mutableStateOf<String?>(null) }
-    var selectedPokemon by remember { mutableStateOf<Pokemon?>(null) }
+    var selectedIndex by remember { mutableStateOf<Int?>( null) }
 
     LaunchedEffect(Unit) {
         try {
@@ -202,9 +204,9 @@ fun PCScreen() {
                             val pkmn = partyPokemon.getOrNull(index)
                             Box(modifier = Modifier.weight(1f)) {
                                 if (pkmn != null) {
-                                    PCPokemonCard(pokemon = pkmn, isParty = true) {
-                                        selectedPokemon = pkmn
-                                    }
+                                        PCPokemonCard(pokemon = pkmn, isParty = true) {
+                                            selectedIndex = pokemonList.indexOf(pkmn)
+                                        }
                                 } else {
                                     PCEmptySlot(isParty = true)
                                 }
@@ -248,9 +250,9 @@ fun PCScreen() {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(pokemonList.toList()) { pokemon ->
-                                PCPokemonCard(pokemon = pokemon) {
-                                    selectedPokemon = pokemon
-                                }
+                                    PCPokemonCard(pokemon = pokemon) {
+                                        selectedIndex = pokemonList.indexOf(pokemon)
+                                    }
                             }
                             // Slots vacíos para completar la estética
                             val totalSlots = 24
@@ -270,22 +272,23 @@ fun PCScreen() {
             }
         }
 
-        selectedPokemon?.let { pokemon ->
+        selectedIndex?.let { idx ->
+            val safeIdx = idx.coerceIn(0, pokemonList.lastIndex)
             PokedexDialog(
-                pokemon = pokemon,
-                onDismiss = { selectedPokemon = null },
-                onToggleParty = { toggleTo ->
+                pokemonList = pokemonList.toList(),
+                initialIndex = safeIdx,
+                onDismiss = { selectedIndex = null },
+                onToggleParty = { targetPokemon, toggleTo ->
                     scope.launch {
                         try {
                             val res = withContext(Dispatchers.IO) {
                                 Network.api.toggleParty(
-                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, toggleTo)
+                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, targetPokemon.inventoryId ?: 0, toggleTo)
                                 )
                             }
                             if (res.isSuccessful) {
-                                val idx = pokemonList.indexOfFirst { it.inventoryId == pokemon.inventoryId }
-                                if (idx != -1) pokemonList[idx] = pokemon.copy(inParty = toggleTo)
-                                selectedPokemon = null
+                                val listIdx = pokemonList.indexOfFirst { it.inventoryId == targetPokemon.inventoryId }
+                                if (listIdx != -1) pokemonList[listIdx] = targetPokemon.copy(inParty = toggleTo)
                             } else {
                                 withContext(Dispatchers.Main) {
                                     warningMessage = "Equipo lleno (Máx 3)"
@@ -304,125 +307,191 @@ fun PCScreen() {
 }
 
 @Composable
-fun PokedexDialog(pokemon: Pokemon, onDismiss: () -> Unit, onToggleParty: (Boolean) -> Unit) {
+fun PokedexDialog(
+    pokemonList: List<Pokemon>,
+    initialIndex: Int,
+    onDismiss: () -> Unit,
+    onToggleParty: (Pokemon, Boolean) -> Unit
+) {
+    val pagerState = rememberPagerState(initialPage = initialIndex) { pokemonList.size }
+    val scope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.7f))
-            .pointerInput(Unit) { detectTapGestures {} }, // Bloquear clicks atrás
+            .pointerInput(Unit) { detectTapGestures {} },
         contentAlignment = Alignment.Center
     ) {
-        RetroMenuBox(
-            modifier = Modifier.fillMaxWidth(0.9f).padding(vertical = 40.dp),
-            backgroundColor = Color.White,
-            borderColor = GoldPoke
+        Column(
+            modifier = Modifier.fillMaxWidth(0.9f),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Cabecera con flechas de navegación y contador
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            if (pagerState.currentPage > 0) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f)
+                        )
+                        .border(2.dp, Color.White.copy(alpha = 0.5f), androidx.compose.ui.graphics.RectangleShape)
+                        .clickable(enabled = pagerState.currentPage > 0) {
+                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    RetroText(text = "DATOS POKÉDEX", fontSize = 14.sp, color = Color(0xFF1B3022))
-                    Text(
-                        "Nº ${pokemon.idPokedex}",
-                        fontSize = 12.sp,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                        color = Color.Black.copy(alpha = 0.6f)
-                    )
+                    Text("◄", color = Color.White, fontSize = 18.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
                 }
 
-                PixelDivider()
-                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "${pagerState.currentPage + 1} / ${pokemonList.size}",
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                )
 
                 Box(
                     modifier = Modifier
-                        .size(150.dp)
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
-                        .border(2.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+                        .size(40.dp)
+                        .background(
+                            if (pagerState.currentPage < pokemonList.lastIndex) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f)
+                        )
+                        .border(2.dp, Color.White.copy(alpha = 0.5f), androidx.compose.ui.graphics.RectangleShape)
+                        .clickable(enabled = pagerState.currentPage < pokemonList.lastIndex) {
+                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
-                    AsyncImage(
-                        model = pokemon.spriteFront,
-                        contentDescription = pokemon.nombre,
-                        modifier = Modifier.size(120.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    Text("►", color = Color.White, fontSize = 18.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
                 }
+            }
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                RetroText(
-                    text = pokemon.nombre.uppercase(),
-                    fontSize = 24.sp,
-                    color = Color(0xFF1B3022)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    pokemon.tipos.forEach { tipo ->
-                        Surface(
-                            shape = RoundedCornerShape(4.dp),
-                            color = getPokeTypeColor(tipo),
-                            border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxWidth()
+            ) { page ->
+                val pokemon = pokemonList[page]
+                RetroMenuBox(
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = Color.White,
+                    borderColor = GoldPoke
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            RetroText(text = "DATOS POKÉDEX", fontSize = 14.sp, color = Color(0xFF1B3022))
                             Text(
-                                text = tipo.uppercase(),
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                "Nº ${pokemon.idPokedex}",
+                                fontSize = 12.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                color = Color.Black.copy(alpha = 0.6f)
                             )
                         }
+
+                        PixelDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .size(150.dp)
+                                .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
+                                .border(2.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AsyncImage(
+                                model = pokemon.spriteFront,
+                                contentDescription = pokemon.nombre,
+                                modifier = Modifier.size(120.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        RetroText(
+                            text = pokemon.nombre.uppercase(),
+                            fontSize = 24.sp,
+                            color = Color(0xFF1B3022)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            pokemon.tipos.forEach { tipo ->
+                                Surface(
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = getPokeTypeColor(tipo),
+                                    border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
+                                ) {
+                                    Text(
+                                        text = tipo.uppercase(),
+                                        color = Color.White,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        PixelDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = pokemon.pokedexDescription ?: "Sin datos registrados.",
+                            color = Color(0xFF1B3022),
+                            fontSize = 13.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 18.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            StatInfo("NIV", "${pokemon.level}")
+                            StatInfo("PS", "${pokemon.hpBase}")
+                            StatInfo("EXP", "${pokemon.exp}/100")
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        RetroButton(
+                            text = if (pokemon.inParty) "DEJAR EN PC" else "A EQUIPO",
+                            onClick = { onToggleParty(pokemon, !pokemon.inParty) },
+                            containerColor = if (pokemon.inParty) RedPoke else Color(0xFF2D5A27),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        RetroButton(
+                            text = "CERRAR",
+                            onClick = onDismiss,
+                            containerColor = Color.Gray,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                PixelDivider()
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = pokemon.pokedexDescription ?: "Sin datos registrados.",
-                    color = Color(0xFF1B3022),
-                    fontSize = 13.sp,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 18.sp
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    StatInfo("NIV", "${pokemon.level}")
-                    StatInfo("PS", "${pokemon.hpBase}")
-                    StatInfo("EXP", "${pokemon.exp}/100")
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                RetroButton(
-                    text = if (pokemon.inParty) "DEJAR EN PC" else "A EQUIPO",
-                    onClick = { onToggleParty(!pokemon.inParty) },
-                    containerColor = if (pokemon.inParty) RedPoke else Color(0xFF2D5A27),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                RetroButton(
-                    text = "CERRAR",
-                    onClick = onDismiss,
-                    containerColor = Color.Gray,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
