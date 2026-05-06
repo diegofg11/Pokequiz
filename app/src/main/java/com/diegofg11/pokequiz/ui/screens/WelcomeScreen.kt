@@ -1,9 +1,11 @@
 package com.diegofg11.pokequiz.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -62,34 +64,13 @@ fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit, onC
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            RetroText(
-                text = "POKÉQUIZ",
-                fontSize = 48.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 40.dp)
-            )
-
-            // Logo de Pokebola con estilo retro
-            Box(
+            Image(
+                painter = painterResource(id = com.diegofg11.pokequiz.R.drawable.logo_welcome),
+                contentDescription = "Logo PokeQuiz",
                 modifier = Modifier
-                    .size(140.dp)
-                    .border(4.dp, Color(0xFF1B3022), CircleShape)
-                    .clip(CircleShape)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Box(modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFFE53935)))
-                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).background(Color(0xFF1B3022)))
-                    Box(modifier = Modifier.fillMaxWidth().weight(1f).background(Color.White))
-                }
-                Box(
-                    modifier = Modifier.size(40.dp).border(4.dp, Color(0xFF1B3022), CircleShape).clip(CircleShape).background(Color(0xFF1B3022)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(modifier = Modifier.size(24.dp).clip(CircleShape).background(Color.White))
-                }
-            }
+                    .size(300.dp)
+                    .padding(bottom = 16.dp)
+            )
             
             Spacer(modifier = Modifier.height(56.dp))
             
