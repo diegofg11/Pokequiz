@@ -78,59 +78,29 @@ fun PokemonAlertDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Button(
+                            RetroButton(
+                                text = "CANCELAR",
                                 onClick = onDismiss,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Gray
-                                ),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(48.dp)
-                            ) {
-                                Text(
-                                    text = "CANCELAR",
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 12.sp,
-                                    color = Color.White
-                                )
-                            }
-                            Button(
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                containerColor = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                            RetroButton(
+                                text = confirmText,
                                 onClick = onConfirm,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)
-                                ),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(48.dp)
-                            ) {
-                                Text(
-                                    text = confirmText.uppercase(),
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 12.sp,
-                                    color = Color.White
-                                )
-                            }
-                        }
-                    } else {
-                        Button(
-                            onClick = onDismiss,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .height(48.dp)
-                        ) {
-                            Text(
-                                text = "ENTENDIDO",
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 14.sp,
-                                color = Color.White
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
+                                fontSize = 12.sp
                             )
                         }
+                    } else {
+                        RetroButton(
+                            text = "ENTENDIDO",
+                            onClick = onDismiss,
+                            modifier = Modifier.fillMaxWidth(0.8f).height(48.dp),
+                            containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }

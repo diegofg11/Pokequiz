@@ -400,8 +400,9 @@ fun OptionButton(
     Box(
         modifier = modifier
             .height(56.dp)
+            .clip(RoundedCornerShape(8.dp))
             .background(backgroundColor)
-            .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
+            .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
             .clickable(enabled = !isRevealed) { onClick() },
         contentAlignment = Alignment.Center
     ) {

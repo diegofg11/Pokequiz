@@ -43,6 +43,8 @@ import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.utils.WallpaperManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -335,20 +337,15 @@ fun PokedexDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            if (pagerState.currentPage > 0) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f)
-                        )
-                        .border(2.dp, Color.White.copy(alpha = 0.5f), androidx.compose.ui.graphics.RectangleShape)
-                        .clickable(enabled = pagerState.currentPage > 0) {
+                NavigationArrow(
+                    icon = Icons.AutoMirrored.Filled.ArrowBack,
+                    modifier = Modifier.size(40.dp),
+                    onClick = {
+                        if (pagerState.currentPage > 0) {
                             scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("◄", color = Color.White, fontSize = 18.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                }
+                        }
+                    }
+                )
 
                 Text(
                     text = "${pagerState.currentPage + 1} / ${pokemonList.size}",
@@ -358,20 +355,15 @@ fun PokedexDialog(
                     fontWeight = FontWeight.Bold
                 )
 
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            if (pagerState.currentPage < pokemonList.lastIndex) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f)
-                        )
-                        .border(2.dp, Color.White.copy(alpha = 0.5f), androidx.compose.ui.graphics.RectangleShape)
-                        .clickable(enabled = pagerState.currentPage < pokemonList.lastIndex) {
+                NavigationArrow(
+                    icon = Icons.AutoMirrored.Filled.ArrowForward,
+                    modifier = Modifier.size(40.dp),
+                    onClick = {
+                        if (pagerState.currentPage < pokemonList.lastIndex) {
                             scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("►", color = Color.White, fontSize = 18.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                }
+                        }
+                    }
+                )
             }
 
             HorizontalPager(

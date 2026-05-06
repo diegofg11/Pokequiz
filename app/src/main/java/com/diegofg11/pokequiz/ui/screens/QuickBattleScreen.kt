@@ -292,19 +292,21 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
 fun TypeButton(type: PokeType, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
-        modifier = modifier.height(48.dp),
-        shape = androidx.compose.ui.graphics.RectangleShape,
+        modifier = modifier
+            .height(48.dp)
+            .border(2.dp, Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
         color = type.color,
-        border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black.copy(alpha = 0.5f))
+        shadowElevation = 4.dp
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
-                text = type.nombreEs,
+                text = type.nombreEs.uppercase(),
                 color = when(type) {
                     PokeType.ELECTRIC, PokeType.ICE, PokeType.GROUND, PokeType.STEEL, PokeType.NORMAL -> Color.Black
                     else -> Color.White
                 },
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Black,
                 fontSize = 12.sp,
                 fontFamily = FontFamily.Monospace
             )

@@ -26,6 +26,7 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.Pokemon
 import com.diegofg11.pokequiz.models.User
+import com.diegofg11.pokequiz.ui.components.RetroButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -127,14 +128,20 @@ fun PokedexDialog(pokemon: Pokemon, onDismiss: () -> Unit, onToggleParty: () -> 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = onToggleParty) {
-                Text(if (pokemon.inParty) "Quitar del Equipo" else "Añadir al Equipo")
-            }
+            RetroButton(
+                text = if (pokemon.inParty) "Quitar del Equipo" else "Añadir al Equipo",
+                onClick = onToggleParty,
+                fontSize = 12.sp,
+                containerColor = if (pokemon.inParty) Color(0xFFD32F2F) else Color(0xFF2D5A27)
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cerrar")
-            }
+            RetroButton(
+                text = "Cerrar",
+                onClick = onDismiss,
+                fontSize = 12.sp,
+                containerColor = Color.Gray
+            )
         },
         title = {
             Text(text = "Datos de la Pokédex", fontWeight = FontWeight.Bold)

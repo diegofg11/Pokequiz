@@ -580,40 +580,26 @@ fun SafariResultScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             // Botones de Acción
-            Button(
+            RetroButton(
+                text = "INTENTAR DE NUEVO",
                 onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2D5A27).copy(alpha = 0.2f),
-                    contentColor = Color(0xFF1B3022)
-                ),
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(2.dp, Color(0xFF1B3022).copy(alpha = 0.5f))
-            ) {
-                Text(
-                    "INTENTAR DE NUEVO",
-                    fontWeight = FontWeight.Black,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 14.sp
-                )
-            }
+                containerColor = Color(0xFF2D5A27),
+                contentColor = Color.White
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            TextButton(
+            RetroButton(
+                text = "VOLVER AL MENÚ",
                 onClick = onExit,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    "VOLVER AL MENÚ",
-                    color = Color(0xFF1B3022).copy(alpha = 0.7f),
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 12.sp
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = Color.Gray,
+                contentColor = Color.White,
+                fontSize = 12.sp
+            )
         }
     }
 }

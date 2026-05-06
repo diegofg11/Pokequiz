@@ -203,14 +203,13 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            TextButton(onClick = onBack) {
-                Text(
-                    "VOLVER AL MENÚ",
-                    color = Color(0xFF1B3022).copy(alpha = 0.8f),
-                    fontWeight = FontWeight.Black,
-                    fontFamily = FontFamily.Monospace
-                )
-            }
+            RetroButton(
+                text = "VOLVER AL MENÚ",
+                onClick = onBack,
+                containerColor = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.fillMaxWidth(0.6f).height(44.dp)
+            )
         }
     }
 }
@@ -332,14 +331,13 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            TextButton(onClick = onBack) {
-                Text(
-                    "VOLVER AL MENÚ", 
-                    color = Color(0xFF1B3022).copy(alpha = 0.8f), 
-                    fontWeight = FontWeight.Black,
-                    fontFamily = FontFamily.Monospace
-                )
-            }
+            RetroButton(
+                text = "VOLVER AL MENÚ",
+                onClick = onBack,
+                containerColor = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.fillMaxWidth(0.6f).height(44.dp)
+            )
         }
     }
 }
