@@ -293,9 +293,9 @@ fun TypeButton(type: PokeType, onClick: () -> Unit, modifier: Modifier = Modifie
     Surface(
         onClick = onClick,
         modifier = modifier.height(48.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = androidx.compose.ui.graphics.RectangleShape,
         color = type.color,
-        border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black.copy(alpha = 0.3f))
+        border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black.copy(alpha = 0.5f))
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(

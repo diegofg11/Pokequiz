@@ -179,14 +179,14 @@ fun PokeDojoGame(
 
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        var time = timeLeft
-        while (time > 0) {
+    LaunchedEffect(timeLeft) {
+        if (timeLeft > 0) {
             delay(1000)
-            time--
-            onTimeUpdate(time)
+            onTimeUpdate(timeLeft - 1)
+            if (timeLeft - 1 == 0) {
+                onGameEnd(score)
+            }
         }
-        onGameEnd(score)
     }
 
     LaunchedEffect(Unit) {

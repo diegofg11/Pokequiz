@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.diegofg11.pokequiz.ui.components.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -243,14 +245,14 @@ fun BattleScreen(
                 // Sprite Enemigo (Arriba Derecha)
                 AsyncImage(
                     model = levelData!!.enemy?.spriteFront,
-                    contentDescription = "Enemy",
+                    contentDescription = "Enemigo",
                     modifier = Modifier.align(Alignment.TopEnd).padding(end = 24.dp, top = 24.dp).size(160.dp)
                 )
 
                 // Sprite Jugador (Abajo Izquierda)
                 AsyncImage(
                     model = pSprite,
-                    contentDescription = "Player",
+                    contentDescription = "Jugador",
                     modifier = Modifier.align(Alignment.BottomStart).padding(start = 24.dp, bottom = 48.dp).size(180.dp)
                 )
                 // Info Jugador (Abajo Derecha)
@@ -407,7 +409,7 @@ fun GameOverOverlay(message: String, isVictory: Boolean, onDismiss: () -> Unit) 
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(enabled = false) {},
+            .pointerInput(Unit) { detectTapGestures {} },
         contentAlignment = Alignment.Center
     ) {
         RetroMenuBox(

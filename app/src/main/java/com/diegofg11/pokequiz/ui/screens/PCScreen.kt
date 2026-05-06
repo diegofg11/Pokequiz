@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -102,36 +104,7 @@ fun PCScreen() {
             )
         }
 
-        selectedPokemon?.let { pokemon ->
-            PokedexDialog(
-                pokemon = pokemon,
-                onDismiss = { selectedPokemon = null },
-                onToggleParty = { toggleTo ->
-                    scope.launch {
-                        try {
-                            val res = withContext(Dispatchers.IO) {
-                                Network.api.toggleParty(
-                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, toggleTo)
-                                )
-                            }
-                            if (res.isSuccessful) {
-                                val idx = pokemonList.indexOfFirst { it.inventoryId == pokemon.inventoryId }
-                                if (idx != -1) pokemonList[idx] = pokemon.copy(inParty = toggleTo)
-                                selectedPokemon = null
-                            } else {
-                                withContext(Dispatchers.Main) {
-                                    warningMessage = "Equipo lleno (Máx 3)"
-                                }
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                errorMessage = "Error de red"
-                            }
-                        }
-                    }
-                }
-            )
-        }
+
 
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -187,7 +160,7 @@ fun PCScreen() {
                                     modifier = Modifier.padding(top = 4.dp)
                                 ) {
                                     Text(
-                                        text = "LVL: ${displayUser.nivelProgreso}",
+                                        text = "NIV: ${displayUser.nivelProgreso}",
                                         fontSize = 12.sp,
                                         color = Color.White.copy(alpha = 0.7f),
                                         fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
@@ -296,6 +269,37 @@ fun PCScreen() {
                 )
             }
         }
+
+        selectedPokemon?.let { pokemon ->
+            PokedexDialog(
+                pokemon = pokemon,
+                onDismiss = { selectedPokemon = null },
+                onToggleParty = { toggleTo ->
+                    scope.launch {
+                        try {
+                            val res = withContext(Dispatchers.IO) {
+                                Network.api.toggleParty(
+                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, toggleTo)
+                                )
+                            }
+                            if (res.isSuccessful) {
+                                val idx = pokemonList.indexOfFirst { it.inventoryId == pokemon.inventoryId }
+                                if (idx != -1) pokemonList[idx] = pokemon.copy(inParty = toggleTo)
+                                selectedPokemon = null
+                            } else {
+                                withContext(Dispatchers.Main) {
+                                    warningMessage = "Equipo lleno (Máx 3)"
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                errorMessage = "Error de red"
+                            }
+                        }
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -305,7 +309,7 @@ fun PokedexDialog(pokemon: Pokemon, onDismiss: () -> Unit, onToggleParty: (Boole
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.7f))
-            .clickable(enabled = false) {}, // Bloquear clicks atrás
+            .pointerInput(Unit) { detectTapGestures {} }, // Bloquear clicks atrás
         contentAlignment = Alignment.Center
     ) {
         RetroMenuBox(
