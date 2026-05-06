@@ -397,8 +397,8 @@ fun PokedexDialog(pokemon: Pokemon, onDismiss: () -> Unit, onToggleParty: (Boole
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    StatInfo("LVL", "${pokemon.level}")
-                    StatInfo("HP", "${pokemon.hpBase}")
+                    StatInfo("NIV", "${pokemon.level}")
+                    StatInfo("PS", "${pokemon.hpBase}")
                     StatInfo("EXP", "${pokemon.exp}/100")
                 }
 

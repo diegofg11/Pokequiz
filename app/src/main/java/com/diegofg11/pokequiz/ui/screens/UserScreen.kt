@@ -114,7 +114,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 .padding(vertical = 8.dp)
                         ) {
                             RetroText(
-                                text = "TRAINER CARD",
+                                text = "TARJETA ENTRENADOR",
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 modifier = Modifier.padding(start = 16.dp)
@@ -132,7 +132,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "IDNo.",
+                                    text = "Nº ID",
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -148,7 +148,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 
                                 Text(
-                                    text = "NAME",
+                                    text = "NOMBRE",
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -165,7 +165,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text(
-                                    text = "MONEY",
+                                    text = "DINERO",
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
