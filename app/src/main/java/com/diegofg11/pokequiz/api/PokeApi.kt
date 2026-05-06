@@ -53,4 +53,11 @@ interface PokeApi {
 
     @GET("api/pokemon/pokedex/{pokemonId}")
     suspend fun getPokedexInfo(@Path("pokemonId") pokemonId: Int): Response<Pokemon>
+
+    @GET("api/questions")
+    suspend fun getMoreQuestions(
+        @Query("level") level: Int,
+        @Query("count") count: Int = 10,
+        @Query("startId") startId: Int = 100
+    ): Response<List<com.diegofg11.pokequiz.models.Question>>
 }

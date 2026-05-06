@@ -163,20 +163,25 @@ fun BattleScreen(
     val checkAnswer: (Int) -> Unit = { index ->
         val enemyLevel = levelData!!.enemy?.level ?: 1
         val maxEnemyHp = (levelData!!.enemy?.hpBase ?: 100) + (enemyLevel * 5)
-        val damagePerHit = kotlin.math.ceil(maxEnemyHp.toDouble() / 10.0).toInt()
+        val baseDamage = kotlin.math.ceil(maxEnemyHp.toDouble() / 10.0).toInt()
+        val levelBonus = (pLevelVal - enemyLevel) * 2
+        val damagePerHit = (baseDamage + levelBonus).coerceAtLeast(baseDamage / 2)
+        
+        var gameOverThisTurn = false
 
         if (index == currentQuestion.correctAnswerIndex) {
             opponentHp = (opponentHp - damagePerHit).coerceAtLeast(0)
-            if (opponentHp == 0) {
-                    gameOverMessage = "¡HAS GANADO!"
-                    isVictory = true
-                    showGameOver = true
-                }
+            if (opponentHp <= 0) {
+                gameOverMessage = "¡HAS GANADO!"
+                isVictory = true
+                showGameOver = true
+                gameOverThisTurn = true
+            }
         } else {
             // Recibir daño escalado: Base 25 + (Nivel Enemigo * 2) - (Nivel Jugador * 2)
             val damageTaken = (25 + (enemyLevel * 2) - (pLevelVal * 2)).coerceIn(10, 60)
             userHp = (userHp - damageTaken).coerceAtLeast(0)
-            if (userHp == 0) {
+            if (userHp <= 0) {
                 if (currentPlayerIndex < currentParty.size - 1) {
                     // Siguiente Pokémon
                     currentPlayerIndex++
@@ -186,12 +191,44 @@ fun BattleScreen(
                     gameOverMessage = "HAS PERDIDO..."
                     isVictory = false
                     showGameOver = true
+                    gameOverThisTurn = true
                 }
             }
         }
-        if (!showGameOver) {
-            if (currentQuestionIndex < levelData!!.questions.size - 1) currentQuestionIndex++
-            else { showGameOver = true; gameOverMessage = "¡TE QUEDASTE SIN PREGUNTAS!" }
+        
+        if (!gameOverThisTurn) {
+            val questions = levelData!!.questions
+            if (currentQuestionIndex < questions.size - 1) {
+                currentQuestionIndex++
+                
+                // Si quedan pocas preguntas (ej: 3), pedir más al servidor en segundo plano
+                if (questions.size - currentQuestionIndex <= 5) {
+                    scope.launch {
+                        try {
+                            val nextId = questions.maxOfOrNull { it.id } ?: 100
+                            val response = withContext(Dispatchers.IO) { 
+                                Network.api.getMoreQuestions(level = levelId, count = 10, startId = nextId + 1) 
+                            }
+                            if (response.isSuccessful && response.body() != null) {
+                                val newQuestions = response.body()!!
+                                // Añadir solo si no están ya (por si acaso)
+                                val currentIds = questions.map { it.id }.toSet()
+                                val filteredNew = newQuestions.filter { it.id !in currentIds }
+                                if (filteredNew.isNotEmpty()) {
+                                    levelData = levelData!!.copy(questions = questions + filteredNew)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Si falla la red, no pasa nada, el fallback de abajo se encargará si llegamos al final
+                        }
+                    }
+                }
+            } else {
+                // FALLBACK: Si por alguna razón llegamos al final sin haber cargado más (ej: sin internet)
+                // barajamos las que tenemos para que el juego no se rompa
+                currentQuestionIndex = 0
+                levelData = levelData!!.copy(questions = levelData!!.questions.shuffled())
+            }
         }
     }
 
