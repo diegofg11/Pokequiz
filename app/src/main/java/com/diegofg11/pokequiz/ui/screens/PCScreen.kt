@@ -243,7 +243,7 @@ fun PCScreen() {
                         }
                     } else {
                         LazyVerticalGrid(
-                            columns = GridCells.Fixed(4),
+                            columns = GridCells.Fixed(3),
                             modifier = Modifier.height(400.dp), // Altura fija para el grid en el PC
                             contentPadding = PaddingValues(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -255,7 +255,7 @@ fun PCScreen() {
                                     }
                             }
                             // Slots vacíos para completar la estética
-                            val totalSlots = 24
+                            val totalSlots = 21
                             val empty = (totalSlots - pokemonList.size).coerceAtLeast(0)
                             items(empty) { PCEmptySlot() }
                         }
@@ -525,7 +525,7 @@ private fun PCPokemonCard(pokemon: Pokemon, isParty: Boolean = false, onClick: (
             AsyncImage(
                 model = pokemon.spriteFront,
                 contentDescription = pokemon.nombre,
-                modifier = Modifier.size(if (isParty) 50.dp else 64.dp),
+                modifier = Modifier.size(if (isParty) 64.dp else 90.dp),
                 contentScale = ContentScale.Fit
             )
         }
