@@ -6,6 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.diegofg11.pokequiz.ui.theme.PokequizTheme
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
