@@ -8,8 +8,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.tooling.preview.Preview
+import com.diegofg11.pokequiz.ui.components.*
 import androidx.compose.foundation.border
-import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -104,30 +104,6 @@ fun BattleScreen(
         }
     }
 
-    if (showGameOver) {
-        GameOverDialog(
-            message = gameOverMessage,
-            isVictory = isVictory,
-            onDismiss = if (isVictory) {
-                {
-                    scope.launch {
-                        try { 
-                            Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId, 100)) 
-                            withContext(Dispatchers.Main) { 
-                                showGameOver = false
-                                onBattleWin() 
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                errorMessage = "Error al reclamar la recompensa. Verifica tu conexión a internet."
-                            }
-                        }
-                    }
-                    Unit
-                }
-            } else onNavigateBack
-        )
-    }
 
     if (errorMessage != null) {
         PokemonAlertDialog(
@@ -144,10 +120,13 @@ fun BattleScreen(
     }
 
     if (isLoading || levelData == null) {
-        Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(colors = listOf(BackgroundStart, BackgroundMid, BackgroundEnd))), contentAlignment = Alignment.Center) {
-            if (isLoading) {
-                CircularProgressIndicator(color = Color.White)
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF1B3022)), 
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = GoldPoke)
         }
         return
     }
@@ -233,18 +212,14 @@ fun BattleScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Cielo con gradiente azul
+        // Cielo con gradiente azul (Capa base)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.62f)
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF5BA3D8), // Azul cielo
-                            Color(0xFF88C8F0), // Celeste suave
-                            Color(0xFFB0DDF8)  // Casi blanco-azulado
-                        )
+                        colors = listOf(Color(0xFF5BA3D8), Color(0xFFB0DDF8))
                     )
                 )
         )
@@ -254,40 +229,16 @@ fun BattleScreen(
                 .fillMaxWidth()
                 .fillMaxHeight(0.38f)
                 .align(Alignment.BottomStart)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF4A8F3F), // Verde hierba oscuro
-                            Color(0xFF5EAD50), // Verde medio
-                            Color(0xFF72C464)  // Verde claro
-                        )
-                    )
-                )
+                .background(Color(0xFF4A8F3F))
         )
-        // Franja de tierra/separador
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(12.dp)
-                .align(Alignment.Center)
-                .offset(y = 80.dp)
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF8B6914),
-                            Color(0xFFA0791A),
-                            Color(0xFF8B6914)
-                        )
-                    )
-                )
-        )
+        
         Column(Modifier.fillMaxSize()) {
             // CAMPO DE BATALLA (Arriba)
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 // Info Enemigo (Arriba Izquierda)
                 Box(Modifier.align(Alignment.TopStart).padding(start = 16.dp, top = 32.dp)) {
                     val eLevel = levelData!!.enemy?.level ?: 1
-                    PokemonStatusBox(levelData!!.enemy?.nombre ?: "Enemigo", "Nv$eLevel", opponentHp, levelData!!.enemy?.hpBase ?: 100, false)
+                    PokemonStatusBox(levelData!!.enemy?.nombre ?: "ENEMIGO", "NV$eLevel", opponentHp, (levelData!!.enemy?.hpBase ?: 100) + (eLevel * 5), false)
                 }
                 // Sprite Enemigo (Arriba Derecha)
                 AsyncImage(
@@ -304,54 +255,78 @@ fun BattleScreen(
                 )
                 // Info Jugador (Abajo Derecha)
                 Box(Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp)) {
-                    PokemonStatusBox(pName, pLevel, userHp, pMaxHp, true)
+                    PokemonStatusBox(pName, pLevel.uppercase(), userHp, pMaxHp, true)
                 }
             }
 
             // CUADRO DE DIÁLOGO Y OPCIONES (Abajo)
-            Surface(
-                modifier = Modifier.fillMaxWidth().height(250.dp), // Height increased from 200 to 250
-                color = Color(0xFF282828), // Borde exterior negro clásico
-                border = androidx.compose.foundation.BorderStroke(4.dp, Color(0xFFE8E8E8))
+            RetroMenuBox(
+                modifier = Modifier.fillMaxWidth().height(260.dp),
+                backgroundColor = Color(0xFF485058), // Color gris oscuro batalla GBA
+                borderColor = Color.Black
             ) {
-                // Background interior
-                Box(Modifier.fillMaxSize().padding(6.dp).background(Color(0xFF485058))) {
-                    Column(Modifier.fillMaxSize()) {
-                        // Texto (Arriba)
-                        Surface(
-                            modifier = Modifier.fillMaxWidth().weight(0.7f).padding(8.dp), // Darle más espacio con 0.7f
-                            color = Color.White,
-                            shape = RoundedCornerShape(8.dp),
-                            border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFB06868))
-                        ) {
-                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 8.dp)) {
-                                Text(
-                                    text = currentQuestion.text, 
-                                    color = Color.Black, 
-                                    fontSize = 17.sp, 
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                )
-                            }
+                Column(Modifier.fillMaxSize()) {
+                    // Texto / Pregunta
+                    RetroMenuBox(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        backgroundColor = Color.White,
+                        borderColor = Color(0xFFB06868)
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                text = currentQuestion.text, 
+                                color = Color.Black, 
+                                fontSize = 16.sp, 
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                lineHeight = 18.sp
+                            )
                         }
+                    }
 
-                        // Botones de Opciones (Abajo)
-                        Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 8.dp).padding(bottom = 8.dp)) {
-                            Row(Modifier.weight(1f)) {
-                                BattleOptionBtn(currentQuestion.options.getOrElse(0) { "" }, Modifier.weight(1f)) { checkAnswer(0) }
-                                Spacer(Modifier.width(8.dp))
-                                BattleOptionBtn(currentQuestion.options.getOrElse(1) { "" }, Modifier.weight(1f)) { checkAnswer(1) }
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Row(Modifier.weight(1f)) {
-                                BattleOptionBtn(currentQuestion.options.getOrElse(2) { "" }, Modifier.weight(1f)) { checkAnswer(2) }
-                                Spacer(Modifier.width(8.dp))
-                                BattleOptionBtn(currentQuestion.options.getOrElse(3) { "" }, Modifier.weight(1f)) { checkAnswer(3) }
-                            }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Botones de Opciones
+                    Column(modifier = Modifier.fillMaxWidth().weight(1.2f)) {
+                        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            BattleOptionBtn(currentQuestion.options.getOrElse(0) { "" }, Modifier.weight(1f)) { checkAnswer(0) }
+                            BattleOptionBtn(currentQuestion.options.getOrElse(1) { "" }, Modifier.weight(1f)) { checkAnswer(1) }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            BattleOptionBtn(currentQuestion.options.getOrElse(2) { "" }, Modifier.weight(1f)) { checkAnswer(2) }
+                            BattleOptionBtn(currentQuestion.options.getOrElse(3) { "" }, Modifier.weight(1f)) { checkAnswer(3) }
                         }
                     }
                 }
             }
+        }
+
+        // Overlay de Fin de Juego (Sustituye al Dialog para ser más inmersivo)
+        if (showGameOver) {
+            GameOverOverlay(
+                message = gameOverMessage,
+                isVictory = isVictory,
+                onDismiss = if (isVictory) {
+                    {
+                        scope.launch {
+                            try { 
+                                Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId, 100)) 
+                                withContext(Dispatchers.Main) { 
+                                    showGameOver = false
+                                    onBattleWin() 
+                                }
+                            } catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
+                                    errorMessage = "Error al reclamar la recompensa."
+                                }
+                            }
+                        }
+                        Unit
+                    }
+                } else onNavigateBack
+            )
         }
     }
 }
@@ -359,25 +334,35 @@ fun BattleScreen(
 
 @Composable
 fun PokemonStatusBox(name: String, level: String, currentHp: Int, maxHp: Int, isPlayer: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(topStart = 16.dp, bottomEnd = 16.dp),
-        color = Color(0xFFF8F8D8),
-        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF506858)),
-        modifier = Modifier.width(180.dp)
+    RetroMenuBox(
+        modifier = Modifier.width(200.dp),
+        backgroundColor = Color(0xFFF8F8D8), // Amarillo pálido clásico
+        borderColor = Color(0xFF506858)
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(2.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(name.uppercase(), fontWeight = FontWeight.Bold, color = Color.Black)
-                Text(level, fontWeight = FontWeight.Bold, color = Color.DarkGray)
+                RetroText(text = name.uppercase(), fontSize = 12.sp, color = Color.Black, showShadow = false)
+                Text(text = level, fontWeight = FontWeight.Bold, color = Color(0xFF506858), fontSize = 10.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             
-            // Barra de PS
+            // Barra de PS Retro
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("PS", color = Color(0xFFE8B040), fontWeight = FontWeight.ExtraBold, fontSize = 12.sp, modifier = Modifier.padding(end = 4.dp))
+                Text(
+                    text = "PS", 
+                    color = Color(0xFFE8B040), 
+                    fontWeight = FontWeight.Black, 
+                    fontSize = 10.sp, 
+                    modifier = Modifier.padding(end = 4.dp),
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                )
                 val progress by animateFloatAsState(targetValue = currentHp.toFloat() / maxHp)
                 Box(
-                    modifier = Modifier.fillMaxWidth().height(8.dp).background(Color.DarkGray).border(1.dp, Color.Black)
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(10.dp)
+                        .background(Color.Black)
+                        .padding(1.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxWidth(progress).fillMaxHeight().background(
                         when {
@@ -390,7 +375,14 @@ fun PokemonStatusBox(name: String, level: String, currentHp: Int, maxHp: Int, is
             }
 
             if (isPlayer) {
-                Text("$currentHp / $maxHp", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.End))
+                Text(
+                    text = "$currentHp / $maxHp", 
+                    color = Color.Black, 
+                    fontSize = 10.sp, 
+                    fontWeight = FontWeight.Bold, 
+                    modifier = Modifier.align(Alignment.End).padding(top = 2.dp),
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                )
             }
         }
     }
@@ -398,113 +390,62 @@ fun PokemonStatusBox(name: String, level: String, currentHp: Int, maxHp: Int, is
 
 @Composable
 fun BattleOptionBtn(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Surface(
-        modifier = modifier.fillMaxHeight().clickable { onClick() },
-        shape = RoundedCornerShape(8.dp),
-        color = Color(0xFFF8F8F8),
-        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFD06860))
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(text, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp, textAlign = TextAlign.Center)
-        }
-    }
+    RetroButton(
+        text = text,
+        onClick = onClick,
+        modifier = modifier,
+        containerColor = Color.White,
+        contentColor = Color.Black,
+        borderColor = Color(0xFFD06860),
+        fontSize = 12.sp
+    )
 }
 
 @Composable
-fun GameOverDialog(message: String, isVictory: Boolean, onDismiss: () -> Unit) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+fun GameOverOverlay(message: String, isVictory: Boolean, onDismiss: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(enabled = false) {},
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        RetroMenuBox(
+            modifier = Modifier.fillMaxWidth(0.85f),
+            backgroundColor = if (isVictory) Color(0xFFFFFBE6) else Color(0xFFFBE6E6),
+            borderColor = if (isVictory) GoldPoke else RedPoke
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 40.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = if (isVictory) Color(0xFFFFFBE6) else Color(0xFFFBE6E6),
-                border = androidx.compose.foundation.BorderStroke(4.dp, if (isVictory) Color(0xFFFFD700) else Color(0xFFD32F2F)),
-                shadowElevation = 12.dp
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 48.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = if (isVictory) "¡VICTORIA!" else "DERROTA",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 28.sp,
-                        color = if (isVictory) Color(0xFFB8860B) else Color(0xFFB71C1C)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    Text(
-                        text = message,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.DarkGray,
-                        textAlign = TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(28.dp))
-                    
-                    Button(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isVictory) Color(0xFF4CAF50) else Color(0xFFD32F2F)
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .height(56.dp)
-                    ) {
-                        Text(
-                            text = "VOLVER AL MAPA",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-            
-            Surface(
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.TopCenter)
-                    .border(
-                        4.dp,
-                        if (isVictory) Color(0xFFFFD700) else Color(0xFFD32F2F),
-                        androidx.compose.foundation.shape.CircleShape
-                    ),
-                shape = androidx.compose.foundation.shape.CircleShape,
-                color = if (isVictory) Color(0xFFFFD700) else Color(0xFFD32F2F),
-                shadowElevation = 8.dp
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    if (isVictory) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Victoria",
-                            modifier = Modifier.size(48.dp),
-                            tint = Color.White
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Derrota",
-                            modifier = Modifier.size(48.dp),
-                            tint = Color.White
-                        )
-                    }
-                }
+                RetroText(
+                    text = if (isVictory) "¡VICTORIA!" else "DERROTA",
+                    fontSize = 32.sp,
+                    color = if (isVictory) Color(0xFFB8860B) else Color(0xFFB71C1C)
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                PixelDivider()
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = message,
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    lineHeight = 22.sp
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                RetroButton(
+                    text = "VOLVER AL MAPA",
+                    onClick = onDismiss,
+                    containerColor = if (isVictory) Color(0xFF2D5A27) else RedPoke,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
