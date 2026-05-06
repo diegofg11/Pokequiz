@@ -397,22 +397,22 @@ fun OptionButton(
     
     val textColor = if (isRevealed && (isCorrect || isSelected)) Color.White else Color.Black
 
-    RetroMenuBox(
+    Box(
         modifier = modifier
-            .height(65.dp)
+            .height(56.dp)
+            .background(backgroundColor)
+            .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
             .clickable(enabled = !isRevealed) { onClick() },
-        backgroundColor = backgroundColor,
-        borderColor = Color.Black
+        contentAlignment = Alignment.Center
     ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = text.uppercase(),
-                color = textColor,
-                fontWeight = FontWeight.Black,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = FontFamily.Monospace
-            )
-        }
+        Text(
+            text = text.uppercase(),
+            color = textColor,
+            fontWeight = FontWeight.Black,
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            fontFamily = FontFamily.Monospace,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
     }
 }

@@ -368,9 +368,9 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer { rotationY = 180f },
-                shape = RoundedCornerShape(8.dp),
+                shape = androidx.compose.ui.graphics.RectangleShape,
                 color = if (cardData.isMatched) Color(0xFFE8F5E9) else Color.White,
-                border = androidx.compose.foundation.BorderStroke(2.dp, if (cardData.isMatched) Color(0xFF4CAF50) else Color(0xFFB0BEC5))
+                border = androidx.compose.foundation.BorderStroke(3.dp, Color.Black)
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(4.dp)) {
                     AsyncImage(
@@ -387,20 +387,20 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
         } else {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(8.dp),
+                shape = androidx.compose.ui.graphics.RectangleShape,
                 color = Color(0xFFE53935),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFB71C1C))
+                border = androidx.compose.foundation.BorderStroke(3.dp, Color.Black)
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Surface(
                         modifier = Modifier.size(32.dp),
-                        shape = RoundedCornerShape(50),
+                        shape = androidx.compose.ui.graphics.RectangleShape,
                         color = Color.White,
                         border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black)
                     ) {}
                     Surface(
                         modifier = Modifier.size(16.dp),
-                        shape = RoundedCornerShape(50),
+                        shape = androidx.compose.ui.graphics.RectangleShape,
                         color = Color.White,
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black)
                     ) {}
