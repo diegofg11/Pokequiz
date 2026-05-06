@@ -12,5 +12,6 @@ data class Pokemon(
     val inventoryId: Int? = null,
     var inParty: Boolean = false,
     val level: Int = 1,
-    val exp: Int = 0
+    val exp: Int = 0,
+    val pokedexDescription: String? = ""
 )

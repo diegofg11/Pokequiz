@@ -82,14 +82,119 @@ class PokemonPCActivity : ComponentActivity() {
                     CircularProgressIndicator()
                 }
             } else {
-                PokemonPCScreen(user = userState.value!!, pokemonsState = pokemonsState)
+                var selectedPokemon by remember { mutableStateOf<Pokemon?>(null) }
+                
+                PokemonPCScreen(user = userState.value!!, pokemonsState = pokemonsState) { pokemon ->
+                    selectedPokemon = pokemon
+                }
+
+                selectedPokemon?.let { pokemon ->
+                    PokedexDialog(
+                        pokemon = pokemon,
+                        onDismiss = { selectedPokemon = null },
+                        onToggleParty = {
+                            scope.launch {
+                                try {
+                                    val newInParty = !pokemon.inParty
+                                    val res = withContext(Dispatchers.IO) {
+                                        Network.api.toggleParty(com.diegofg11.pokequiz.models.TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, newInParty))
+                                    }
+                                    if (res.isSuccessful) {
+                                        withContext(Dispatchers.Main) {
+                                            val index = pokemonsState.indexOfFirst { it.inventoryId == pokemon.inventoryId }
+                                            if (index != -1) {
+                                                pokemonsState[index] = pokemon.copy(inParty = newInParty)
+                                            }
+                                            selectedPokemon = null
+                                        }
+                                    } else {
+                                        withContext(Dispatchers.Main) { Toast.makeText(context, "Equipo lleno (Máx 3)", Toast.LENGTH_SHORT).show() }
+                                    }
+                                } catch (e: Exception) {
+                                    withContext(Dispatchers.Main) { Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show() }
+                                }
+                            }
+                        }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshots.SnapshotStateList<Pokemon>) {
+fun PokedexDialog(pokemon: Pokemon, onDismiss: () -> Unit, onToggleParty: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onToggleParty) {
+                Text(if (pokemon.inParty) "Quitar del Equipo" else "Añadir al Equipo")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar")
+            }
+        },
+        title = {
+            Text(text = "Datos de la Pokédex", fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AsyncImage(
+                    model = pokemon.spriteFront,
+                    contentDescription = pokemon.nombre,
+                    modifier = Modifier.size(120.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Text(
+                    text = "#${pokemon.idPokedex} ${pokemon.nombre.replaceFirstChar { it.uppercase() }}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row {
+                    pokemon.tipos.forEach { tipo ->
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = Color(0xFF6C63FF),
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        ) {
+                            Text(
+                                text = tipo,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = pokemon.pokedexDescription ?: "Sin descripción disponible.",
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    color = Color.DarkGray
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Divider()
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Nivel: ${pokemon.level}", fontWeight = FontWeight.SemiBold)
+                    Text("HP: ${pokemon.hpBase}", fontWeight = FontWeight.SemiBold)
+                }
+            }
+        },
+        shape = RoundedCornerShape(16.dp),
+        containerColor = Color.White
+    )
+}
+
+@Composable
+fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshots.SnapshotStateList<Pokemon>, onPokemonClick: (Pokemon) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     Surface(
@@ -167,11 +272,8 @@ fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshot
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(pokemonsState.toList()) { pokemon ->
-                            PokemonGridItem(pokemon, context, scope) { updated ->
-                                val index = pokemonsState.indexOfFirst { it.inventoryId == updated.inventoryId }
-                                if (index != -1) {
-                                    pokemonsState[index] = updated
-                                }
+                            PokemonGridItem(pokemon) {
+                                onPokemonClick(pokemon)
                             }
                         }
                         
@@ -191,27 +293,11 @@ fun PokemonPCScreen(user: User, pokemonsState: androidx.compose.runtime.snapshot
 }
 
 @Composable
-fun PokemonGridItem(pokemon: Pokemon, context: android.content.Context, scope: kotlinx.coroutines.CoroutineScope, onToggle: (Pokemon) -> Unit) {
+fun PokemonGridItem(pokemon: Pokemon, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .aspectRatio(1f)
-            .clickable {
-                scope.launch {
-                    try {
-                        val newInParty = !pokemon.inParty
-                        val res = withContext(Dispatchers.IO) {
-                            Network.api.toggleParty(com.diegofg11.pokequiz.models.TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, newInParty))
-                        }
-                        if (res.isSuccessful) {
-                            withContext(Dispatchers.Main) { onToggle(pokemon.copy(inParty = newInParty)) }
-                        } else {
-                            withContext(Dispatchers.Main) { Toast.makeText(context, "Equipo lleno (Máx 3)", Toast.LENGTH_SHORT).show() }
-                        }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) { Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show() }
-                    }
-                }
-            },
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = if (pokemon.inParty) Color(0xFFFFFBE6) else Color.White),
         border = if (pokemon.inParty) androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFFFD700)) else null

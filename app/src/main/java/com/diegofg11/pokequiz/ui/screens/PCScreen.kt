@@ -53,6 +53,7 @@ fun PCScreen() {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var warningMessage by remember { mutableStateOf<String?>(null) }
+    var selectedPokemon by remember { mutableStateOf<Pokemon?>(null) }
 
     LaunchedEffect(Unit) {
         try {
@@ -107,6 +108,38 @@ fun PCScreen() {
                 onDismiss = { warningMessage = null }
             )
         }
+
+        selectedPokemon?.let { pokemon ->
+            PokedexDialog(
+                pokemon = pokemon,
+                onDismiss = { selectedPokemon = null },
+                onToggleParty = { toggleTo ->
+                    scope.launch {
+                        try {
+                            val res = withContext(Dispatchers.IO) {
+                                Network.api.toggleParty(
+                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, toggleTo)
+                                )
+                            }
+                            if (res.isSuccessful) {
+                                val idx = pokemonList.indexOfFirst { it.inventoryId == pokemon.inventoryId }
+                                if (idx != -1) pokemonList[idx] = pokemon.copy(inParty = toggleTo)
+                                selectedPokemon = null
+                            } else {
+                                withContext(Dispatchers.Main) {
+                                    warningMessage = "Equipo lleno (Máx 3)"
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                errorMessage = "Error de red"
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
@@ -120,8 +153,6 @@ fun PCScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
-
-
 
                 // Avatar del usuario
                 val displayUser = user
@@ -176,7 +207,7 @@ fun PCScreen() {
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFFFD700),
-                        modifier = Modifier.align(Alignment.Start).padding(bottom = 8.dp)
+                        modifier = Arrangement.Absolute.Left.let { Modifier.align(Alignment.Start).padding(bottom = 8.dp) }
                     )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -239,7 +270,6 @@ fun PCScreen() {
                     color = Color.White,
                     modifier = Modifier.align(Alignment.Start).padding(bottom = 8.dp)
                 )
-
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -269,28 +299,8 @@ fun PCScreen() {
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(pokemonList.toList()) { pokemon ->
-                                PCPokemonCard(pokemon = pokemon) { toggleTo ->
-                                    scope.launch {
-                                        try {
-                                            val res = withContext(Dispatchers.IO) {
-                                                Network.api.toggleParty(
-                                                    TogglePartyRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, pokemon.inventoryId ?: 0, toggleTo)
-                                                )
-                                            }
-                                            if (res.isSuccessful) {
-                                                val idx = pokemonList.indexOfFirst { it.inventoryId == pokemon.inventoryId }
-                                                if (idx != -1) pokemonList[idx] = pokemon.copy(inParty = toggleTo)
-                                            } else {
-                                                withContext(Dispatchers.Main) {
-                                                    warningMessage = "Equipo lleno (Máx 3)"
-                                                }
-                                            }
-                                        } catch (e: Exception) {
-                                            withContext(Dispatchers.Main) {
-                                                errorMessage = "Error de red"
-                                            }
-                                        }
-                                    }
+                                PCPokemonCard(pokemon = pokemon) {
+                                    selectedPokemon = pokemon
                                 }
                             }
                             // Slots vacíos
@@ -303,6 +313,96 @@ fun PCScreen() {
             }
         }
     }
+}
+
+@Composable
+fun PokedexDialog(pokemon: Pokemon, onDismiss: () -> Unit, onToggleParty: (Boolean) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = { onToggleParty(!pokemon.inParty) },
+                colors = ButtonDefaults.buttonColors(containerColor = if (pokemon.inParty) Color.Red else Color(0xFF6C63FF))
+            ) {
+                Text(if (pokemon.inParty) "Quitar del Equipo" else "Añadir al Equipo", color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar", color = Color.Gray)
+            }
+        },
+        title = {
+            Text(text = "Datos de la Pokédex", fontWeight = FontWeight.Bold, color = Color.Black)
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AsyncImage(
+                    model = pokemon.spriteFront,
+                    contentDescription = pokemon.nombre,
+                    modifier = Modifier.size(140.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Text(
+                    text = "#${pokemon.idPokedex} ${pokemon.nombre.replaceFirstChar { it.uppercase() }}",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row {
+                    pokemon.tipos.forEach { tipo ->
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0xFF6C63FF),
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        ) {
+                            Text(
+                                text = tipo.replaceFirstChar { it.uppercase() },
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = pokemon.pokedexDescription ?: "Sin descripción disponible.",
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp,
+                    color = Color.DarkGray,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Nivel", fontSize = 12.sp, color = Color.Gray)
+                        Text("${pokemon.level}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("HP Base", fontSize = 12.sp, color = Color.Gray)
+                        Text("${pokemon.hpBase}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Exp", fontSize = 12.sp, color = Color.Gray)
+                        Text("${pokemon.exp}/100", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
+                    }
+                }
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Color.White
+    )
 }
 
 @Composable

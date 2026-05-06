@@ -330,6 +330,15 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = revealedPokemon!!.pokedexDescription ?: "",
+                    color = Color(0xFFAABBCC),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
 
             Spacer(modifier = Modifier.weight(0.5f))
