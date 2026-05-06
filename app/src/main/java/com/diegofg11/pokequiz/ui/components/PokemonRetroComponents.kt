@@ -143,19 +143,26 @@ fun RetroText(
         fontWeight = fontWeight,
         textAlign = textAlign,
         fontFamily = FontFamily.Monospace,
-        lineHeight = fontSize * 1.2f // Prevent overlapping
+        lineHeight = fontSize * 1.2f
     )
 
-    Box(modifier = modifier) {
+    val boxAlignment = when (textAlign) {
+        TextAlign.Center -> Alignment.Center
+        TextAlign.End -> Alignment.CenterEnd
+        else -> Alignment.CenterStart
+    }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = boxAlignment
+    ) {
         if (showShadow) {
-            // Shadow
             Text(
                 text = text,
                 style = style.copy(color = shadowColor.copy(alpha = 0.3f)),
                 modifier = Modifier.offset(x = 1.dp, y = 1.dp)
             )
         }
-        // Main Text
         Text(
             text = text,
             style = style

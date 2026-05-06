@@ -5,10 +5,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +22,16 @@ import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
 import com.diegofg11.pokequiz.utils.WallpaperManager
+import com.diegofg11.pokequiz.ui.components.*
+import com.diegofg11.pokequiz.api.Network
+import com.diegofg11.pokequiz.models.User
+import com.diegofg11.pokequiz.utils.SessionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 @Composable
 fun MapScreen(
@@ -28,51 +39,69 @@ fun MapScreen(
     onNavigateToBattle: (Int) -> Unit
 ) {
     val context = LocalContext.current
-    // --- CONFIGURACIÓN ---
+    var user by remember { mutableStateOf<User?>(null) }
     val totalLevels = 20 
-    // ----------------------
-
     val listState = rememberLazyListState()
 
-    // Scroll automático al nivel actual (o al siguiente por desbloquear)
+    // Cargar datos del usuario para el HUD
+    LaunchedEffect(Unit) {
+        try {
+            val userId = SessionManager.currentUserId
+            val response = withContext(Dispatchers.IO) { Network.api.getUser(userId) }
+            if (response.isSuccessful) {
+                user = response.body()
+            }
+        } catch (e: Exception) {
+            // Error silencioso en el mapa
+        }
+    }
+
+    // Scroll automático al nivel actual
     LaunchedEffect(completedLevel) {
-        // Calculamos la posición. Como la lista está invertida visualmente (el nivel 1 abajo),
-        // el índice en la LazyColumn para el nivel actual es (totalLevels - nivel)
         val targetLevel = (completedLevel + 1).coerceAtMost(totalLevels)
         val indexToScroll = (totalLevels - targetLevel).coerceAtLeast(0)
         listState.animateScrollToItem(indexToScroll)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Fondo dinámico (Leído de preferencias)
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        // Fondo dinámico
         Image(
             painter = painterResource(id = WallpaperManager.getSelectedWallpaperRes(context)),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            alpha = 0.7f
         )
 
-        // Capa de contraste para legibilidad
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.25f))
-        )
+        // Overlay de rejilla retro
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val step = 8.dp.toPx()
+            for (y in 0..size.height.toInt() step step.toInt()) {
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.15f),
+                    start = Offset(0f, y.toFloat()),
+                    end = Offset(size.width, y.toFloat()),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+        }
 
-        // Lista de niveles con Scroll
+        // Capa de contraste
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.1f)))
+
+        // Lista de niveles
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = 120.dp, bottom = 120.dp),
+            contentPadding = PaddingValues(top = 160.dp, bottom = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Rango de niveles de mayor a menor (para que el 20 esté arriba y el 1 abajo)
             val levelRange = (1..totalLevels).reversed().toList()
             
             itemsIndexed(levelRange) { _, levelId ->
                 val isUnlocked = levelId <= completedLevel + 1
                 val isCompleted = levelId <= completedLevel
-                val isLeft = levelId % 2 != 0 // Zig-zag: impares izquierda, pares derecha
+                val isLeft = levelId % 2 != 0 
 
                 LevelItem(
                     levelId = levelId,
@@ -82,9 +111,63 @@ fun MapScreen(
                     onClick = { onNavigateToBattle(levelId) }
                 )
                 
-                // Espacio vertical entre cada nivel
                 if (levelId > 1) {
-                    Spacer(modifier = Modifier.height(60.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
+                }
+            }
+        }
+
+        // --- HUD DE UBICACIÓN (ARRIBA) ---
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .offset(y = (-8).dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            RetroMenuBox(
+                modifier = Modifier.width(220.dp),
+                backgroundColor = Color.White,
+                borderColor = Color(0xFF2D5A27)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
+                ) {
+                    RetroText(
+                        text = "RUTA POKÉQUIZ", 
+                        fontSize = 16.sp, 
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "EXPLORANDO REGIÓN", 
+                        fontSize = 9.sp, 
+                        color = Color.Gray, 
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
+        // --- HUD DE ENTRENADOR (ABAJO DERECHA) ---
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            RetroMenuBox(
+                backgroundColor = Color(0xFFF8F8D8),
+                borderColor = GoldPoke
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column {
+                        RetroText(text = "NIVEL ${user?.nivelProgreso ?: completedLevel + 1}", fontSize = 12.sp, showShadow = false)
+                        RetroText(text = "🪙 ${user?.monedasGacha ?: 0}", fontSize = 11.sp, showShadow = false)
+                    }
                 }
             }
         }
@@ -102,51 +185,70 @@ fun LevelItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 50.dp),
+            .padding(horizontal = 32.dp),
         contentAlignment = if (isLeft) Alignment.CenterStart else Alignment.CenterEnd
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        RetroMenuBox(
             modifier = Modifier
-                .width(IntrinsicSize.Min)
-                .clickable(
-                    enabled = isUnlocked,
-                    onClick = onClick
-                )
+                .width(150.dp)
+                .clickable(enabled = isUnlocked, onClick = onClick),
+            backgroundColor = when {
+                isCompleted -> Color(0xFFE8F5E9)
+                isUnlocked -> Color.White
+                else -> Color(0xFF333333).copy(alpha = 0.9f) // Gris casi negro muy sólido
+            },
+            borderColor = when {
+                isCompleted -> Color(0xFF4CAF50)
+                isUnlocked -> Color.Black
+                else -> Color.Black.copy(alpha = 0.3f)
+            }
         ) {
-            // Etiqueta del nivel
-            Text(
-                text = "Nivel $levelId",
-                color = if (isUnlocked) Color.White else Color.Gray,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            // Círculo del nivel
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(
-                        color = if (isCompleted) RedPoke else if (isUnlocked) DarkPoke else Color.DarkGray,
-                        shape = CircleShape
-                    )
-                    .border(
-                        width = 4.dp,
-                        color = if (isUnlocked) Color.White else Color.Gray,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(4.dp)
             ) {
-                if (isCompleted) {
-                    // Indicador de nivel superado
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .background(Color.White, CircleShape)
+                // Icono Retro
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(if (isUnlocked) Color.White else Color.Transparent, CircleShape)
+                        .border(1.dp, if (isUnlocked) Color.Black else Color.Transparent, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isCompleted) {
+                        Text("🏅", fontSize = 16.sp) // Medalla
+                    } else if (isUnlocked) {
+                        Text("🔴", fontSize = 16.sp) // Pokéball simplificada
+                    } else {
+                        Text("🔒", fontSize = 14.sp) // Candado
+                    }
+                }
+
+                Column {
+                    RetroText(
+                        text = "NIVEL $levelId",
+                        fontSize = 12.sp,
+                        color = if (isUnlocked) Color.Black else Color.White,
+                        showShadow = false
                     )
-                } else if (!isUnlocked) {
-                    // Podrías poner un icono de candado aquí si quisieras
+                    if (isCompleted) {
+                        Text(
+                            text = "COMPLETO", 
+                            fontSize = 8.sp, 
+                            color = Color(0xFF4CAF50),
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold
+                        )
+                    } else if (!isUnlocked) {
+                        Text(
+                            text = "BLOQUEADO", 
+                            fontSize = 9.sp, 
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
                 }
             }
         }
