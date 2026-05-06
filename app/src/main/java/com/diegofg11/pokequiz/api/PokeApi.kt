@@ -50,4 +50,7 @@ interface PokeApi {
 
     @POST("api/user/register")
     suspend fun register(@Body request: LoginRequest): Response<User>
+
+    @GET("api/pokemon/pokedex/{pokemonId}")
+    suspend fun getPokedexInfo(@Path("pokemonId") pokemonId: Int): Response<Pokemon>
 }
