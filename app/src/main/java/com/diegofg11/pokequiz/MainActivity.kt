@@ -9,8 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
@@ -38,7 +43,7 @@ class MainActivity : ComponentActivity() {
                 var completedLevel by remember { mutableIntStateOf(0) }
                 var selectedItem by remember { mutableIntStateOf(0) }
                 var globalErrorMessage by remember { mutableStateOf<String?>(null) }
-                
+
                 val scope = rememberCoroutineScope()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -48,15 +53,17 @@ class MainActivity : ComponentActivity() {
                     if (com.diegofg11.pokequiz.utils.SessionManager.currentUserId != -1) {
                         scope.launch {
                             try {
-                                val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                    com.diegofg11.pokequiz.api.Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId)
-                                }
+                                val response =
+                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                        com.diegofg11.pokequiz.api.Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId)
+                                    }
                                 if (response.isSuccessful && response.body() != null) {
                                     completedLevel = response.body()!!.nivelProgreso
                                 }
                             } catch (e: Exception) {
                                 android.util.Log.e("MainActivity", "Error fetching user", e)
-                                globalErrorMessage = "No se pudo conectar con el servidor para cargar tu perfil."
+                                globalErrorMessage =
+                                    "No se pudo conectar con el servidor para cargar tu perfil."
                             }
                         }
                     }
@@ -74,84 +81,26 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        val isFullScreen = currentRoute?.startsWith("battle") == true || currentRoute == "welcome"
+                        val isFullScreen = currentRoute?.startsWith("battle") == true ||
+                                currentRoute == "welcome" ||
+                                currentRoute?.startsWith("safari_zone") == true
+
                         if (!isFullScreen) {
-                        NavigationBar(
-                            containerColor = BackgroundStart,
-                            contentColor = Color.White,
-                            tonalElevation = 8.dp
-                        ) {
-                            // Aventura
-                            NavigationBarItem(
-                                selected = currentRoute == "map" || currentRoute?.startsWith("battle") == true,
-                                onClick = { 
-                                    navController.navigate("map") { 
-                                        popUpTo("map") { inclusive = true }
+                            RetroBottomNavigation(
+                                currentRoute = currentRoute,
+                                onNavigate = { route ->
+                                    navController.navigate(route) {
+                                        if (route == "map") {
+                                            popUpTo("map") { inclusive = true }
+                                        } else {
+                                            popUpTo("map") { saveState = true }
+                                            restoreState = true
+                                        }
                                         launchSingleTop = true
                                     }
-                                },
-                                icon = { Icon(Icons.Default.Place, contentDescription = "Aventura") },
-                                label = { Text("Aventura") },
-                                colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
-                            )
-                            // PC/Usuario
-                            NavigationBarItem(
-                                selected = currentRoute == "pc",
-                                onClick = { 
-                                    navController.navigate("pc") {
-                                        popUpTo("map") { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = { PokeBallIcon(modifier = Modifier.size(24.dp), outerColor = Color.Transparent) },
-                                label = { Text("PC") },
-                                colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
-                            )
-                            // Gacha
-                            NavigationBarItem(
-                                selected = currentRoute == "gacha",
-                                onClick = { 
-                                    navController.navigate("gacha") {
-                                        popUpTo("map") { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = { Icon(Icons.Default.Star, contentDescription = "Gacha") },
-                                label = { Text("Gacha") },
-                                colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
-                            )
-                            // Minijuegos
-                            NavigationBarItem(
-                                selected = currentRoute == "games",
-                                onClick = { 
-                                    navController.navigate("games") {
-                                        popUpTo("map") { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Minijuegos") },
-                                label = { Text("Zona Safari") },
-                                colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
-                            )
-                            // Perfil
-                            NavigationBarItem(
-                                selected = currentRoute == "user",
-                                onClick = { 
-                                    navController.navigate("user") {
-                                        popUpTo("map") { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
-                                label = { Text("Perfil") },
-                                colors = NavigationBarItemDefaults.colors(selectedIconColor = GoldPoke, selectedTextColor = GoldPoke, unselectedIconColor = TextSecondary, unselectedTextColor = TextSecondary, indicatorColor = Color.White.copy(alpha = 0.1f))
+                                }
                             )
                         }
-                    }
                     }
                 ) { innerPadding ->
                     NavHost(
@@ -177,20 +126,25 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("battle/{levelId}") { backStackEntry ->
-                            val levelId = backStackEntry.arguments?.getString("levelId")?.toIntOrNull() ?: 1
+                            val levelId =
+                                backStackEntry.arguments?.getString("levelId")?.toIntOrNull() ?: 1
                             BattleScreen(
                                 levelId = levelId,
                                 onBattleWin = {
                                     scope.launch {
                                         try {
-                                            val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                com.diegofg11.pokequiz.api.Network.api.getUser(com.diegofg11.pokequiz.utils.SessionManager.currentUserId)
-                                            }
+                                            val response =
+                                                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                                    com.diegofg11.pokequiz.api.Network.api.getUser(
+                                                        com.diegofg11.pokequiz.utils.SessionManager.currentUserId
+                                                    )
+                                                }
                                             if (response.isSuccessful && response.body() != null) {
                                                 completedLevel = response.body()!!.nivelProgreso
                                             }
-                                        } catch(e: Exception) {
-                                            globalErrorMessage = "Error de sincronización con el servidor."
+                                        } catch (e: Exception) {
+                                            globalErrorMessage =
+                                                "Error de sincronización con el servidor."
                                         }
                                         // Volver al mapa tras la victoria
                                         navController.navigate("map") {
@@ -219,7 +173,8 @@ class MainActivity : ComponentActivity() {
                             MinigamesScreen(navController = navController)
                         }
                         composable("safari_zone/{gameIndex}") { backStackEntry ->
-                            val gameIndex = backStackEntry.arguments?.getString("gameIndex")?.toIntOrNull() ?: 0
+                            val gameIndex =
+                                backStackEntry.arguments?.getString("gameIndex")?.toIntOrNull() ?: 0
                             com.diegofg11.pokequiz.ui.screens.SafariZonePager(
                                 initialPage = gameIndex,
                                 onNavigateBack = { navController.popBackStack() }
@@ -239,5 +194,90 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
 
+@Composable
+fun RetroBottomNavigation(
+    currentRoute: String?,
+    onNavigate: (String) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(76.dp) // Aumentado de 64.dp a 76.dp
+            .background(Color.White)
+            // Borde superior grueso estilo retro
+            .drawBehind {
+                drawLine(
+                    color = Color(0xFF2D5A27),
+                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                    end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                    strokeWidth = 6.dp.toPx()
+                )
+                drawLine(
+                    color = Color.Black,
+                    start = androidx.compose.ui.geometry.Offset(0f, 6.dp.toPx()),
+                    end = androidx.compose.ui.geometry.Offset(size.width, 6.dp.toPx()),
+                    strokeWidth = 2.dp.toPx()
+                )
+            }
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().navigationBarsPadding().padding(top = 4.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RetroNavItem(label = "MAPA", selected = currentRoute == "map", onClick = { onNavigate("map") })
+            RetroNavItem(label = "PC", selected = currentRoute == "pc", onClick = { onNavigate("pc") })
+            RetroNavItem(label = "GACHA", selected = currentRoute == "gacha", onClick = { onNavigate("gacha") })
+            RetroNavItem(label = "ZONA", selected = currentRoute == "games" || currentRoute?.startsWith("safari_zone") == true, onClick = { onNavigate("games") })
+            RetroNavItem(label = "PERFIL", selected = currentRoute == "user", onClick = { onNavigate("user") })
+        }
+    }
+}
+
+@Composable
+fun RowScope.RetroNavItem(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (selected) {
+                // Cursor retro auténtico
+                Text(
+                    text = "▶",
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontWeight = FontWeight.Black
+                )
+            } else {
+                Text(
+                    text = label,
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
 }
