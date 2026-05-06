@@ -180,48 +180,44 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Monedas
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RetroMenuBox(
-                    backgroundColor = Color.Black.copy(alpha = 0.05f),
-                    borderColor = GoldPoke
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("🪙", fontSize = 18.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        RetroText(
-                            text = "$coins",
-                            color = GoldPoke,
-                            fontSize = 16.sp,
-                            showShadow = false
-                        )
-                    }
-                }
-            }
-
             Spacer(modifier = Modifier.weight(0.1f))
 
             RetroText(
                 text = "TIENDA GACHA",
-                fontSize = 32.sp,
+                fontSize = 40.sp,
                 color = Color.White
             )
             Text(
                 text = "¡Toca la Pokéball para abrirla!",
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 color = Color.Black.copy(alpha = 0.6f),
                 modifier = Modifier.padding(top = 4.dp)
             )
 
-            Spacer(modifier = Modifier.weight(0.3f))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Monedas (Ahora debajo del título)
+            RetroMenuBox(
+                backgroundColor = Color.Black.copy(alpha = 0.05f),
+                borderColor = GoldPoke
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("🪙", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    RetroText(
+                        text = "$coins",
+                        color = GoldPoke,
+                        fontSize = 20.sp,
+                        showShadow = false
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(0.2f))
 
             // Zona central
             Box(modifier = Modifier.size(250.dp), contentAlignment = Alignment.Center) {
@@ -286,7 +282,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                             AsyncImage(
                                 model = revealedPokemon!!.spriteFront,
                                 contentDescription = revealedPokemon!!.nombre,
-                                modifier = Modifier.size(160.dp),
+                                modifier = Modifier.size(220.dp),
                                 contentScale = ContentScale.Fit
                             )
                         }
@@ -303,13 +299,13 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         RetroText(
                             text = if (isNewPull) "¡NUEVO POKÉMON!" else "¡REPETIDO! (+50 EXP)",
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             color = if (isNewPull) GoldPoke else Color(0xFF2D5A27)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
                         RetroText(
                             text = revealedPokemon!!.nombre.uppercase(),
-                            fontSize = 20.sp,
+                            fontSize = 28.sp,
                             color = Color(0xFF1B3022)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -336,17 +332,17 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                         Text(
                             text = revealedPokemon!!.pokedexDescription ?: "",
                             color = Color(0xFF1B3022),
-                            fontSize = 12.sp,
+                            fontSize = 15.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                             textAlign = TextAlign.Center,
-                            lineHeight = 16.sp,
+                            lineHeight = 20.sp,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.weight(0.5f))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Botones
             when (gachaState) {
@@ -356,13 +352,14 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                         onClick = { doRoll() },
                         enabled = coins >= costPerRoll,
                         modifier = Modifier.fillMaxWidth(),
-                        containerColor = RedPoke
+                        containerColor = RedPoke,
+                        fontSize = 20.sp
                     )
                     if (coins < costPerRoll) {
                         Text(
                             text = "No tienes suficientes monedas.",
                             color = Color(0xFFB71C1C),
-                            fontSize = 11.sp,
+                            fontSize = 13.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(top = 8.dp)
@@ -374,14 +371,16 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                         text = "TIRAR OTRA VEZ",
                         onClick = { gachaState = GachaAnimState.IDLE; revealedPokemon = null },
                         modifier = Modifier.fillMaxWidth(),
-                        containerColor = RedPoke
+                        containerColor = RedPoke,
+                        fontSize = 20.sp
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     RetroButton(
                         text = "VER MI PC",
                         onClick = onNavigateToPC,
                         modifier = Modifier.fillMaxWidth(),
-                        containerColor = Color(0xFF2D5A27)
+                        containerColor = Color(0xFF2D5A27),
+                        fontSize = 20.sp
                     )
                 }
                 else -> {}
