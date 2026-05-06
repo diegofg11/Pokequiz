@@ -151,8 +151,8 @@ fun RetroText(
             // Shadow
             Text(
                 text = text,
-                style = style.copy(color = shadowColor),
-                modifier = Modifier.offset(x = 2.dp, y = 2.dp)
+                style = style.copy(color = shadowColor.copy(alpha = 0.3f)),
+                modifier = Modifier.offset(x = 1.dp, y = 1.dp)
             )
         }
         // Main Text
