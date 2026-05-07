@@ -50,7 +50,9 @@ fun UserScreen(onLogout: () -> Unit) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showWallpaperDialog by remember { mutableStateOf(false) }
+    var showAvatarDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var selectedAvatar by remember { mutableStateOf(com.diegofg11.pokequiz.utils.AvatarManager.getSelectedAvatar(context)) }
 
     LaunchedEffect(Unit) {
         try {
@@ -197,19 +199,20 @@ fun UserScreen(onLogout: () -> Unit) {
                             }
                             
                             // Sprite de Entrenador (Placeholder pixelado)
+                            // Sprite de Entrenador (Personalizado)
                             Box(
                                 modifier = Modifier
                                     .size(72.dp)
                                     .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
-                                    .background(Color.White),
+                                    .background(Color.White)
+                                    .clickable { showAvatarDialog = true },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = displayUser?.nombre?.firstOrNull()?.uppercase() ?: "?",
-                                    fontSize = 40.sp,
-                                    color = Color(0xFF6C63FF),
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                    fontWeight = FontWeight.Black
+                                Image(
+                                    painter = painterResource(id = selectedAvatar.resId),
+                                    contentDescription = "Avatar de ${selectedAvatar.name}",
+                                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                                    contentScale = ContentScale.Fit
                                 )
                             }
                         }
@@ -235,6 +238,13 @@ fun UserScreen(onLogout: () -> Unit) {
                             title = "PERSONALIZAR MAPA",
                             subtitle = "Cambiar fondo de pantalla",
                             onClick = { showWallpaperDialog = true }
+                        )
+                        HorizontalDivider(thickness = 2.dp, color = Color.Black)
+                        ActionMenuItem(
+                            icon = Icons.Default.Edit,
+                            title = "PERSONALIZAR ENTRENADOR",
+                            subtitle = "Cambiar imagen de perfil",
+                            onClick = { showAvatarDialog = true }
                         )
                         HorizontalDivider(thickness = 2.dp, color = Color.Black)
                         ActionMenuItem(
@@ -297,6 +307,77 @@ fun UserScreen(onLogout: () -> Unit) {
                         RetroButton(
                             text = "CANCELAR",
                             onClick = { showWallpaperDialog = false },
+                            containerColor = Color.Gray,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+
+        // --- AVATAR DIALOG ---
+        if (showAvatarDialog) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.7f)).clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                RetroMenuBox(
+                    modifier = Modifier.fillMaxWidth(0.9f).padding(vertical = 40.dp),
+                    backgroundColor = Color.White,
+                    borderColor = GoldPoke
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        RetroText(text = "SELECCIONAR ENTRENADOR", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        val avatars = com.diegofg11.pokequiz.utils.AvatarManager.availableAvatars
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier.height(300.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            itemsIndexed(avatars) { _, avatar ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .border(
+                                            width = if (selectedAvatar.id == avatar.id) 2.dp else 1.dp,
+                                            color = if (selectedAvatar.id == avatar.id) GoldPoke else Color.Black.copy(alpha = 0.1f),
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .clickable {
+                                            com.diegofg11.pokequiz.utils.AvatarManager.setSelectedAvatar(context, avatar.id)
+                                            selectedAvatar = avatar
+                                            showAvatarDialog = false
+                                            Toast.makeText(context, "Entrenador actualizado", Toast.LENGTH_SHORT).show()
+                                        }
+                                        .padding(8.dp)
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = avatar.resId),
+                                        contentDescription = avatar.name,
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier.size(60.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = avatar.name,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
+                        RetroButton(
+                            text = "CANCELAR",
+                            onClick = { showAvatarDialog = false },
                             containerColor = Color.Gray,
                             modifier = Modifier.fillMaxWidth()
                         )
