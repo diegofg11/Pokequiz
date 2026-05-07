@@ -62,13 +62,11 @@ fun TutorialBox(
                     
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    Text(
+                    RetroText(
                         text = description,
                         fontSize = 14.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Start,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                        lineHeight = 18.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
                     

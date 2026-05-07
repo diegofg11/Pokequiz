@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -56,6 +57,7 @@ fun UserScreen(onLogout: () -> Unit) {
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showAvatarDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var showAccessibilityDialog by remember { mutableStateOf(false) }
     var selectedAvatar by remember { mutableStateOf(com.diegofg11.pokequiz.utils.AvatarManager.getSelectedAvatar(context)) }
 
     LaunchedEffect(Unit) {
@@ -477,6 +479,15 @@ fun UserScreen(onLogout: () -> Unit) {
                         )
                         
                         Spacer(modifier = Modifier.height(12.dp))
+
+                        RetroButton(
+                            text = "ACCESIBILIDAD",
+                            onClick = { showAccessibilityDialog = true },
+                            containerColor = Color(0xFF1976D2),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
                         
                         RetroButton(
                             text = "VOLVER",
@@ -488,6 +499,144 @@ fun UserScreen(onLogout: () -> Unit) {
                 }
             }
         }
+
+        // --- ACCESSIBILITY DIALOG ---
+        if (showAccessibilityDialog) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.7f)).clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                RetroMenuBox(
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    backgroundColor = Color.White,
+                    borderColor = Color(0xFF1976D2)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        RetroText(text = "ACCESIBILIDAD", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        val accessibilityManager = com.diegofg11.pokequiz.utils.AccessibilityManager
+
+                        // High Contrast Toggle
+                        AccessibilityToggle(
+                            label = "ALTO CONTRASTE",
+                            checked = accessibilityManager.isHighContrastEnabled,
+                            onCheckedChange = { accessibilityManager.setHighContrast(context, it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Haptic Feedback Toggle
+                        AccessibilityToggle(
+                            label = "VIBRACIÓN",
+                            checked = accessibilityManager.isHapticFeedbackEnabled,
+                            onCheckedChange = { accessibilityManager.setHapticFeedback(context, it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Screen Reader Toggle
+                        AccessibilityToggle(
+                            label = "OPTIMIZAR LECTOR",
+                            checked = accessibilityManager.isScreenReaderOptimized,
+                            onCheckedChange = { accessibilityManager.setScreenReaderOptimization(context, it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Font Scale Slider
+                        Text(
+                            text = "TAMAÑO FUENTE: ${String.format("%.1fx", accessibilityManager.fontScale)}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color.Black
+                        )
+                        Slider(
+                            value = accessibilityManager.fontScale,
+                            onValueChange = { accessibilityManager.setFontScale(context, it) },
+                            valueRange = 0.8f..1.5f,
+                            steps = 6,
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color(0xFF1976D2),
+                                activeTrackColor = Color(0xFF1976D2),
+                                inactiveTrackColor = Color.LightGray
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Color Blind Mode Selector
+                        Text(
+                            text = "MODO DALTÓNICOS",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        val modes = com.diegofg11.pokequiz.utils.ColorBlindMode.values()
+                        Row(
+                            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            modes.forEach { mode ->
+                                val isSelected = accessibilityManager.colorBlindMode == mode
+                                Surface(
+                                    modifier = Modifier.clickable { accessibilityManager.setColorBlindMode(context, mode) },
+                                    color = if (isSelected) Color(0xFF1976D2) else Color.LightGray,
+                                    shape = RoundedCornerShape(4.dp),
+                                    border = BorderStroke(1.dp, Color.Black)
+                                ) {
+                                    Text(
+                                        text = mode.name,
+                                        fontSize = 10.sp,
+                                        color = if (isSelected) Color.White else Color.Black,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        RetroButton(
+                            text = "ACEPTAR",
+                            onClick = { showAccessibilityDialog = false },
+                            containerColor = Color.Gray,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AccessibilityToggle(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
+            color = Color.Black
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color(0xFF1976D2),
+                checkedTrackColor = Color(0xFF1976D2).copy(alpha = 0.5f)
+            )
+        )
     }
 }
 

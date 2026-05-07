@@ -36,6 +36,9 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import com.diegofg11.pokequiz.ui.theme.*
+import com.diegofg11.pokequiz.utils.AccessibilityManager
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 @Composable
 fun RetroMenuBox(
@@ -83,21 +86,28 @@ fun RetroBackground(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
+    val bgColor = if (isHighContrast) Color.Black else AccessibilityManager.applyColorBlindFilter(Color(0xFF1B3022))
+    val screenBg = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(Color(0xFF94A684))
+    val borderColor = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(Color(0xFF2D5A27))
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF1B3022)) // Verde oscuro bosque profundo
+            .background(bgColor)
     ) {
-        // Pixel Pattern Overlay (Capa base)
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val step = 20.dp.toPx()
-            for (x in 0..size.width.toInt() step step.toInt()) {
-                for (y in 0..size.height.toInt() step step.toInt()) {
-                    drawRect(
-                        color = Color.Black.copy(alpha = 0.1f),
-                        topLeft = Offset(x.toFloat(), y.toFloat()),
-                        size = Size(8.dp.toPx(), 8.dp.toPx())
-                    )
+        // Pixel Pattern Overlay (Capa base) - Hidden in high contrast for clarity
+        if (!isHighContrast) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val step = 20.dp.toPx()
+                for (x in 0..size.width.toInt() step step.toInt()) {
+                    for (y in 0..size.height.toInt() step step.toInt()) {
+                        drawRect(
+                            color = Color.Black.copy(alpha = 0.1f),
+                            topLeft = Offset(x.toFloat(), y.toFloat()),
+                            size = Size(8.dp.toPx(), 8.dp.toPx())
+                        )
+                    }
                 }
             }
         }
@@ -106,19 +116,21 @@ fun RetroBackground(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp) // Less padding for more space
-                .background(Color(0xFF94A684), RoundedCornerShape(4.dp)) // Proper Olive Green
-                .border(2.dp, Color(0xFF2D5A27), RoundedCornerShape(4.dp))
+                .padding(8.dp)
+                .background(screenBg, RoundedCornerShape(4.dp))
+                .border(2.dp, borderColor, RoundedCornerShape(4.dp))
                 .border(4.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
         ) {
             // Grid de fondo muy sutil para la "pantalla"
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val step = 10.dp.toPx()
-                for (x in 0..size.width.toInt() step step.toInt()) {
-                    drawLine(Color.Black.copy(alpha = 0.02f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height))
-                }
-                for (y in 0..size.height.toInt() step step.toInt()) {
-                    drawLine(Color.Black.copy(alpha = 0.02f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()))
+            if (!isHighContrast) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val step = 10.dp.toPx()
+                    for (x in 0..size.width.toInt() step step.toInt()) {
+                        drawLine(Color.Black.copy(alpha = 0.02f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height))
+                    }
+                    for (y in 0..size.height.toInt() step step.toInt()) {
+                        drawLine(Color.Black.copy(alpha = 0.02f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()))
+                    }
                 }
             }
 
@@ -141,13 +153,21 @@ fun RetroText(
     shadowColor: Color = Color.Black,
     showShadow: Boolean = true
 ) {
+    val scaledFontSize = fontSize * AccessibilityManager.fontScale
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
+    var textColor = if (isHighContrast) {
+        if (color == Color.White) Color.White else Color.Black
+    } else color
+    
+    textColor = AccessibilityManager.applyColorBlindFilter(textColor)
+
     val style = TextStyle(
-        color = color,
-        fontSize = fontSize,
+        color = textColor,
+        fontSize = scaledFontSize,
         fontWeight = fontWeight,
         textAlign = textAlign,
         fontFamily = FontFamily.Monospace,
-        lineHeight = fontSize * 1.2f
+        lineHeight = scaledFontSize * 1.2f
     )
 
     val boxAlignment = when (textAlign) {
@@ -763,34 +783,55 @@ fun RetroButton(
     fontSize: androidx.compose.ui.unit.TextUnit = 16.sp,
     enabled: Boolean = true
 ) {
-    val shadowColor = borderColor.copy(alpha = 0.5f)
+    val haptic = LocalHapticFeedback.current
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
     
+    var finalContainerColor = if (isHighContrast) {
+        if (containerColor == Color.Gray) Color.DarkGray else Color.Black
+    } else containerColor
+    
+    finalContainerColor = AccessibilityManager.applyColorBlindFilter(finalContainerColor)
+    
+    val finalContentColor = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(contentColor)
+    val finalBorderColor = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(borderColor)
+    val scaledFontSize = fontSize * AccessibilityManager.fontScale
+
     Box(
         modifier = modifier
             .height(56.dp)
-            .clickable(enabled = enabled) { onClick() }
-            .border(2.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
+            .clickable(
+                enabled = enabled,
+                onClickLabel = if (AccessibilityManager.isScreenReaderOptimized) "Seleccionar $text" else null
+            ) { 
+                if (AccessibilityManager.isHapticFeedbackEnabled) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+                onClick() 
+            }
+            .border(2.dp, finalBorderColor, androidx.compose.ui.graphics.RectangleShape)
             .padding(1.dp)
             .drawBehind {
-                // Sombra interior sutil
-                drawRect(
-                    color = Color.Black.copy(alpha = 0.15f),
-                    topLeft = Offset(0f, size.height * 0.6f),
-                    size = Size(size.width, size.height * 0.4f)
-                )
+                if (!isHighContrast) {
+                    // Sombra interior sutil
+                    drawRect(
+                        color = Color.Black.copy(alpha = 0.15f),
+                        topLeft = Offset(0f, size.height * 0.6f),
+                        size = Size(size.width, size.height * 0.4f)
+                    )
+                }
             }
             .background(
-                if (enabled) containerColor else containerColor.copy(alpha = 0.5f),
+                if (enabled) finalContainerColor else finalContainerColor.copy(alpha = 0.5f),
                 androidx.compose.ui.graphics.RectangleShape
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text.uppercase(),
-            color = if (enabled) contentColor else contentColor.copy(alpha = 0.5f),
+            color = if (enabled) finalContentColor else finalContentColor.copy(alpha = 0.5f),
             fontWeight = FontWeight.Black,
             fontFamily = FontFamily.Monospace,
-            fontSize = fontSize,
+            fontSize = scaledFontSize,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
