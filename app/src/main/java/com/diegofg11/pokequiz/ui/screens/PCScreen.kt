@@ -28,6 +28,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +36,7 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.Pokemon
 import com.diegofg11.pokequiz.models.TogglePartyRequest
+import com.diegofg11.pokequiz.models.PokeType
 import com.diegofg11.pokequiz.models.User
 import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +45,10 @@ import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.utils.WallpaperManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -61,6 +67,53 @@ fun PCScreen() {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var warningMessage by remember { mutableStateOf<String?>(null) }
     var selectedIndex by remember { mutableStateOf<Int?>( null) }
+    
+    // Estados de búsqueda y ordenación
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var sortOption by remember { mutableStateOf(PokemonSortOption.RECENT) }
+    var filterType by remember { mutableStateOf<PokeType?>(null) }
+    var showFavoritesOnly by remember { mutableStateOf(false) }
+    var showSortDialog by remember { mutableStateOf(false) }
+
+    // Persistencia de favoritos (SharedPreferences)
+    val prefs = remember { context.getSharedPreferences("pokemon_prefs", android.content.Context.MODE_PRIVATE) }
+    
+    fun toggleFavorite(pokemon: Pokemon) {
+        val inventoryId = pokemon.inventoryId ?: return
+        val currentFavorites = prefs.getStringSet("favorites", emptySet())?.toMutableSet() ?: mutableSetOf()
+        
+        if (currentFavorites.contains(inventoryId.toString())) {
+            currentFavorites.remove(inventoryId.toString())
+            pokemon.isFavorite = false
+        } else {
+            currentFavorites.add(inventoryId.toString())
+            pokemon.isFavorite = true
+        }
+        
+        prefs.edit().putStringSet("favorites", currentFavorites).apply()
+        // Forzar recomposición actualizando la lista (truco simple)
+        val idx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
+        if (idx != -1) pokemonList[idx] = pokemon.copy()
+    }
+
+    // Lista filtrada y ordenada (Usamos derivedStateOf para reaccionar a cambios en pokemonList)
+    val filteredSortedList by remember(searchQuery, sortOption, filterType, showFavoritesOnly) {
+        derivedStateOf {
+            pokemonList
+                .filter { it.nombre.contains(searchQuery, ignoreCase = true) }
+                .filter { filterType == null || it.tipos.any { t -> t.equals(filterType?.nombreEs, ignoreCase = true) || t.equals(filterType?.name, ignoreCase = true) } }
+                .filter { !showFavoritesOnly || it.isFavorite }
+                .let { list ->
+                    when (sortOption) {
+                        PokemonSortOption.RECENT -> list.sortedByDescending { it.inventoryId ?: 0 }
+                        PokemonSortOption.POKEDEX -> list.sortedBy { it.idPokedex }
+                        PokemonSortOption.LEVEL -> list.sortedByDescending { it.level }
+                        PokemonSortOption.NAME -> list.sortedBy { it.nombre }
+                    }
+                }
+        }
+    }
 
     LaunchedEffect(Unit) {
         try {
@@ -72,11 +125,13 @@ fun PCScreen() {
 
             if (pcResp.isSuccessful && pcResp.body() != null) {
                 val baseUrl = com.diegofg11.pokequiz.api.Network.BASE_URL.dropLast(1)
+                val favorites = prefs.getStringSet("favorites", emptySet()) ?: emptySet()
                 val mapped = pcResp.body()!!.map {
                     it.copy(
                         spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,
                         spriteBack = if (it.spriteBack.startsWith("/")) baseUrl + it.spriteBack else it.spriteBack,
-                        spriteIcon = if (it.spriteIcon.startsWith("/")) baseUrl + it.spriteIcon else it.spriteIcon
+                        spriteIcon = if (it.spriteIcon.startsWith("/")) baseUrl + it.spriteIcon else it.spriteIcon,
+                        isFavorite = favorites.contains(it.inventoryId.toString())
                     )
                 }
                 pokemonList.clear()
@@ -219,12 +274,73 @@ fun PCScreen() {
 
                 // Mi Colección
                 Spacer(modifier = Modifier.height(20.dp))
-                RetroText(
-                    text = "COLECCIÓN PC",
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Start).padding(start = 4.dp, bottom = 8.dp)
-                )
+                // Mi Colección con Controles
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RetroText(
+                        text = "COLECCIÓN PC",
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            onClick = { isSearchVisible = !isSearchVisible },
+                            shape = CircleShape,
+                            color = if (isSearchVisible) GoldPoke else Color(0xFF2D5A27),
+                            modifier = Modifier.size(36.dp),
+                            border = BorderStroke(2.dp, Color(0xFF1B3022))
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Search, contentDescription = "Buscador", modifier = Modifier.size(20.dp), tint = Color.White)
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        Surface(
+                            onClick = { showSortDialog = true },
+                            shape = CircleShape,
+                            color = if (filterType != null || showFavoritesOnly) GoldPoke else Color(0xFF2D5A27),
+                            modifier = Modifier.size(36.dp),
+                            border = BorderStroke(2.dp, Color(0xFF1B3022))
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Menu, contentDescription = "Ordenar", modifier = Modifier.size(20.dp), tint = Color.White)
+                            }
+                        }
+                    }
+                }
+
+                if (isSearchVisible) {
+                    Box(modifier = Modifier.padding(bottom = 12.dp)) {
+                        RetroMenuBox(
+                            backgroundColor = Color.Black.copy(alpha = 0.2f),
+                            borderColor = GoldPoke,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                placeholder = { Text("BUSCAR NOMBRE...", color = Color.White.copy(alpha = 0.4f), fontSize = 12.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace) },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                textStyle = TextStyle(color = Color.White, fontSize = 14.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    cursorColor = GoldPoke,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                )
+                            )
+                        }
+                    }
+                }
 
                 RetroMenuBox(
                     backgroundColor = Color.White.copy(alpha = 0.9f),
@@ -251,14 +367,14 @@ fun PCScreen() {
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            items(pokemonList.toList()) { pokemon ->
+                            items(filteredSortedList) { pokemon ->
                                     PCPokemonCard(pokemon = pokemon) {
                                         selectedIndex = pokemonList.indexOf(pokemon)
                                     }
                             }
                             // Slots vacíos para completar la estética
                             val totalSlots = 21
-                            val empty = (totalSlots - pokemonList.size).coerceAtLeast(0)
+                            val empty = (totalSlots - filteredSortedList.size).coerceAtLeast(0)
                             items(empty) { PCEmptySlot() }
                         }
                     }
@@ -280,6 +396,7 @@ fun PCScreen() {
                 pokemonList = pokemonList.toList(),
                 initialIndex = safeIdx,
                 onDismiss = { selectedIndex = null },
+                onToggleFavorite = { toggleFavorite(it) },
                 onToggleParty = { targetPokemon, toggleTo ->
                     scope.launch {
                         try {
@@ -305,6 +422,170 @@ fun PCScreen() {
                 }
             )
         }
+
+        if (showSortDialog) {
+            SortDialog(
+                currentSort = sortOption,
+                currentFilterType = filterType,
+                onlyFavorites = showFavoritesOnly,
+                onSortSelected = { 
+                    sortOption = it
+                    showSortDialog = false 
+                },
+                onTypeFilterSelected = {
+                    filterType = it
+                    showSortDialog = false
+                },
+                onToggleFavorites = {
+                    showFavoritesOnly = !showFavoritesOnly
+                    showSortDialog = false
+                },
+                onDismiss = { showSortDialog = false }
+            )
+        }
+    }
+}
+
+@Composable
+fun SortDialog(
+    currentSort: PokemonSortOption,
+    currentFilterType: PokeType?,
+    onlyFavorites: Boolean,
+    onSortSelected: (PokemonSortOption) -> Unit,
+    onTypeFilterSelected: (PokeType?) -> Unit,
+    onToggleFavorites: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.7f))
+            .pointerInput(Unit) { detectTapGestures { onDismiss() } },
+        contentAlignment = Alignment.Center
+    ) {
+        RetroMenuBox(
+            modifier = Modifier.fillMaxWidth(0.9f).pointerInput(Unit) { detectTapGestures { } },
+            backgroundColor = Color.White,
+            borderColor = GoldPoke
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 650.dp).padding(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                RetroText(text = "FILTRAR Y ORDENAR", fontSize = 18.sp, color = Color(0xFF1B3022))
+                Spacer(modifier = Modifier.height(12.dp))
+                PixelDivider()
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Sección de Favoritos
+                RetroButton(
+                    text = if (onlyFavorites) "VER TODOS" else "SOLO FAVORITOS",
+                    onClick = onToggleFavorites,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = if (onlyFavorites) GoldPoke else Color(0xFFE53935),
+                    contentColor = Color.White,
+                    fontSize = 12.sp
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                PixelDivider()
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Sección de Ordenación
+                RetroText(text = "ORDENAR POR:", fontSize = 12.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                val sortOptions = PokemonSortOption.values().toList()
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    sortOptions.chunked(2).forEach { rowOptions ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            rowOptions.forEach { option ->
+                                RetroButton(
+                                    text = option.label,
+                                    onClick = { onSortSelected(option) },
+                                    modifier = Modifier.weight(1f),
+                                    containerColor = if (currentSort == option) GoldPoke else Color(0xFF2D5A27),
+                                    contentColor = if (currentSort == option) Color.Black else Color.White,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            if (rowOptions.size < 2) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                PixelDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Sección de Filtro por Tipo
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RetroText(text = "FILTRAR POR TIPO:", fontSize = 12.sp, color = Color.Gray)
+                    if (currentFilterType != null) {
+                        Text(
+                            text = "LIMPIAR",
+                            color = RedPoke,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            modifier = Modifier.clickable { onTypeFilterSelected(null) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                val gen1Types = remember {
+                    PokeType.values().filter { 
+                        it != PokeType.STEEL && it != PokeType.DARK && it != PokeType.FAIRY 
+                    }
+                }
+                
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.height(200.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(gen1Types) { type ->
+                        val isSelected = currentFilterType == type
+                        Surface(
+                            onClick = { onTypeFilterSelected(type) },
+                            shape = RoundedCornerShape(4.dp),
+                            color = if (isSelected) type.color else type.color.copy(alpha = 0.3f),
+                            border = BorderStroke(
+                                width = if (isSelected) 2.dp else 1.dp,
+                                color = if (isSelected) Color.Black else Color.Black.copy(alpha = 0.2f)
+                            )
+                        ) {
+                            Text(
+                                text = type.nombreEs,
+                                color = if (isSelected) Color.White else Color.Black.copy(alpha = 0.6f),
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                textAlign = TextAlign.Center,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                            )
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                RetroButton(
+                    text = "CERRAR",
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = Color.Gray,
+                    fontSize = 12.sp
+                )
+            }
+        }
     }
 }
 
@@ -313,6 +594,7 @@ fun PokedexDialog(
     pokemonList: List<Pokemon>,
     initialIndex: Int,
     onDismiss: () -> Unit,
+    onToggleFavorite: (Pokemon) -> Unit,
     onToggleParty: (Pokemon, Boolean) -> Unit
 ) {
     val pagerState = rememberPagerState(initialPage = initialIndex) { pokemonList.size }
@@ -385,7 +667,18 @@ fun PokedexDialog(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            RetroText(text = "DATOS POKÉDEX", fontSize = 14.sp, color = Color(0xFF1B3022))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RetroText(text = "DATOS POKÉDEX", fontSize = 14.sp, color = Color(0xFF1B3022))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconButton(onClick = { onToggleFavorite(pokemon) }) {
+                                    Icon(
+                                        imageVector = if (pokemon.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                        contentDescription = "Favorito",
+                                        tint = if (pokemon.isFavorite) Color(0xFFE53935) else Color.Gray,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
                             Text(
                                 "Nº ${pokemon.idPokedex}",
                                 fontSize = 12.sp,
@@ -520,6 +813,18 @@ private fun PCPokemonCard(pokemon: Pokemon, isParty: Boolean = false, onClick: (
                 modifier = Modifier.size(if (isParty) 64.dp else 90.dp),
                 contentScale = ContentScale.Fit
             )
+            
+            if (pokemon.isFavorite) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = Color(0xFFE53935),
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.BottomEnd)
+                        .padding(2.dp)
+                )
+            }
         }
     }
 }
@@ -540,6 +845,13 @@ private fun PCEmptySlot(isParty: Boolean = false) {
             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
         )
     }
+}
+
+enum class PokemonSortOption(val label: String) {
+    RECENT("RECIENTES"),
+    POKEDEX("Nº POKÉ"),
+    LEVEL("NIVEL"),
+    NAME("A-Z")
 }
 
 @Preview(showBackground = true)
