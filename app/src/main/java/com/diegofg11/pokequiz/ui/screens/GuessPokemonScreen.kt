@@ -29,7 +29,8 @@ import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.R
-import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.SoundManager
+import androidx.compose.ui.platform.LocalContext
 import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.GuessDifficulty
 import com.diegofg11.pokequiz.models.MinigamePokemon
@@ -56,7 +57,9 @@ fun GuessPokemonScreen(
     onNavigateBack: () -> Unit,
     onStateChange: (Boolean) -> Unit = {}
 ) {
+    val context = LocalContext.current
     var difficulty by remember { mutableStateOf<GuessDifficulty?>(null) }
+
     var globalError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(difficulty) {

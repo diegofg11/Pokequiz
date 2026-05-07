@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.models.Pokemon
 import com.diegofg11.pokequiz.R
+import com.diegofg11.pokequiz.utils.SoundManager
 
 @Composable
 fun BattleScreen(

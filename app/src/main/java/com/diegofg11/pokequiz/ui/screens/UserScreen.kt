@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.ui.text.font.FontFamily
+import com.diegofg11.pokequiz.utils.SoundManager
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -400,6 +402,35 @@ fun UserScreen(onLogout: () -> Unit) {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         RetroText(text = "AJUSTES", fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(24.dp))
+
+                        // Control de Volumen
+                        var volume by remember { mutableStateOf(SoundManager.getVolume(context)) }
+                        
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = "VOLUMEN: ${(volume * 100).toInt()}%",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                color = Color.Black
+                            )
+                        }
+                        
+                        Slider(
+                            value = volume,
+                            onValueChange = { 
+                                volume = it
+                                SoundManager.setVolume(context, it)
+                            },
+                            colors = SliderDefaults.colors(
+                                thumbColor = GoldPoke,
+                                activeTrackColor = GoldPoke,
+                                inactiveTrackColor = Color.LightGray
+                            ),
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
                         
                         RetroButton(
                             text = "CERRAR SESIÓN",

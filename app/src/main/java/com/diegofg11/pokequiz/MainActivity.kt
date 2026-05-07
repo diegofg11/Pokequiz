@@ -48,6 +48,43 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
+                // --- GESTIÓN GLOBAL DE MÚSICA ---
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+
+                // Observador de ciclo de vida para pausar/reanudar al salir de la app
+                DisposableEffect(lifecycleOwner) {
+                    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                        when (event) {
+                            androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> com.diegofg11.pokequiz.utils.SoundManager.pauseMusic()
+                            androidx.lifecycle.Lifecycle.Event.ON_RESUME -> com.diegofg11.pokequiz.utils.SoundManager.resumeMusic()
+                            else -> {}
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycleOwner.lifecycle.removeObserver(observer)
+                    }
+                }
+
+                LaunchedEffect(currentRoute) {
+                    kotlinx.coroutines.delay(300) // Pequeo delay para evitar cortes
+                    when {
+                        currentRoute == "welcome" -> {
+                            com.diegofg11.pokequiz.utils.SoundManager.playMusic(context, R.raw.menu_music, volumeFactor = 0.5f)
+                        }
+                        currentRoute?.startsWith("battle") == true -> {
+                            com.diegofg11.pokequiz.utils.SoundManager.playMusic(context, R.raw.battle_song, volumeFactor = 1.0f)
+                        }
+                        currentRoute?.startsWith("safari_zone") == true -> {
+                            com.diegofg11.pokequiz.utils.SoundManager.playMusic(context, R.raw.battle_song, volumeFactor = 1.0f)
+                        }
+                        else -> {
+                            com.diegofg11.pokequiz.utils.SoundManager.playMusic(context, R.raw.menu_music, volumeFactor = 0.5f)
+                        }
+                    }
+                }
+
                 // Refetch user data when currentUserId changes and is valid
                 LaunchedEffect(com.diegofg11.pokequiz.utils.SessionManager.currentUserId) {
                     if (com.diegofg11.pokequiz.utils.SessionManager.currentUserId != -1) {

@@ -25,6 +25,8 @@ import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SafariGameState
 import com.diegofg11.pokequiz.utils.SafariUtils
+import com.diegofg11.pokequiz.utils.SoundManager
+import androidx.compose.ui.platform.LocalContext
 import com.diegofg11.pokequiz.models.PokeType
 import com.diegofg11.pokequiz.models.QuickBattleOpponent
 import kotlinx.coroutines.delay
@@ -37,6 +39,8 @@ fun QuickBattleScreen(
     onNavigateBack: () -> Unit,
     onStateChange: (Boolean) -> Unit = {}
 ) {
+    val context = LocalContext.current
+    
     var gameState by remember { mutableStateOf(SafariGameState.START) }
     var isInverse by remember { mutableStateOf(false) }
     var currentOpponent by remember { mutableStateOf<QuickBattleOpponent?>(null) }
@@ -249,10 +253,10 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
             val targetList = if (isInverse) opponent.resistances else opponent.weaknesses
             if (targetList.isEmpty()) {
                 // Fallback de seguridad para evitar crashes si el backend fallara
-                PokeType.entries.shuffled().take(4)
+                PokeType.values().toList().shuffled().take(4)
             } else {
                 val correct = targetList.random()
-                val incorrects = PokeType.entries.filter { it !in targetList }.shuffled().take(3)
+                val incorrects = PokeType.values().filter { it !in targetList }.shuffled().take(3)
                 (listOf(correct) + incorrects).shuffled()
             }
         }

@@ -30,9 +30,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.font.FontFamily
+import com.diegofg11.pokequiz.utils.SoundManager
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun WelcomeScreen(onEnterClick: () -> Unit = {}) {
+    val context = LocalContext.current
     var screenState by remember { mutableStateOf("welcome") }
 
     when (screenState) {
