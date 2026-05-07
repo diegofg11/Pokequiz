@@ -389,32 +389,24 @@ fun OptionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val backgroundColor = when {
+    val containerColor = when {
         !isRevealed -> Color.White
         isCorrect -> Color(0xFF4CAF50)
         isSelected && !isCorrect -> Color(0xFFF44336)
         else -> Color(0xFFEEEEEE)
     }
     
-    val textColor = if (isRevealed && (isCorrect || isSelected)) Color.White else Color.Black
+    val contentColor = if (isRevealed && (isCorrect || isSelected)) Color.White else Color.Black
+    val borderColor = if (isRevealed && isCorrect) Color(0xFF1B5E20) else Color.Black
 
-    Box(
-        modifier = modifier
-            .height(56.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
-            .clickable(enabled = !isRevealed) { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text.uppercase(),
-            color = textColor,
-            fontWeight = FontWeight.Black,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-            fontFamily = FontFamily.Monospace,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-    }
+    RetroButton(
+        text = text,
+        onClick = onClick,
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        borderColor = borderColor,
+        fontSize = 12.sp,
+        enabled = !isRevealed
+    )
 }

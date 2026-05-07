@@ -45,9 +45,9 @@ fun RetroMenuBox(
 ) {
     Box(
         modifier = modifier
-            .border(4.dp, borderColor, RoundedCornerShape(2.dp))
+            .border(4.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
             .padding(2.dp)
-            .border(2.dp, Color.White, RoundedCornerShape(1.dp))
+            .border(2.dp, Color.White, androidx.compose.ui.graphics.RectangleShape)
             .background(backgroundColor)
     ) {
         // Subtle grid pattern
@@ -317,7 +317,7 @@ fun SafariRetroHeader(
                     Surface(
                         onClick = onBackClick,
                         modifier = Modifier.size(40.dp),
-                        shape = CircleShape,
+                        shape = androidx.compose.ui.graphics.RectangleShape,
                         color = Color(0xFF2D5A27),
                         contentColor = Color.White,
                         border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
@@ -354,7 +354,7 @@ fun SafariRetroHeader(
                         Surface(
                             onClick = onHelpClick,
                             modifier = Modifier.size(40.dp),
-                            shape = CircleShape,
+                            shape = androidx.compose.ui.graphics.RectangleShape,
                             color = Color(0xFF2D5A27),
                             contentColor = Color.White,
                             border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
@@ -391,7 +391,7 @@ fun NavigationArrow(
     Surface(
         onClick = onClick,
         modifier = modifier.size(48.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = androidx.compose.ui.graphics.RectangleShape,
         color = Color(0xFF2D5A27),
         contentColor = Color.White,
         border = BorderStroke(2.dp, Color(0xFF1B3022))
@@ -425,14 +425,14 @@ fun RetroDifficultyCard(
             .height(150.dp)
             .fillMaxWidth()
             .clickable { onClick() }
-            .border(3.dp, Color(0xFF1B3022), RoundedCornerShape(8.dp))
-            .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
+            .border(3.dp, Color(0xFF1B3022), androidx.compose.ui.graphics.RectangleShape)
+            .background(Color.Black.copy(alpha = 0.05f), androidx.compose.ui.graphics.RectangleShape)
             .padding(4.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                .background(color.copy(alpha = 0.15f), androidx.compose.ui.graphics.RectangleShape)
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -465,7 +465,7 @@ fun RetroDifficultyCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
+                        .background(Color.Black.copy(alpha = 0.08f), androidx.compose.ui.graphics.RectangleShape)
                         .padding(vertical = 6.dp, horizontal = 4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
@@ -494,12 +494,12 @@ fun RetroStatCard(
     modifier: Modifier = Modifier,
     icon: String? = null
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        color = containerColor,
-        border = BorderStroke(2.dp, Color.Black.copy(alpha = 0.2f)),
-        shadowElevation = 4.dp
+    Box(
+        modifier = modifier
+            .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
+            .padding(1.dp)
+            .border(1.dp, Color.White.copy(alpha = 0.3f), androidx.compose.ui.graphics.RectangleShape)
+            .background(containerColor, androidx.compose.ui.graphics.RectangleShape)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -509,8 +509,9 @@ fun RetroStatCard(
                 text = label.uppercase(),
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Black,
-                color = contentColor.copy(alpha = 0.7f),
-                fontFamily = FontFamily.Monospace
+                color = contentColor.copy(alpha = 0.8f),
+                fontFamily = FontFamily.Monospace,
+                letterSpacing = 1.sp
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (icon != null) {
@@ -521,7 +522,14 @@ fun RetroStatCard(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     color = contentColor,
-                    fontFamily = FontFamily.Monospace
+                    fontFamily = FontFamily.Monospace,
+                    style = TextStyle(
+                        shadow = androidx.compose.ui.graphics.Shadow(
+                            color = Color.Black.copy(alpha = 0.3f),
+                            offset = Offset(2f, 2f),
+                            blurRadius = 2f
+                        )
+                    )
                 )
             }
         }
@@ -585,8 +593,8 @@ fun SafariResultScreen(
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), CircleShape)
-                    .border(4.dp, Color.Black.copy(alpha = 0.2f), CircleShape),
+                    .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), androidx.compose.ui.graphics.RectangleShape)
+                    .border(4.dp, Color.Black.copy(alpha = 0.2f), androidx.compose.ui.graphics.RectangleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -744,26 +752,36 @@ fun RetroButton(
     fontSize: androidx.compose.ui.unit.TextUnit = 16.sp,
     enabled: Boolean = true
 ) {
-    Button(
-        onClick = onClick,
+    val shadowColor = borderColor.copy(alpha = 0.5f)
+    
+    Box(
         modifier = modifier
             .height(56.dp)
-            .border(2.dp, borderColor, RoundedCornerShape(8.dp)),
-        enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = containerColor.copy(alpha = 0.5f),
-            disabledContentColor = contentColor.copy(alpha = 0.5f)
-        ),
-        shape = RoundedCornerShape(8.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+            .clickable(enabled = enabled) { onClick() }
+            .border(2.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
+            .padding(1.dp)
+            .drawBehind {
+                // Sombra interior sutil
+                drawRect(
+                    color = Color.Black.copy(alpha = 0.15f),
+                    topLeft = Offset(0f, size.height * 0.6f),
+                    size = Size(size.width, size.height * 0.4f)
+                )
+            }
+            .background(
+                if (enabled) containerColor else containerColor.copy(alpha = 0.5f),
+                androidx.compose.ui.graphics.RectangleShape
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = text.uppercase(),
+            color = if (enabled) contentColor else contentColor.copy(alpha = 0.5f),
             fontWeight = FontWeight.Black,
             fontFamily = FontFamily.Monospace,
-            fontSize = fontSize
+            fontSize = fontSize,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
 }

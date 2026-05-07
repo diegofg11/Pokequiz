@@ -350,12 +350,11 @@ fun StarterPokemon(id: Int, selectedId: Int, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(80.dp)
-            .clip(CircleShape)
             .background(if (isSelected) Color.White.copy(alpha = 0.3f) else Color.Transparent)
             .border(
                 width = if (isSelected) 4.dp else 2.dp,
                 color = if (isSelected) Color(0xFF1B3022) else Color(0xFF1B3022).copy(alpha = 0.3f),
-                shape = CircleShape
+                shape = androidx.compose.ui.graphics.RectangleShape
             )
             .clickable { onClick() },
         contentAlignment = Alignment.Center

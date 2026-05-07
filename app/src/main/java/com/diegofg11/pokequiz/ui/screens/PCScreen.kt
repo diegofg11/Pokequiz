@@ -293,7 +293,7 @@ fun PCScreen() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
                             onClick = { isSearchVisible = !isSearchVisible },
-                            shape = CircleShape,
+                            shape = androidx.compose.ui.graphics.RectangleShape,
                             color = if (isSearchVisible) GoldPoke else Color(0xFF2D5A27),
                             modifier = Modifier.size(36.dp),
                             border = BorderStroke(2.dp, Color(0xFF1B3022))
@@ -307,7 +307,7 @@ fun PCScreen() {
                         
                         Surface(
                             onClick = { showSortDialog = true },
-                            shape = CircleShape,
+                            shape = androidx.compose.ui.graphics.RectangleShape,
                             color = if (filterType != null || showFavoritesOnly || showShiniesOnly) GoldPoke else Color(0xFF2D5A27),
                             modifier = Modifier.size(36.dp),
                             border = BorderStroke(2.dp, Color(0xFF1B3022))
@@ -576,7 +576,7 @@ fun SortDialog(
                         val isSelected = currentFilterType == type
                         Surface(
                             onClick = { onTypeFilterSelected(type) },
-                            shape = RoundedCornerShape(4.dp),
+                            shape = androidx.compose.ui.graphics.RectangleShape,
                             color = if (isSelected) type.color else type.color.copy(alpha = 0.3f),
                             border = BorderStroke(
                                 width = if (isSelected) 2.dp else 1.dp,
@@ -717,8 +717,8 @@ fun PokedexDialog(
                         Box(
                             modifier = Modifier
                                 .size(150.dp)
-                                .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
-                                .border(2.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+                                .background(Color(0xFFF0F0F0), androidx.compose.ui.graphics.RectangleShape)
+                                .border(2.dp, Color.Black.copy(alpha = 0.1f), androidx.compose.ui.graphics.RectangleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             AsyncImage(
@@ -742,7 +742,7 @@ fun PokedexDialog(
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             pokemon.tipos.forEach { tipo ->
                                 Surface(
-                                    shape = RoundedCornerShape(4.dp),
+                                    shape = androidx.compose.ui.graphics.RectangleShape,
                                     color = getPokeTypeColor(tipo),
                                     border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
                                 ) {
@@ -870,8 +870,8 @@ private fun PCEmptySlot(isParty: Boolean = false) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(4.dp))
-            .border(1.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp)),
+            .background(Color.Black.copy(alpha = 0.05f), androidx.compose.ui.graphics.RectangleShape)
+            .border(1.dp, Color.Black.copy(alpha = 0.1f), androidx.compose.ui.graphics.RectangleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(

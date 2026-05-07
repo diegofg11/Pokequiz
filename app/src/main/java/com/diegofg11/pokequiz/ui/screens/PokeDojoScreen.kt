@@ -258,11 +258,12 @@ fun PokeDojoGame(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box(
+        RetroMenuBox(
             modifier = Modifier
                 .aspectRatio(1f)
-                .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(24.dp))
-                .padding(16.dp)
+                .fillMaxWidth(),
+            backgroundColor = Color(0xFF4E342E), // Marrón tierra más oscuro
+            borderColor = Color(0xFF3E2723)
         ) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -298,9 +299,11 @@ fun DojoHole(state: HoleState, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
+            .border(2.dp, Color.Black, CircleShape)
+            .padding(1.dp)
+            .border(2.dp, Color.Black.copy(alpha = 0.3f), CircleShape)
             .clip(CircleShape)
             .background(Color(0xFF3E2723))
-            .border(4.dp, Color(0xFF5D4037), CircleShape)
             .clickable { onClick() },
         contentAlignment = Alignment.BottomCenter
     ) {

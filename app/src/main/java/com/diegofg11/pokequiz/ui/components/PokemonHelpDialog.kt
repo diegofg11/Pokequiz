@@ -71,7 +71,7 @@ fun PokemonHelpDialog(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
+                        .background(Color.Black.copy(alpha = 0.05f), androidx.compose.ui.graphics.RectangleShape)
                         .padding(12.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
@@ -88,7 +88,7 @@ fun PokemonHelpDialog(
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                         .height(48.dp),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = androidx.compose.ui.graphics.RectangleShape,
                     color = Color(0xFF2D5A27),
                     contentColor = Color.White,
                     border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF1B3022))

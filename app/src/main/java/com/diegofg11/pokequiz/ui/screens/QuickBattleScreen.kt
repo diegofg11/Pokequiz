@@ -244,11 +244,15 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        RetroMenuBox(modifier = Modifier.size(200.dp)) {
+        RetroMenuBox(
+            modifier = Modifier.size(200.dp),
+            backgroundColor = Color.White,
+            borderColor = Color.Black
+        ) {
             AsyncImage(
                 model = opponent.imageUrl,
                 contentDescription = opponent.name,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(8.dp),
                 contentScale = ContentScale.Fit
             )
         }
@@ -325,28 +329,20 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
 
 @Composable
 fun TypeButton(type: PokeType, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier
-            .height(48.dp)
-            .border(2.dp, Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp)),
-        shape = RoundedCornerShape(8.dp),
-        color = type.color,
-        shadowElevation = 4.dp
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = type.nombreEs.uppercase(),
-                color = when(type) {
-                    PokeType.ELECTRIC, PokeType.ICE, PokeType.GROUND, PokeType.STEEL, PokeType.NORMAL -> Color.Black
-                    else -> Color.White
-                },
-                fontWeight = FontWeight.Black,
-                fontSize = 12.sp,
-                fontFamily = FontFamily.Monospace
-            )
-        }
+    val contentColor = when(type) {
+        PokeType.ELECTRIC, PokeType.ICE, PokeType.GROUND, PokeType.STEEL, PokeType.NORMAL -> Color.Black
+        else -> Color.White
     }
+
+    RetroButton(
+        text = type.nombreEs,
+        onClick = onClick,
+        modifier = modifier.height(48.dp),
+        containerColor = type.color,
+        contentColor = contentColor,
+        borderColor = Color.Black.copy(alpha = 0.5f),
+        fontSize = 11.sp
+    )
 }
 
 @Composable

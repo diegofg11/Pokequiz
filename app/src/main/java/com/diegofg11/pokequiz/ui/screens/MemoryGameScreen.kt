@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -287,18 +288,26 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f),
-                    userScrollEnabled = false
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(cards.size) { index ->
-                        MemoryCard(
-                            cardData = cards[index],
-                            onClick = { handleCardClick(index) }
-                        )
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        userScrollEnabled = false,
+                        contentPadding = PaddingValues(16.dp)
+                    ) {
+                        items(cards.size) { index ->
+                            MemoryCard(
+                                cardData = cards[index],
+                                onClick = { handleCardClick(index) }
+                            )
+                        }
                     }
                 }
             }
@@ -362,47 +371,47 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
             .clickable(enabled = !cardData.isMatched) { onClick() }
     ) {
         if (isFrontVisible) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer { rotationY = 180f },
-                shape = androidx.compose.ui.graphics.RectangleShape,
-                color = if (cardData.isMatched) Color(0xFFE8F5E9) else Color.White,
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color.Black)
+                    .graphicsLayer { rotationY = 180f }
+                    .border(3.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
+                    .padding(2.dp)
+                    .background(if (cardData.isMatched) Color(0xFFE8F5E9) else Color.White, androidx.compose.ui.graphics.RectangleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(4.dp)) {
-                    AsyncImage(
-                        model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cardData.pokemonId}.png",
-                        contentDescription = "Sprite de Pokémon",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
-                    if (cardData.isMatched) {
-                        Box(modifier = Modifier.fillMaxSize().background(Color(0x664CAF50)))
-                    }
+                AsyncImage(
+                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cardData.pokemonId}.png",
+                    contentDescription = "Sprite de Pokémon",
+                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                    contentScale = ContentScale.Fit
+                )
+                if (cardData.isMatched) {
+                    Box(modifier = Modifier.fillMaxSize().background(Color(0x664CAF50)))
                 }
             }
         } else {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                shape = androidx.compose.ui.graphics.RectangleShape,
-                color = Color(0xFFE53935),
-                border = androidx.compose.foundation.BorderStroke(3.dp, Color.Black)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(3.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
+                    .padding(2.dp)
+                    .background(Color(0xFFE53935), androidx.compose.ui.graphics.RectangleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Surface(
-                        modifier = Modifier.size(32.dp),
-                        shape = androidx.compose.ui.graphics.RectangleShape,
-                        color = Color.White,
-                        border = androidx.compose.foundation.BorderStroke(2.dp, Color.Black)
-                    ) {}
-                    Surface(
-                        modifier = Modifier.size(16.dp),
-                        shape = androidx.compose.ui.graphics.RectangleShape,
-                        color = Color.White,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black)
-                    ) {}
+                // Pokéball pattern
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(modifier = Modifier.size(30.dp, 15.dp).background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)))
+                    Box(modifier = Modifier.fillMaxWidth().height(2.dp).background(Color.Black.copy(alpha = 0.2f)))
+                    Box(modifier = Modifier.size(30.dp, 15.dp).background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp)))
                 }
+                
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .border(2.dp, Color.Black.copy(alpha = 0.3f), CircleShape)
+                        .background(Color.White, CircleShape)
+                )
             }
         }
     }

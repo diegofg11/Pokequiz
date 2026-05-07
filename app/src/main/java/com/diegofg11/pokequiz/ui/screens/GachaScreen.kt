@@ -312,7 +312,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             revealedPokemon!!.tipos.forEach { tipo ->
                                 Surface(
-                                    shape = RoundedCornerShape(4.dp),
+                                    shape = androidx.compose.ui.graphics.RectangleShape,
                                     color = getPokeTypeColor(tipo),
                                     border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
                                 ) {

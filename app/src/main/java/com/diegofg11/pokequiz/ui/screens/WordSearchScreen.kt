@@ -264,7 +264,7 @@ fun WordSearchGame(
                         targetWords.forEach { word ->
                             val isFound = foundWords.contains(word)
                             Surface(
-                                shape = RoundedCornerShape(4.dp),
+                                shape = androidx.compose.ui.graphics.RectangleShape,
                                 color = if (isFound) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f),
                                 border = BorderStroke(1.dp, if (isFound) Color.White else Color.Black.copy(alpha = 0.3f)),
                                 modifier = Modifier.padding(2.dp)
@@ -283,86 +283,90 @@ fun WordSearchGame(
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .background(Color.White)
-                        .border(3.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
-                        .padding(8.dp)
+                RetroMenuBox(
+                    modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 16.dp),
+                    backgroundColor = Color.White,
+                    borderColor = Color.Black
                 ) {
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .onGloballyPositioned { gridWidthPx = it.size.width.toFloat() }
-                            .pointerInput(gridSize, isProcessing) {
-                                if (isProcessing) return@pointerInput
-                                detectDragGestures(
-                                    onDragStart = { offset ->
-                                        val cell = getCellFromOffset(offset)
-                                        if (cell != null) {
-                                            dragStartCell = cell
-                                            dragCurrentCell = cell
-                                            selectedCells.clear()
-                                            selectedCells.add(cell)
-                                        }
-                                    },
-                                    onDrag = { change, _ ->
-                                        change.consume()
-                                        val cell = getCellFromOffset(change.position)
-                                        if (cell != null && cell != dragCurrentCell) {
-                                            dragCurrentCell = cell
-                                            dragStartCell?.let { start ->
-                                                val newPath = calculateLinePath(start, cell)
-                                                selectedCells.clear()
-                                                selectedCells.addAll(newPath)
-                                            }
-                                        }
-                                    },
-                                    onDragEnd = {
-                                        if (selectedCells.isNotEmpty()) {
-                                            val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
-                                            val reversedWord = word.reversed()
-                                            
-                                            targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
-                                                foundWords.add(found)
-                                            }
-                                            
-                                            if (foundWords.size == targetWords.size) {
-                                                hasWon = true
-                                                isProcessing = true
-                                                SafariUtils.rewardUser(
-                                                    scope = scope,
-                                                    coins = rewardWin,
-                                                    onSuccess = { showResultDialog = true },
-                                                    onError = { 
-                                                        onError(it)
-                                                        isProcessing = false
-                                                    }
-                                                )
-                                            }
-                                        }
-                                        selectedCells.clear()
-                                        dragStartCell = null
-                                        dragCurrentCell = null
-                                    },
-                                    onDragCancel = {
-                                        selectedCells.clear()
-                                        dragStartCell = null
-                                        dragCurrentCell = null
-                                    }
-                                )
-                            }
+                            .padding(4.dp)
                     ) {
-                        grid.forEachIndexed { r, row ->
-                            Row(modifier = Modifier.weight(1f)) {
-                                row.forEachIndexed { c, char ->
-                                    WordSearchCell(
-                                        char = char,
-                                        isHighlighted = selectedCells.contains(Pair(r, c)),
-                                        isInfernal = difficulty == WordSearchDifficulty.INFERNAL,
-                                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                                        onClick = {} // Ya no se usa clic individual
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .onGloballyPositioned { gridWidthPx = it.size.width.toFloat() }
+                                .pointerInput(gridSize, isProcessing) {
+                                    if (isProcessing) return@pointerInput
+                                    detectDragGestures(
+                                        onDragStart = { offset ->
+                                            val cell = getCellFromOffset(offset)
+                                            if (cell != null) {
+                                                dragStartCell = cell
+                                                dragCurrentCell = cell
+                                                selectedCells.clear()
+                                                selectedCells.add(cell)
+                                            }
+                                        },
+                                        onDrag = { change, _ ->
+                                            change.consume()
+                                            val cell = getCellFromOffset(change.position)
+                                            if (cell != null && cell != dragCurrentCell) {
+                                                dragCurrentCell = cell
+                                                dragStartCell?.let { start ->
+                                                    val newPath = calculateLinePath(start, cell)
+                                                    selectedCells.clear()
+                                                    selectedCells.addAll(newPath)
+                                                }
+                                            }
+                                        },
+                                        onDragEnd = {
+                                            if (selectedCells.isNotEmpty()) {
+                                                val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
+                                                val reversedWord = word.reversed()
+                                                
+                                                targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
+                                                    foundWords.add(found)
+                                                }
+                                                
+                                                if (foundWords.size == targetWords.size) {
+                                                    hasWon = true
+                                                    isProcessing = true
+                                                    SafariUtils.rewardUser(
+                                                        scope = scope,
+                                                        coins = rewardWin,
+                                                        onSuccess = { showResultDialog = true },
+                                                        onError = { 
+                                                            onError(it)
+                                                            isProcessing = false
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                            selectedCells.clear()
+                                            dragStartCell = null
+                                            dragCurrentCell = null
+                                        },
+                                        onDragCancel = {
+                                            selectedCells.clear()
+                                            dragStartCell = null
+                                            dragCurrentCell = null
+                                        }
                                     )
+                                }
+                        ) {
+                            grid.forEachIndexed { r, row ->
+                                Row(modifier = Modifier.weight(1f)) {
+                                    row.forEachIndexed { c, char ->
+                                        WordSearchCell(
+                                            char = char,
+                                            isHighlighted = selectedCells.contains(Pair(r, c)),
+                                            isInfernal = difficulty == WordSearchDifficulty.INFERNAL,
+                                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                                            onClick = {} // Ya no se usa clic individual
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -371,22 +375,13 @@ fun WordSearchGame(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Box(
-                    modifier = Modifier
-                        .clickable { selectedCells.clear() }
-                        .background(Color.White)
-                        .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "LIMPIAR SELECCIÓN", 
-                        fontSize = 12.sp, 
-                        color = Color.Black, 
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Black
-                    )
-                }
+                RetroButton(
+                    text = "LIMPIAR SELECCIÓN",
+                    onClick = { selectedCells.clear() },
+                    modifier = Modifier.fillMaxWidth(0.7f).height(44.dp),
+                    containerColor = Color.DarkGray,
+                    fontSize = 12.sp
+                )
             }
         }
     }
