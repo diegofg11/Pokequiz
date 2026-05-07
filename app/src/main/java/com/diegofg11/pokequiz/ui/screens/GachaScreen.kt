@@ -40,6 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.diegofg11.pokequiz.utils.PokemonUtils
+import com.diegofg11.pokequiz.models.PokeType
 
 private enum class GachaAnimState { IDLE, SHAKING, OPENING, REVEALED }
 
@@ -127,11 +129,10 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
                     coins = body.user.monedasGacha
-                    val baseUrl = com.diegofg11.pokequiz.api.Network.BASE_URL.dropLast(1)
                     val fixed = body.pulled.copy(
-                        spriteFront = if (body.pulled.spriteFront.startsWith("/")) baseUrl + body.pulled.spriteFront else body.pulled.spriteFront,
-                        spriteBack = if (body.pulled.spriteBack.startsWith("/")) baseUrl + body.pulled.spriteBack else body.pulled.spriteBack,
-                        spriteIcon = if (body.pulled.spriteIcon.startsWith("/")) baseUrl + body.pulled.spriteIcon else body.pulled.spriteIcon
+                        spriteFront = PokemonUtils.fixSpriteUrl(body.pulled.spriteFront),
+                        spriteBack = PokemonUtils.fixSpriteUrl(body.pulled.spriteBack),
+                        spriteIcon = PokemonUtils.fixSpriteUrl(body.pulled.spriteIcon)
                     )
                     revealedPokemon = fixed
                     isNewPull = body.isNew
@@ -313,7 +314,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                             revealedPokemon!!.tipos.forEach { tipo ->
                                 Surface(
                                     shape = androidx.compose.ui.graphics.RectangleShape,
-                                    color = getPokeTypeColor(tipo),
+                                    color = PokeType.getColorByString(tipo),
                                     border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
                                 ) {
                                     Text(
@@ -399,29 +400,6 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
     }
 }
 
-fun getPokeTypeColor(tipo: String): Color {
-    return when (tipo.lowercase()) {
-        "planta", "grass" -> Color(0xFF4CAF50)
-        "fuego", "fire" -> Color(0xFFFF5722)
-        "agua", "water" -> Color(0xFF2196F3)
-        "eléctrico", "electric" -> Color(0xFFFFC107)
-        "normal" -> Color(0xFF9E9E9E)
-        "hielo", "ice" -> Color(0xFF00BCD4)
-        "lucha", "fighting" -> Color(0xFFC62828)
-        "veneno", "poison" -> Color(0xFF7B1FA2)
-        "tierra", "ground" -> Color(0xFF8D6E63)
-        "volador", "flying" -> Color(0xFF90CAF9)
-        "psíquico", "psychic" -> Color(0xFFE91E63)
-        "bicho", "bug" -> Color(0xFF8BC34A)
-        "roca", "rock" -> Color(0xFF795548)
-        "fantasma", "ghost" -> Color(0xFF5C6BC0)
-        "dragón", "dragon" -> Color(0xFF7C4DFF)
-        "siniestro", "dark" -> Color(0xFF424242)
-        "acero", "steel" -> Color(0xFFB0BEC5)
-        "hada", "fairy" -> Color(0xFFF48FB1)
-        else -> Color(0xFF757575)
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

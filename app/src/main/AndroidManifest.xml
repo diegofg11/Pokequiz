@@ -23,12 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".PokemonPCActivity"
-            android:exported="true" />
-        <activity
-            android:name=".GachaActivity"
-            android:exported="true" />
     </application>
 
 </manifest>
