@@ -1,4 +1,6 @@
 package com.diegofg11.pokequiz.ui.screens
+ 
+import androidx.compose.animation.core.*
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -75,36 +77,47 @@ fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit, onC
                     .padding(bottom = 16.dp)
             )
             
-            Spacer(modifier = Modifier.height(56.dp))
-            
-            RetroMenuBox(
-                modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Color.Black.copy(alpha = 0.05f),
-                borderColor = Color(0xFF2D5A27)
+            val infiniteTransition = rememberInfiniteTransition(label = "buttons")
+            val offsetY by infiniteTransition.animateFloat(
+                initialValue = -4f,
+                targetValue = 4f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(2000, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "offset"
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .offset(y = offsetY.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (isLoggedIn) {
                     RetroButton(
                         text = "CONTINUAR",
                         onClick = onContinueClick,
-                        modifier = Modifier.fillMaxWidth(),
-                        containerColor = Color(0xFF4CAF50).copy(alpha = 0.8f)
+                        modifier = Modifier.fillMaxWidth().height(64.dp),
+                        containerColor = Color(0xFF4CAF50),
+                        fontSize = 20.sp
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
                 
                 RetroButton(
                     text = "INICIAR SESIÓN",
                     onClick = onLoginClick,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(64.dp),
+                    fontSize = 20.sp
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
 
                 RetroButton(
                     text = "NUEVO USUARIO",
                     onClick = onRegisterClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = Color(0xFFE53935).copy(alpha = 0.8f)
+                    modifier = Modifier.fillMaxWidth().height(64.dp),
+                    containerColor = Color(0xFFE53935),
+                    fontSize = 20.sp
                 )
             }
         }
@@ -353,12 +366,11 @@ fun StarterPokemon(id: Int, selectedId: Int, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(80.dp)
-            .clip(CircleShape)
             .background(if (isSelected) Color.White.copy(alpha = 0.3f) else Color.Transparent)
             .border(
                 width = if (isSelected) 4.dp else 2.dp,
                 color = if (isSelected) Color(0xFF1B3022) else Color(0xFF1B3022).copy(alpha = 0.3f),
-                shape = CircleShape
+                shape = androidx.compose.ui.graphics.RectangleShape
             )
             .clickable { onClick() },
         contentAlignment = Alignment.Center

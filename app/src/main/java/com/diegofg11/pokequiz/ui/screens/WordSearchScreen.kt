@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,10 @@ import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.WordSearchDifficulty
 import com.diegofg11.pokequiz.models.MinigamePokemon
 import com.diegofg11.pokequiz.api.Network
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -95,6 +100,41 @@ fun WordSearchGame(
     
     var pokemonList by remember { mutableStateOf<List<MinigamePokemon>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    
+    // Estados para el arrastre (drag)
+    var dragStartCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var dragCurrentCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var gridWidthPx by remember { mutableFloatStateOf(0f) }
+
+    fun getCellFromOffset(offset: Offset): Pair<Int, Int>? {
+        if (gridWidthPx <= 0) return null
+        val cellSize = gridWidthPx / gridSize
+        val col = (offset.x / cellSize).toInt().coerceIn(0, gridSize - 1)
+        val row = (offset.y / cellSize).toInt().coerceIn(0, gridSize - 1)
+        return Pair(row, col)
+    }
+
+    fun calculateLinePath(start: Pair<Int, Int>, end: Pair<Int, Int>): List<Pair<Int, Int>> {
+        var dr = end.first - start.first
+        var dc = end.second - start.second
+        
+        // Forzar línea recta (horizontal, vertical o diagonal 45º)
+        if (dr != 0 && dc != 0 && Math.abs(dr) != Math.abs(dc)) {
+            if (Math.abs(dr) > Math.abs(dc)) dc = 0 else dr = 0
+        }
+        
+        val steps = Math.max(Math.abs(dr), Math.abs(dc))
+        if (steps == 0) return listOf(start)
+        
+        val path = mutableListOf<Pair<Int, Int>>()
+        val stepR = if (dr == 0) 0 else dr / Math.abs(dr)
+        val stepC = if (dc == 0) 0 else dc / Math.abs(dc)
+        
+        for (i in 0..steps) {
+            path.add(Pair(start.first + stepR * i, start.second + stepC * i))
+        }
+        return path
+    }
 
     val rewardWin = when(difficulty) {
         WordSearchDifficulty.NORMAL -> 60
@@ -171,6 +211,181 @@ fun WordSearchGame(
         }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+        SafariRetroHeader(
+            title = "SOPA POKÉ",
+            onBackClick = onNavigateBack
+        )
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = GoldPoke)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Large Stats Bar outside header
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RetroStatCard(
+                        label = "PALABRAS",
+                        value = "${foundWords.size}/${targetWords.size}",
+                        containerColor = Color(0xFF1B76D2), // Blueish
+                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                    )
+                    
+                    RetroStatCard(
+                        label = "TIEMPO",
+                        value = "$timeLeft",
+                        containerColor = if (timeLeft < 10) Color(0xFFE53935) else Color(0xFF2D5A27),
+                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                    )
+                }
+
+                RetroMenuBox(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    backgroundColor = Color.White.copy(alpha = 0.1f),
+                    borderColor = Color.Black.copy(alpha = 0.3f)
+                ) {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        targetWords.forEach { word ->
+                            val isFound = foundWords.contains(word)
+                            Surface(
+                                shape = androidx.compose.ui.graphics.RectangleShape,
+                                color = if (isFound) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f),
+                                border = BorderStroke(1.dp, if (isFound) Color.White else Color.Black.copy(alpha = 0.3f)),
+                                modifier = Modifier.padding(2.dp)
+                            ) {
+                                Text(
+                                    text = word,
+                                    color = if (isFound) Color.White else Color.Black,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Black,
+                                    fontFamily = FontFamily.Monospace,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = if (isFound) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle.Default
+                                )
+                            }
+                        }
+                    }
+                }
+
+                RetroMenuBox(
+                    modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 16.dp),
+                    backgroundColor = Color.White,
+                    borderColor = Color.Black
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .onGloballyPositioned { gridWidthPx = it.size.width.toFloat() }
+                                .pointerInput(gridSize, isProcessing) {
+                                    if (isProcessing) return@pointerInput
+                                    detectDragGestures(
+                                        onDragStart = { offset ->
+                                            val cell = getCellFromOffset(offset)
+                                            if (cell != null) {
+                                                dragStartCell = cell
+                                                dragCurrentCell = cell
+                                                selectedCells.clear()
+                                                selectedCells.add(cell)
+                                            }
+                                        },
+                                        onDrag = { change, _ ->
+                                            change.consume()
+                                            val cell = getCellFromOffset(change.position)
+                                            if (cell != null && cell != dragCurrentCell) {
+                                                dragCurrentCell = cell
+                                                dragStartCell?.let { start ->
+                                                    val newPath = calculateLinePath(start, cell)
+                                                    selectedCells.clear()
+                                                    selectedCells.addAll(newPath)
+                                                }
+                                            }
+                                        },
+                                        onDragEnd = {
+                                            if (selectedCells.isNotEmpty()) {
+                                                val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
+                                                val reversedWord = word.reversed()
+                                                
+                                                targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
+                                                    foundWords.add(found)
+                                                }
+                                                
+                                                if (foundWords.size == targetWords.size) {
+                                                    hasWon = true
+                                                    isProcessing = true
+                                                    SafariUtils.rewardUser(
+                                                        scope = scope,
+                                                        coins = rewardWin,
+                                                        onSuccess = { showResultDialog = true },
+                                                        onError = { 
+                                                            onError(it)
+                                                            isProcessing = false
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                            selectedCells.clear()
+                                            dragStartCell = null
+                                            dragCurrentCell = null
+                                        },
+                                        onDragCancel = {
+                                            selectedCells.clear()
+                                            dragStartCell = null
+                                            dragCurrentCell = null
+                                        }
+                                    )
+                                }
+                        ) {
+                            grid.forEachIndexed { r, row ->
+                                Row(modifier = Modifier.weight(1f)) {
+                                    row.forEachIndexed { c, char ->
+                                        WordSearchCell(
+                                            char = char,
+                                            isHighlighted = selectedCells.contains(Pair(r, c)),
+                                            isInfernal = difficulty == WordSearchDifficulty.INFERNAL,
+                                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                                            onClick = {} // Ya no se usa clic individual
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                RetroButton(
+                    text = "LIMPIAR SELECCIÓN",
+                    onClick = { selectedCells.clear() },
+                    modifier = Modifier.fillMaxWidth(0.7f).height(44.dp),
+                    containerColor = Color.DarkGray,
+                    fontSize = 12.sp
+                )
+            }
+        }
+    }
+
     if (showResultDialog) {
         SafariResultScreen(
             title = if (hasWon) "¡VICTORIA!" else "TIEMPO AGOTADO",
@@ -184,135 +399,6 @@ fun WordSearchGame(
             },
             onExit = onNavigateBack
         )
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            SafariRetroHeader(
-                title = "SOPA POKÉ",
-                onBackClick = onNavigateBack,
-                extraContent = {
-                    Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("PALABRAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                Text("${foundWords.size}/${targetWords.size}", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                            }
-                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("TIEMPO", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                Text("$timeLeft", color = if (timeLeft < 10) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                            }
-                        }
-                    }
-                }
-            )
-
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = GoldPoke)
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                RetroMenuBox(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    backgroundColor = Color.White.copy(alpha = 0.1f),
-                    borderColor = Color.Black.copy(alpha = 0.3f)
-                ) {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        targetWords.forEach { word ->
-                            val isFound = foundWords.contains(word)
-                            Text(
-                                text = word,
-                                color = if (isFound) Color(0xFF2D5A27) else Color.Black,
-                                fontSize = 10.sp,
-                                fontWeight = if (isFound) FontWeight.ExtraBold else FontWeight.Normal,
-                                fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.padding(4.dp),
-                                style = if (isFound) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle.Default
-                            )
-                        }
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .background(Color.White)
-                        .border(3.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
-                        .padding(8.dp)
-                ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        grid.forEachIndexed { r, row ->
-                            Row(modifier = Modifier.weight(1f)) {
-                                row.forEachIndexed { c, char ->
-                                    WordSearchCell(
-                                        char = char,
-                                        isHighlighted = selectedCells.contains(Pair(r, c)),
-                                        isInfernal = difficulty == WordSearchDifficulty.INFERNAL,
-                                        modifier = Modifier.weight(1f).fillMaxHeight()
-                                    ) {
-                                        if (!isProcessing) {
-                                            val cell = Pair(r, c)
-                                            if (selectedCells.contains(cell)) {
-                                                selectedCells.remove(cell)
-                                            } else {
-                                                selectedCells.add(cell)
-                                                val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
-                                                val reversedWord = word.reversed()
-                                                
-                                                targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
-                                                    foundWords.add(found)
-                                                    selectedCells.clear()
-                                                    if (foundWords.size == targetWords.size) {
-                                                        hasWon = true
-                                                        isProcessing = true
-                                                        SafariUtils.rewardUser(
-                                                            scope = scope,
-                                                            coins = rewardWin,
-                                                            onSuccess = { showResultDialog = true },
-                                                            onError = { 
-                                                                onError(it)
-                                                                isProcessing = false
-                                                            }
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Box(
-                    modifier = Modifier
-                        .clickable { selectedCells.clear() }
-                        .background(Color.White)
-                        .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "LIMPIAR SELECCIÓN", 
-                        fontSize = 12.sp, 
-                        color = Color.Black, 
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-            }
-        }
     }
 }
 }

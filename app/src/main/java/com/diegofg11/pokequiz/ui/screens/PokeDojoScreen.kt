@@ -71,93 +71,113 @@ fun PokeDojoScreen(
                         } else {
                             gameState = SafariGameState.START
                         }
-                    },
-                    extraContent = {
-                        if (gameState == SafariGameState.PLAYING) {
-                            Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        Text("PTS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                        Text("$score", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                                    }
-                                    Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        Text("SEG", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                        Text("$timeLeft", color = if (timeLeft < 5) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                                    }
-                                }
-                            }
-                        }
                     }
                 )
             }
 
-            Box(modifier = Modifier.weight(1f)) {
-                when (gameState) {
-                    SafariGameState.START -> SafariSelectionScreen(
-                        title = "POKÉ-DOJO",
-                        subtitle = "¡Golpea a los Pokémon que asomen!",
-                        cards = listOf(
-                            DifficultyCardData("NORMAL", "30s | Estándar", "-20", "350", Color(0xFF795548), {
-                                difficulty = DojoDifficulty.NORMAL
-                                SafariUtils.rewardUser(
-                                    scope = scope,
-                                    coins = -20,
-                                    onSuccess = {
-                                        score = 0
-                                        timeLeft = 30
-                                        gameState = SafariGameState.PLAYING
-                                    },
-                                    onError = { globalError = it }
-                                )
-                            }),
-                            DifficultyCardData("INFERNAL", "20s | ¡Caos!", "-50", "750", Color(0xFFE53935), {
-                                difficulty = DojoDifficulty.INFERNAL
-                                SafariUtils.rewardUser(
-                                    scope = scope,
-                                    coins = -50,
-                                    onSuccess = {
-                                        score = 0
-                                        timeLeft = 20
-                                        gameState = SafariGameState.PLAYING
-                                    },
-                                    onError = { globalError = it }
-                                )
-                            })
-                        )
-                    )
-                    SafariGameState.PLAYING -> PokeDojoGame(
-                        difficulty = difficulty,
-                        timeLeft = timeLeft,
-                        onTimeUpdate = { timeLeft = it },
-                        onGameEnd = { finalScore ->
-                            score = finalScore
-                            gameState = SafariGameState.RESULT
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(top = if (gameState == SafariGameState.START) 0.dp else 80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (gameState == SafariGameState.PLAYING) {
+                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        // Large Stats Bar outside header
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RetroStatCard(
+                                label = "PUNTOS",
+                                value = "$score",
+                                containerColor = Color(0xFFFB8C00), // Orange
+                                modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                            )
                             
-                            val reward = if (difficulty == DojoDifficulty.INFERNAL) {
-                                when {
-                                    finalScore >= 1000 -> 750
-                                    finalScore >= 600 -> 350
-                                    finalScore >= 200 -> 120
-                                    else -> 0
-                                }
-                            } else {
-                                when {
-                                    finalScore >= 500 -> 350
-                                    finalScore >= 300 -> 180
-                                    finalScore >= 100 -> 60
-                                    else -> 0
-                                }
-                            }
-                            SafariUtils.rewardUser(scope = scope, coins = reward)
+                            RetroStatCard(
+                                label = "TIEMPO",
+                                value = "$timeLeft",
+                                containerColor = if (timeLeft < 5) Color(0xFFE53935) else Color(0xFF2D5A27),
+                                modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                            )
                         }
-                    )
-                    SafariGameState.RESULT -> PokeDojoResult(
-                        score = score,
-                        difficulty = difficulty,
-                        onRetry = { gameState = SafariGameState.START },
-                        onExit = onNavigateBack
-                    )
+                        
+                        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            PokeDojoGame(
+                                difficulty = difficulty,
+                                timeLeft = timeLeft,
+                                score = score,
+                                onScoreUpdate = { score = it },
+                                onTimeUpdate = { timeLeft = it },
+                                onGameEnd = { finalScore ->
+                                    score = finalScore
+                                    gameState = SafariGameState.RESULT
+                                    
+                                    val reward = if (difficulty == DojoDifficulty.INFERNAL) {
+                                        when {
+                                            finalScore >= 1000 -> 750
+                                            finalScore >= 600 -> 350
+                                            finalScore >= 200 -> 120
+                                            else -> 0
+                                        }
+                                    } else {
+                                        when {
+                                            finalScore >= 500 -> 350
+                                            finalScore >= 300 -> 180
+                                            finalScore >= 100 -> 60
+                                            else -> 0
+                                        }
+                                    }
+                                    SafariUtils.rewardUser(scope = scope, coins = reward)
+                                }
+                            )
+                        }
+                    }
+                } else {
+                    when (gameState) {
+                        SafariGameState.START -> SafariSelectionScreen(
+                            title = "POKÉ-DOJO",
+                            subtitle = "¡Golpea a los Pokémon que asomen!",
+                            cards = listOf(
+                                DifficultyCardData("NORMAL", "30s | Estándar", "-20", "350", Color(0xFF795548), {
+                                    difficulty = DojoDifficulty.NORMAL
+                                    SafariUtils.rewardUser(
+                                        scope = scope,
+                                        coins = -20,
+                                        onSuccess = {
+                                            score = 0
+                                            timeLeft = 30
+                                            gameState = SafariGameState.PLAYING
+                                        },
+                                        onError = { globalError = it }
+                                    )
+                                }),
+                                DifficultyCardData("INFERNAL", "20s | ¡Caos!", "-50", "750", Color(0xFFE53935), {
+                                    difficulty = DojoDifficulty.INFERNAL
+                                    SafariUtils.rewardUser(
+                                        scope = scope,
+                                        coins = -50,
+                                        onSuccess = {
+                                            score = 0
+                                            timeLeft = 20
+                                            gameState = SafariGameState.PLAYING
+                                        },
+                                        onError = { globalError = it }
+                                    )
+                                })
+                            )
+                        )
+                        SafariGameState.RESULT -> PokeDojoResult(
+                            score = score,
+                            difficulty = difficulty,
+                            onRetry = { gameState = SafariGameState.START },
+                            onExit = onNavigateBack
+                        )
+                        else -> {}
+                    }
                 }
             }
         }
@@ -168,11 +188,11 @@ fun PokeDojoScreen(
 fun PokeDojoGame(
     difficulty: DojoDifficulty, 
     timeLeft: Int, 
+    score: Int,
+    onScoreUpdate: (Int) -> Unit,
     onTimeUpdate: (Int) -> Unit, 
     onGameEnd: (Int) -> Unit
 ) {
-    var score by remember { mutableIntStateOf(0) }
-    
     val holes = remember { mutableStateListOf<HoleState>().apply { 
         repeat(9) { add(HoleState(it)) }
     } }
@@ -238,11 +258,12 @@ fun PokeDojoGame(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box(
+        RetroMenuBox(
             modifier = Modifier
                 .aspectRatio(1f)
-                .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(24.dp))
-                .padding(16.dp)
+                .fillMaxWidth(),
+            backgroundColor = Color(0xFF4E342E), // Marrón tierra más oscuro
+            borderColor = Color(0xFF3E2723)
         ) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -256,7 +277,7 @@ fun PokeDojoGame(
                         state = holes[index],
                         onClick = {
                             if (holes[index].type != MoleType.EMPTY && !holes[index].isHit) {
-                                score += holes[index].type.score
+                                onScoreUpdate(score + holes[index].type.score)
                                 holes[index] = holes[index].copy(isHit = true)
                                 scope.launch {
                                     delay(200)
@@ -278,9 +299,11 @@ fun DojoHole(state: HoleState, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
+            .border(2.dp, Color.Black, CircleShape)
+            .padding(1.dp)
+            .border(2.dp, Color.Black.copy(alpha = 0.3f), CircleShape)
             .clip(CircleShape)
             .background(Color(0xFF3E2723))
-            .border(4.dp, Color(0xFF5D4037), CircleShape)
             .clickable { onClick() },
         contentAlignment = Alignment.BottomCenter
     ) {

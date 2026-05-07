@@ -287,8 +287,8 @@ fun UserScreen(onLogout: () -> Unit) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(100.dp)
-                                        .border(2.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                                        .clip(RoundedCornerShape(4.dp))
+                                        .border(2.dp, Color.Black.copy(alpha = 0.1f), androidx.compose.ui.graphics.RectangleShape)
+                                        .clip(androidx.compose.ui.graphics.RectangleShape)
                                         .clickable {
                                             WallpaperManager.setSelectedWallpaper(context, index)
                                             showWallpaperDialog = false
