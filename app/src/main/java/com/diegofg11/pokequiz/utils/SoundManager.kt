@@ -32,6 +32,10 @@ object SoundManager {
             mediaPlayer = MediaPlayer.create(appContext, resId)?.apply {
                 setVolume(volume, volume)
                 isLooping = true
+                setOnCompletionListener { 
+                    it.isLooping = true
+                    it.start() 
+                }
                 start()
             }
             currentResId = resId

@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.utils.WallpaperManager
+import com.diegofg11.pokequiz.utils.PokemonUtils
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Search
@@ -78,25 +79,30 @@ fun PCScreen() {
     var showShiniesOnly by remember { mutableStateOf(false) }
     var showSortDialog by remember { mutableStateOf(false) }
 
-    // Persistencia de favoritos (SharedPreferences)
-    val prefs = remember { context.getSharedPreferences("pokemon_prefs", android.content.Context.MODE_PRIVATE) }
-    
     fun toggleFavorite(pokemon: Pokemon) {
         val inventoryId = pokemon.inventoryId ?: return
-        val currentFavorites = prefs.getStringSet("favorites", emptySet())?.toMutableSet() ?: mutableSetOf()
+        val newFavoriteState = !pokemon.isFavorite
         
-        if (currentFavorites.contains(inventoryId.toString())) {
-            currentFavorites.remove(inventoryId.toString())
-            pokemon.isFavorite = false
-        } else {
-            currentFavorites.add(inventoryId.toString())
-            pokemon.isFavorite = true
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    Network.api.toggleFavorite(com.diegofg11.pokequiz.models.ToggleFavoriteRequest(inventoryId, newFavoriteState))
+                }
+                if (response.isSuccessful) {
+                    pokemon.isFavorite = newFavoriteState
+                    val idx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
+                    if (idx != -1) pokemonList[idx] = pokemon.copy()
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Error al guardar favorito", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
-        
-        prefs.edit().putStringSet("favorites", currentFavorites).apply()
-        // Forzar recomposición actualizando la lista (truco simple)
-        val idx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
-        if (idx != -1) pokemonList[idx] = pokemon.copy()
     }
 
     // Lista filtrada y ordenada (Usamos derivedStateOf para reaccionar a cambios en pokemonList)
@@ -127,14 +133,11 @@ fun PCScreen() {
             if (userResp.isSuccessful) user = userResp.body()
 
             if (pcResp.isSuccessful && pcResp.body() != null) {
-                val baseUrl = com.diegofg11.pokequiz.api.Network.BASE_URL.dropLast(1)
-                val favorites = prefs.getStringSet("favorites", emptySet()) ?: emptySet()
                 val mapped = pcResp.body()!!.map {
                     it.copy(
-                        spriteFront = if (it.spriteFront.startsWith("/")) baseUrl + it.spriteFront else it.spriteFront,
-                        spriteBack = if (it.spriteBack.startsWith("/")) baseUrl + it.spriteBack else it.spriteBack,
-                        spriteIcon = if (it.spriteIcon.startsWith("/")) baseUrl + it.spriteIcon else it.spriteIcon,
-                        isFavorite = favorites.contains(it.inventoryId.toString())
+                        spriteFront = PokemonUtils.fixSpriteUrl(it.spriteFront),
+                        spriteBack = PokemonUtils.fixSpriteUrl(it.spriteBack),
+                        spriteIcon = PokemonUtils.fixSpriteUrl(it.spriteIcon)
                     )
                 }
                 pokemonList.clear()
@@ -685,7 +688,7 @@ fun PokedexDialog(
                             pokemon.tipos.forEach { tipo ->
                                 Surface(
                                     shape = androidx.compose.ui.graphics.RectangleShape,
-                                    color = getPokeTypeColor(tipo),
+                                    color = PokeType.getColorByString(tipo),
                                     border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
                                 ) {
                                     Text(

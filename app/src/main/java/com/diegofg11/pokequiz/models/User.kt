@@ -5,5 +5,8 @@ data class User(
     val nombre: String,
     val nivelProgreso: Int,
     val monedasGacha: Int,
+    val starterId: Int? = null,
+    val avatarUrl: String? = "",
+    val wallpaperId: String? = "default",
     val token: String? = null
 )
