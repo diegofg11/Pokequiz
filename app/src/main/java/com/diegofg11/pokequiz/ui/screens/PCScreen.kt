@@ -123,64 +123,6 @@ fun PCScreen() {
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Cabecera de Entrenador
-                val displayUser = user
-                if (displayUser != null) {
-                    RetroMenuBox(
-                        backgroundColor = Color.Black.copy(alpha = 0.05f),
-                        borderColor = GoldPoke
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .border(2.dp, Color.Black, CircleShape)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF6C63FF)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = displayUser.nombre.split(" ").take(2).joinToString("") { it.first().uppercase() },
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Column {
-                                RetroText(
-                                    text = displayUser.nombre.uppercase(),
-                                    fontSize = 18.sp,
-                                    color = Color.White
-                                )
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.padding(top = 4.dp)
-                                ) {
-                                    Text(
-                                        text = "NIV: ${displayUser.nivelProgreso}",
-                                        fontSize = 12.sp,
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                                    )
-                                    Text(
-                                        text = "🪙 ${displayUser.monedasGacha}",
-                                        fontSize = 12.sp,
-                                        color = GoldPoke,
-                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Equipo actual
