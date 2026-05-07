@@ -32,25 +32,14 @@ import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SoundManager
 import androidx.compose.ui.platform.LocalContext
 import com.diegofg11.pokequiz.utils.SafariUtils
-import com.diegofg11.pokequiz.models.GuessDifficulty
-import com.diegofg11.pokequiz.models.MinigamePokemon
+import com.diegofg11.pokequiz.models.*
 import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
-// Grupos de confusión para respuestas falsas realistas
-private val CONFUSION_GROUPS = listOf(
-    listOf(100, 101, 92, 93, 94, 109, 110, 81, 82, 102, 103, 39, 40), // Esféricos
-    listOf(23, 24, 147, 148, 95, 130, 10, 13), // Serpientes/Gusanos
-    listOf(16, 17, 18, 21, 22, 83, 84, 85, 144, 145, 146, 41, 42), // Pájaros/Voladores
-    listOf(11, 12, 14, 15, 46, 47, 48, 49, 123, 127), // Bichos/Arácnidos
-    listOf(129, 118, 119, 116, 117, 72, 73, 90, 91, 138, 139, 140, 141, 98, 99), // Acuáticos/Cangrejos/Fósiles
-    listOf(37, 38, 58, 59, 52, 53, 133, 134, 135, 136, 77, 78, 128, 111, 112, 1, 2, 3), // Cuadrúpedos Pesados/Perros/Gatos
-    listOf(25, 26, 35, 36, 54, 56, 88, 89, 132, 60, 61, 62, 79, 80), // Bípedos pequeños/Amorfos
-    listOf(66, 67, 68, 106, 107, 122, 124, 125, 126, 150, 63, 64, 65), // Humanoides/Luchadores
-    listOf(4, 5, 6, 7, 8, 9, 31, 34, 115, 149, 151) // Bípedos con cola/Saurios
-)
 
 @Composable
 fun GuessPokemonScreen(
@@ -114,7 +103,6 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
     var selectedId by remember { mutableStateOf<Int?>(null) }
     var sessionCoins by remember { mutableIntStateOf(0) }
     var isProcessing by remember { mutableStateOf(false) }
-    var pokemonList by remember { mutableStateOf<List<MinigamePokemon>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     
     val maxTime = if (difficulty == GuessDifficulty.INFERNAL) 4 else 5
@@ -172,48 +160,27 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
             }
         }
         
-        val correctPokemon = pokemonList.random()
-        val correctId = correctPokemon.id
-        currentTargetId = correctId
-        
-        val optionsSet = mutableSetOf<MinigamePokemon>()
-        optionsSet.add(correctPokemon)
-        
-        if (difficulty != GuessDifficulty.EASY) {
-            val group = CONFUSION_GROUPS.find { it.contains(correctId) }
-            if (group != null) {
-                val available = group.filter { it != correctId }
-                for (id in available.shuffled()) {
-                    pokemonList.find { it.id == id }?.let { optionsSet.add(it) }
-                    if (optionsSet.size >= 4) break
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    Network.api.getGuessRound(difficulty.name)
                 }
+                val resp: com.diegofg11.pokequiz.models.GuessRoundResponse? = response.body()
+                if (response.isSuccessful && resp != null) {
+                    currentTargetId = resp.targetId
+                    currentOptions = resp.options.map { it.id to it.name }
+                } else {
+                    onError("No se pudo cargar la siguiente ronda.")
+                }
+            } catch (e: Exception) {
+                onError("Error de conexión.")
             }
-        }
-        
-        while (optionsSet.size < 4) {
-            optionsSet.add(pokemonList.random())
-        }
-        
-        currentOptions = optionsSet.toList().shuffled().map { p ->
-            Pair(p.id, p.nombre)
         }
     }
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            try {
-                val response = Network.api.getMinigamePokemon(limit = 151)
-                if (response.isSuccessful && response.body() != null) {
-                    pokemonList = response.body()!!
-                    isLoading = false
-                    generateNewRound()
-                } else {
-                    onError("No se pudo cargar la lista de Pokémon.")
-                }
-            } catch (e: Exception) {
-                onError("Error de conexión: ${e.localizedMessage}")
-            }
-        }
+        isLoading = false
+        generateNewRound()
     }
     
     LaunchedEffect(currentTargetId, isRevealed) {

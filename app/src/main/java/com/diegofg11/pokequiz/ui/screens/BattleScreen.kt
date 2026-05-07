@@ -46,6 +46,7 @@ import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.models.Pokemon
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SoundManager
+import com.diegofg11.pokequiz.utils.PokemonUtils
 
 @Composable
 fun BattleScreen(
@@ -85,7 +86,7 @@ fun BattleScreen(
                     levelData = response.body()
                     if (levelData != null && levelData!!.enemy != null) {
                         val fixedEnemy = levelData!!.enemy!!.copy(
-                            spriteFront = if (levelData!!.enemy!!.spriteFront.startsWith("/")) baseUrl + levelData!!.enemy!!.spriteFront else levelData!!.enemy!!.spriteFront
+                            spriteFront = PokemonUtils.fixSpriteUrl(levelData!!.enemy!!.spriteFront)
                         )
                         levelData = levelData!!.copy(enemy = fixedEnemy)
                         val eLevel = fixedEnemy.level ?: 1
@@ -100,8 +101,8 @@ fun BattleScreen(
 
                     currentParty = party.map { p ->
                         p.copy(
-                            spriteBack = if (p.spriteBack.startsWith("/")) baseUrl + p.spriteBack else p.spriteBack,
-                            spriteFront = if (p.spriteFront.startsWith("/")) baseUrl + p.spriteFront else p.spriteFront
+                            spriteBack = PokemonUtils.fixSpriteUrl(p.spriteBack),
+                            spriteFront = PokemonUtils.fixSpriteUrl(p.spriteFront)
                         )
                     }
                     currentPlayerIndex = 0
@@ -154,85 +155,90 @@ fun BattleScreen(
     val pLevel = "Nv$pLevelVal"
 
     val checkAnswer: (Int) -> Unit = { index ->
+        val isCorrect = index == currentQuestion.correctAnswerIndex
         val enemyLevel = levelData!!.enemy?.level ?: 1
-        val maxEnemyHp = (levelData!!.enemy?.hpBase ?: 100) + (enemyLevel * 5)
-        val baseDamage = kotlin.math.ceil(maxEnemyHp.toDouble() / 10.0).toInt()
-        val levelBonus = (pLevelVal - enemyLevel) * 2
-        val damagePerHit = (baseDamage + levelBonus).coerceAtLeast(baseDamage / 2)
-        
-        var gameOverThisTurn = false
+        val enemyHpBase = levelData!!.enemy?.hpBase ?: 100
 
-        if (index == currentQuestion.correctAnswerIndex) {
-            // Efecto de daño al enemigo
-            scope.launch {
-                isEnemyTakingDamage = true
-                kotlinx.coroutines.delay(500)
-                isEnemyTakingDamage = false
-            }
-            opponentHp = (opponentHp - damagePerHit).coerceAtLeast(0)
-            if (opponentHp <= 0) {
-                gameOverMessage = "¡HAS GANADO!"
-                isVictory = true
-                showGameOver = true
-                gameOverThisTurn = true
-            }
-        } else {
-            // Efecto de daño al jugador
-            scope.launch {
-                isPlayerTakingDamage = true
-                kotlinx.coroutines.delay(500)
-                isPlayerTakingDamage = false
-            }
-            // Recibir daño escalado: Base 25 + (Nivel Enemigo * 2) - (Nivel Jugador * 2)
-            val damageTaken = (25 + (enemyLevel * 2) - (pLevelVal * 2)).coerceIn(10, 60)
-            userHp = (userHp - damageTaken).coerceAtLeast(0)
-            if (userHp <= 0) {
-                if (currentPlayerIndex < currentParty.size - 1) {
-                    // Siguiente Pokémon
-                    currentPlayerIndex++
-                    val nextPkmn = currentParty[currentPlayerIndex]
-                    userHp = nextPkmn.hpBase + (nextPkmn.level * 5)
-                } else {
-                    gameOverMessage = "HAS PERDIDO..."
-                    isVictory = false
-                    showGameOver = true
-                    gameOverThisTurn = true
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    Network.api.calculateBattleDamage(
+                        com.diegofg11.pokequiz.models.BattleDamageRequest(
+                            playerLevel = pLevelVal,
+                            enemyLevel = enemyLevel,
+                            isCorrect = isCorrect,
+                            enemyHpBase = enemyHpBase
+                        )
+                    )
                 }
-            }
-        }
-        
-        if (!gameOverThisTurn) {
-            val questions = levelData!!.questions
-            if (currentQuestionIndex < questions.size - 1) {
-                currentQuestionIndex++
-                
-                // Si quedan pocas preguntas (ej: 3), pedir más al servidor en segundo plano
-                if (questions.size - currentQuestionIndex <= 5) {
-                    scope.launch {
-                        try {
-                            val nextId = questions.maxOfOrNull { it.id } ?: 100
-                            val response = withContext(Dispatchers.IO) { 
-                                Network.api.getMoreQuestions(level = levelId, count = 10, startId = nextId + 1) 
+
+                if (response.isSuccessful && response.body() != null) {
+                    val damage = response.body()!!
+                    var gameOverThisTurn = false
+
+                    if (isCorrect) {
+                        // Efecto de daño al enemigo
+                        isEnemyTakingDamage = true
+                        kotlinx.coroutines.delay(500)
+                        isEnemyTakingDamage = false
+                        opponentHp = (opponentHp - damage.damageDealt).coerceAtLeast(0)
+                        
+                        if (opponentHp <= 0) {
+                            gameOverMessage = "¡HAS GANADO!"
+                            isVictory = true
+                            showGameOver = true
+                            gameOverThisTurn = true
+                        }
+                    } else {
+                        // Efecto de daño al jugador
+                        isPlayerTakingDamage = true
+                        kotlinx.coroutines.delay(500)
+                        isPlayerTakingDamage = false
+                        userHp = (userHp - damage.damageReceived).coerceAtLeast(0)
+                        
+                        if (userHp <= 0) {
+                            if (currentPlayerIndex < currentParty.size - 1) {
+                                // Siguiente Pokémon
+                                currentPlayerIndex++
+                                val nextPkmn = currentParty[currentPlayerIndex]
+                                userHp = nextPkmn.hpBase + (nextPkmn.level * 5)
+                            } else {
+                                gameOverMessage = "HAS PERDIDO..."
+                                isVictory = false
+                                showGameOver = true
+                                gameOverThisTurn = true
                             }
-                            if (response.isSuccessful && response.body() != null) {
-                                val newQuestions = response.body()!!
-                                // Añadir solo si no están ya (por si acaso)
-                                val currentIds = questions.map { it.id }.toSet()
-                                val filteredNew = newQuestions.filter { it.id !in currentIds }
-                                if (filteredNew.isNotEmpty()) {
-                                    levelData = levelData!!.copy(questions = questions + filteredNew)
+                        }
+                    }
+
+                    if (!gameOverThisTurn) {
+                        val questions = levelData!!.questions
+                        if (currentQuestionIndex < questions.size - 1) {
+                            currentQuestionIndex++
+                            
+                            // Si quedan pocas preguntas, pedir más
+                            if (questions.size - currentQuestionIndex <= 5) {
+                                val nextId = questions.maxOfOrNull { it.id } ?: 100
+                                val moreResp = withContext(Dispatchers.IO) { 
+                                    Network.api.getMoreQuestions(level = levelId, count = 10, startId = nextId + 1) 
+                                }
+                                if (moreResp.isSuccessful && moreResp.body() != null) {
+                                    val newQuestions = moreResp.body()!!
+                                    val currentIds = questions.map { it.id }.toSet()
+                                    val filteredNew = newQuestions.filter { it.id !in currentIds }
+                                    if (filteredNew.isNotEmpty()) {
+                                        levelData = levelData!!.copy(questions = questions + filteredNew)
+                                    }
                                 }
                             }
-                        } catch (e: Exception) {
-                            // Si falla la red, no pasa nada, el fallback de abajo se encargará si llegamos al final
+                        } else {
+                            currentQuestionIndex = 0
+                            levelData = levelData!!.copy(questions = levelData!!.questions.shuffled())
                         }
                     }
                 }
-            } else {
-                // FALLBACK: Si por alguna razón llegamos al final sin haber cargado más (ej: sin internet)
-                // barajamos las que tenemos para que el juego no se rompa
-                currentQuestionIndex = 0
-                levelData = levelData!!.copy(questions = levelData!!.questions.shuffled())
+            } catch (e: Exception) {
+                // Error de red
             }
         }
     }

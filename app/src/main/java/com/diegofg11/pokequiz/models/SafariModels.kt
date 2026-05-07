@@ -58,8 +58,17 @@ enum class PokeType(val color: Color, val nombreEs: String) {
     STEEL(Color(0xFFB7B7CE), "ACERO"),
     DARK(Color(0xFF705746), "SINIESTRO"),
     NORMAL(Color(0xFFA8A77A), "NORMAL"),
-    ROCK_POKE(Color(0xFFB6A136), "ROCA"),
-    FAIRY(Color(0xFFD685AD), "HADA")
+    ROCK(Color(0xFFB6A136), "ROCA"),
+    FAIRY(Color(0xFFD685AD), "HADA");
+
+    companion object {
+        fun getColorByString(typeName: String): Color {
+            return entries.find { 
+                it.name.equals(typeName, ignoreCase = true) || 
+                it.nombreEs.equals(typeName, ignoreCase = true) 
+            }?.color ?: Color.Gray
+        }
+    }
 }
 
 data class QuickBattleOpponent(

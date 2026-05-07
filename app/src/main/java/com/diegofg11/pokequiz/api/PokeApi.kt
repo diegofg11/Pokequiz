@@ -9,13 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.http.Path
-import com.diegofg11.pokequiz.models.LevelResponse
-import com.diegofg11.pokequiz.models.User
-import com.diegofg11.pokequiz.models.RewardRequest
-import com.diegofg11.pokequiz.models.TogglePartyRequest
-import com.diegofg11.pokequiz.models.LoginRequest
-import com.diegofg11.pokequiz.models.QuickBattleOpponent
-import com.diegofg11.pokequiz.models.MinigamePokemon
+import com.diegofg11.pokequiz.models.*
 
 interface PokeApi {
     @POST("api/gacha/roll")
@@ -27,6 +21,9 @@ interface PokeApi {
     @GET("api/levels/{id}")
     suspend fun getLevelData(@Path("id") id: String): Response<LevelResponse>
 
+    @POST("api/battle/damage")
+    suspend fun calculateBattleDamage(@Body request: BattleDamageRequest): Response<BattleDamageResponse>
+
     @GET("api/user/{id}")
     suspend fun getUser(@Path("id") id: Int): Response<User>
 
@@ -34,13 +31,16 @@ interface PokeApi {
     suspend fun rewardUser(@Body request: RewardRequest): Response<User>
 
     @POST("api/user/safari/reward")
-    suspend fun safariReward(@Body request: com.diegofg11.pokequiz.models.SafariRewardRequest): Response<User>
+    suspend fun safariReward(@Body request: SafariRewardRequest): Response<User>
 
     @GET("api/minigames/quickbattle")
     suspend fun getQuickBattleOpponent(): Response<QuickBattleOpponent>
 
     @GET("api/minigames/pokemon")
     suspend fun getMinigamePokemon(@Query("limit") limit: Int = 151): Response<List<MinigamePokemon>>
+
+    @GET("api/minigames/guess/round")
+    suspend fun getGuessRound(@Query("difficulty") difficulty: String): Response<GuessRoundResponse>
 
     @POST("api/user/party/toggle")
     suspend fun toggleParty(@Body request: TogglePartyRequest): Response<Any>
@@ -59,5 +59,11 @@ interface PokeApi {
         @Query("level") level: Int,
         @Query("count") count: Int = 10,
         @Query("startId") startId: Int = 100
-    ): Response<List<com.diegofg11.pokequiz.models.Question>>
+    ): Response<List<Question>>
+
+    @POST("api/user/update")
+    suspend fun updateUser(@Body request: UpdateUserRequest): Response<User>
+
+    @POST("api/user/pc/favorite")
+    suspend fun toggleFavorite(@Body request: ToggleFavoriteRequest): Response<Any>
 }
