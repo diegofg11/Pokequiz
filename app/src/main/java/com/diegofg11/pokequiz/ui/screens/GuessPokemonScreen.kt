@@ -235,24 +235,6 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
         }
     }
 
-    if (showRewardDialog) {
-        SafariResultScreen(
-            title = if (sessionCoins >= 0) "¡VICTORIA!" else "DERROTA",
-            subtitle = "MODO ${difficulty.name}",
-            description = if (sessionCoins >= 0) 
-                "¡Increíble! Tienes un ojo experto para las siluetas Pokémon." 
-                else "La silueta te ha confundido esta vez. ¡Sigue practicando!",
-            isVictory = sessionCoins >= 0,
-            coinsEarned = sessionCoins,
-            onRetry = {
-                sessionCoins = 0
-                generateNewRound()
-                showRewardDialog = false
-            },
-            onExit = onNavigateBack
-        )
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         SafariRetroHeader(
             title = "ZONA SAFARI",
@@ -273,7 +255,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                 }
             },
             extraContent = {
-                Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (difficulty != GuessDifficulty.EASY) {
                             Column(horizontalAlignment = Alignment.End) {
@@ -376,6 +358,24 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                 }
             }
         }
+    }
+
+    if (showRewardDialog) {
+        SafariResultScreen(
+            title = if (sessionCoins >= 0) "¡VICTORIA!" else "DERROTA",
+            subtitle = "MODO ${difficulty.name}",
+            description = if (sessionCoins >= 0) 
+                "¡Increíble! Tienes un ojo experto para las siluetas Pokémon." 
+                else "La silueta te ha confundido esta vez. ¡Sigue practicando!",
+            isVictory = sessionCoins >= 0,
+            coinsEarned = sessionCoins,
+            onRetry = {
+                sessionCoins = 0
+                generateNewRound()
+                showRewardDialog = false
+            },
+            onExit = onNavigateBack
+        )
     }
 }
 }

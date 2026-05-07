@@ -23,6 +23,10 @@ import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.WordSearchDifficulty
 import com.diegofg11.pokequiz.models.MinigamePokemon
 import com.diegofg11.pokequiz.api.Network
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -95,6 +99,41 @@ fun WordSearchGame(
     
     var pokemonList by remember { mutableStateOf<List<MinigamePokemon>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    
+    // Estados para el arrastre (drag)
+    var dragStartCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var dragCurrentCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var gridWidthPx by remember { mutableFloatStateOf(0f) }
+
+    fun getCellFromOffset(offset: Offset): Pair<Int, Int>? {
+        if (gridWidthPx <= 0) return null
+        val cellSize = gridWidthPx / gridSize
+        val col = (offset.x / cellSize).toInt().coerceIn(0, gridSize - 1)
+        val row = (offset.y / cellSize).toInt().coerceIn(0, gridSize - 1)
+        return Pair(row, col)
+    }
+
+    fun calculateLinePath(start: Pair<Int, Int>, end: Pair<Int, Int>): List<Pair<Int, Int>> {
+        var dr = end.first - start.first
+        var dc = end.second - start.second
+        
+        // Forzar línea recta (horizontal, vertical o diagonal 45º)
+        if (dr != 0 && dc != 0 && Math.abs(dr) != Math.abs(dc)) {
+            if (Math.abs(dr) > Math.abs(dc)) dc = 0 else dr = 0
+        }
+        
+        val steps = Math.max(Math.abs(dr), Math.abs(dc))
+        if (steps == 0) return listOf(start)
+        
+        val path = mutableListOf<Pair<Int, Int>>()
+        val stepR = if (dr == 0) 0 else dr / Math.abs(dr)
+        val stepC = if (dc == 0) 0 else dc / Math.abs(dc)
+        
+        for (i in 0..steps) {
+            path.add(Pair(start.first + stepR * i, start.second + stepC * i))
+        }
+        return path
+    }
 
     val rewardWin = when(difficulty) {
         WordSearchDifficulty.NORMAL -> 60
@@ -171,28 +210,13 @@ fun WordSearchGame(
         }
     }
 
-    if (showResultDialog) {
-        SafariResultScreen(
-            title = if (hasWon) "¡VICTORIA!" else "TIEMPO AGOTADO",
-            subtitle = "SOPA POKÉMON - ${difficulty.name}",
-            description = if (hasWon) "¡Increíble! Has encontrado todos los nombres Pokémon." else "¡Casi los tienes! Inténtalo de nuevo.",
-            isVictory = hasWon,
-            coinsEarned = if (hasWon) rewardWin else -cost,
-            onRetry = {
-                initializeGame()
-                showResultDialog = false
-            },
-            onExit = onNavigateBack
-        )
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             SafariRetroHeader(
                 title = "SOPA POKÉ",
                 onBackClick = onNavigateBack,
                 extraContent = {
-                    Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(horizontalAlignment = Alignment.End) {
                                 Text("PALABRAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
@@ -248,7 +272,69 @@ fun WordSearchGame(
                         .border(3.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
                         .padding(8.dp)
                 ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .onGloballyPositioned { gridWidthPx = it.size.width.toFloat() }
+                            .pointerInput(gridSize, isProcessing) {
+                                if (isProcessing) return@pointerInput
+                                detectDragGestures(
+                                    onDragStart = { offset ->
+                                        val cell = getCellFromOffset(offset)
+                                        if (cell != null) {
+                                            dragStartCell = cell
+                                            dragCurrentCell = cell
+                                            selectedCells.clear()
+                                            selectedCells.add(cell)
+                                        }
+                                    },
+                                    onDrag = { change, _ ->
+                                        change.consume()
+                                        val cell = getCellFromOffset(change.position)
+                                        if (cell != null && cell != dragCurrentCell) {
+                                            dragCurrentCell = cell
+                                            dragStartCell?.let { start ->
+                                                val newPath = calculateLinePath(start, cell)
+                                                selectedCells.clear()
+                                                selectedCells.addAll(newPath)
+                                            }
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        if (selectedCells.isNotEmpty()) {
+                                            val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
+                                            val reversedWord = word.reversed()
+                                            
+                                            targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
+                                                foundWords.add(found)
+                                            }
+                                            
+                                            if (foundWords.size == targetWords.size) {
+                                                hasWon = true
+                                                isProcessing = true
+                                                SafariUtils.rewardUser(
+                                                    scope = scope,
+                                                    coins = rewardWin,
+                                                    onSuccess = { showResultDialog = true },
+                                                    onError = { 
+                                                        onError(it)
+                                                        isProcessing = false
+                                                    }
+                                                )
+                                            }
+                                        }
+                                        selectedCells.clear()
+                                        dragStartCell = null
+                                        dragCurrentCell = null
+                                    },
+                                    onDragCancel = {
+                                        selectedCells.clear()
+                                        dragStartCell = null
+                                        dragCurrentCell = null
+                                    }
+                                )
+                            }
+                    ) {
                         grid.forEachIndexed { r, row ->
                             Row(modifier = Modifier.weight(1f)) {
                                 row.forEachIndexed { c, char ->
@@ -256,37 +342,9 @@ fun WordSearchGame(
                                         char = char,
                                         isHighlighted = selectedCells.contains(Pair(r, c)),
                                         isInfernal = difficulty == WordSearchDifficulty.INFERNAL,
-                                        modifier = Modifier.weight(1f).fillMaxHeight()
-                                    ) {
-                                        if (!isProcessing) {
-                                            val cell = Pair(r, c)
-                                            if (selectedCells.contains(cell)) {
-                                                selectedCells.remove(cell)
-                                            } else {
-                                                selectedCells.add(cell)
-                                                val word = selectedCells.map { grid[it.first][it.second] }.joinToString("")
-                                                val reversedWord = word.reversed()
-                                                
-                                                targetWords.find { !foundWords.contains(it) && (word == it || reversedWord == it) }?.let { found ->
-                                                    foundWords.add(found)
-                                                    selectedCells.clear()
-                                                    if (foundWords.size == targetWords.size) {
-                                                        hasWon = true
-                                                        isProcessing = true
-                                                        SafariUtils.rewardUser(
-                                                            scope = scope,
-                                                            coins = rewardWin,
-                                                            onSuccess = { showResultDialog = true },
-                                                            onError = { 
-                                                                onError(it)
-                                                                isProcessing = false
-                                                            }
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                                        onClick = {} // Ya no se usa clic individual
+                                    )
                                 }
                             }
                         }
@@ -313,6 +371,21 @@ fun WordSearchGame(
                 }
             }
         }
+    }
+
+    if (showResultDialog) {
+        SafariResultScreen(
+            title = if (hasWon) "¡VICTORIA!" else "TIEMPO AGOTADO",
+            subtitle = "SOPA POKÉMON - ${difficulty.name}",
+            description = if (hasWon) "¡Increíble! Has encontrado todos los nombres Pokémon." else "¡Casi los tienes! Inténtalo de nuevo.",
+            isVictory = hasWon,
+            coinsEarned = if (hasWon) rewardWin else -cost,
+            onRetry = {
+                initializeGame()
+                showResultDialog = false
+            },
+            onExit = onNavigateBack
+        )
     }
 }
 }

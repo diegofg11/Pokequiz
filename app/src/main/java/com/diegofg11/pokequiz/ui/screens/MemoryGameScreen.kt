@@ -155,43 +155,6 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         )
     }
 
-    if (showResultDialog) {
-        SafariResultScreen(
-            title = if (hasWon) "¡VICTORIA!" else "DERROTA",
-            subtitle = "MEMORAMA - ${difficulty.name}",
-            description = if (hasWon) 
-                "¡Excelente memoria! Has encontrado todas las parejas Pokémon." 
-                else "¡No te rindas! Entrena tu memoria para la próxima vez.",
-            isVictory = hasWon,
-            coinsEarned = if (hasWon) winReward else -losePenalty,
-            onRetry = {
-                initializeGame()
-                showResultDialog = false
-            },
-            onExit = onNavigateBack
-        )
-    }
-
-    if (showExitWarning) {
-        PokemonAlertDialog(
-            title = "¡Atención!",
-            message = "Si abandonas ahora se te cobrará la entrada de $losePenalty monedas. ¿Seguro que quieres salir?",
-            isError = true,
-            confirmText = "Abandonar",
-            onConfirm = {
-                showExitWarning = false
-                isProcessing = true
-                SafariUtils.rewardUser(
-                    scope = scope,
-                    coins = -losePenalty,
-                    onSuccess = { onNavigateBack() },
-                    onError = { onNavigateBack() }
-                )
-            },
-            onDismiss = { showExitWarning = false }
-        )
-    }
-
     fun handleCardClick(index: Int) {
         if (isProcessing || cards[index].isFlipped || cards[index].isMatched || lives <= 0) return
         
@@ -274,7 +237,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     }
                 },
                 extraContent = {
-                    Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                         RetroMenuBox(
                             backgroundColor = Color(0x33000000),
                             borderColor = Color.White.copy(alpha = 0.5f),
@@ -341,6 +304,43 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 }
             }
         }
+    }
+
+    if (showResultDialog) {
+        SafariResultScreen(
+            title = if (hasWon) "¡VICTORIA!" else "DERROTA",
+            subtitle = "MEMORAMA - ${difficulty.name}",
+            description = if (hasWon) 
+                "¡Excelente memoria! Has encontrado todas las parejas Pokémon." 
+                else "¡No te rindas! Entrena tu memoria para la próxima vez.",
+            isVictory = hasWon,
+            coinsEarned = if (hasWon) winReward else -losePenalty,
+            onRetry = {
+                initializeGame()
+                showResultDialog = false
+            },
+            onExit = onNavigateBack
+        )
+    }
+
+    if (showExitWarning) {
+        PokemonAlertDialog(
+            title = "¡Atención!",
+            message = "Si abandonas ahora se te cobrará la entrada de $losePenalty monedas. ¿Seguro que quieres salir?",
+            isError = true,
+            confirmText = "Abandonar",
+            onConfirm = {
+                showExitWarning = false
+                isProcessing = true
+                SafariUtils.rewardUser(
+                    scope = scope,
+                    coins = -losePenalty,
+                    onSuccess = { onNavigateBack() },
+                    onError = { onNavigateBack() }
+                )
+            },
+            onDismiss = { showExitWarning = false }
+        )
     }
 }
 }

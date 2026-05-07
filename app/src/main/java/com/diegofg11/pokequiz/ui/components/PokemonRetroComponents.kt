@@ -284,31 +284,29 @@ fun SafariRetroHeader(
     modifier: Modifier = Modifier,
     extraContent: @Composable () -> Unit = {}
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Título en Caja Retro (Centro)
-        RetroMenuBox(
-            modifier = Modifier.fillMaxWidth(0.55f),
-            backgroundColor = Color(0xFF2D5A27),
-            borderColor = Color(0xFF1B3022)
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = title.uppercase(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                fontFamily = FontFamily.Monospace
-            )
-        }
-        
-        extraContent()
+            // Título en Caja Retro (Centro)
+            RetroMenuBox(
+                modifier = Modifier.wrapContentWidth().padding(horizontal = 48.dp),
+                backgroundColor = Color(0xFF2D5A27),
+                borderColor = Color(0xFF1B3022)
+            ) {
+                Text(
+                    text = title.uppercase(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
 
         // Botón Atrás (Izquierda) - Ahora a juego con el de ayuda
         Surface(
@@ -346,6 +344,16 @@ fun SafariRetroHeader(
                     Text("?", fontWeight = FontWeight.Black, fontSize = 18.sp)
                 }
             }
+        }
+        
+        // Contenido Extra (Estadísticas, Monedas, etc.) debajo del título para que no se superpongan
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            extraContent()
         }
     }
 }
