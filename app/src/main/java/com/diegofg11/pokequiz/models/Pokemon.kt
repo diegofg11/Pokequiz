@@ -14,5 +14,6 @@ data class Pokemon(
     val level: Int = 1,
     val exp: Int = 0,
     val pokedexDescription: String? = "",
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    var isShiny: Boolean = false
 )

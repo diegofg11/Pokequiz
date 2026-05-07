@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -74,6 +75,7 @@ fun PCScreen() {
     var sortOption by remember { mutableStateOf(PokemonSortOption.RECENT) }
     var filterType by remember { mutableStateOf<PokeType?>(null) }
     var showFavoritesOnly by remember { mutableStateOf(false) }
+    var showShiniesOnly by remember { mutableStateOf(false) }
     var showSortDialog by remember { mutableStateOf(false) }
 
     // Persistencia de favoritos (SharedPreferences)
@@ -104,6 +106,7 @@ fun PCScreen() {
                 .filter { it.nombre.contains(searchQuery, ignoreCase = true) }
                 .filter { filterType == null || it.tipos.any { t -> t.equals(filterType?.nombreEs, ignoreCase = true) || t.equals(filterType?.name, ignoreCase = true) } }
                 .filter { !showFavoritesOnly || it.isFavorite }
+                .filter { !showShiniesOnly || it.isShiny }
                 .let { list ->
                     when (sortOption) {
                         PokemonSortOption.RECENT -> list.sortedByDescending { it.inventoryId ?: 0 }
@@ -305,7 +308,7 @@ fun PCScreen() {
                         Surface(
                             onClick = { showSortDialog = true },
                             shape = CircleShape,
-                            color = if (filterType != null || showFavoritesOnly) GoldPoke else Color(0xFF2D5A27),
+                            color = if (filterType != null || showFavoritesOnly || showShiniesOnly) GoldPoke else Color(0xFF2D5A27),
                             modifier = Modifier.size(36.dp),
                             border = BorderStroke(2.dp, Color(0xFF1B3022))
                         ) {
@@ -428,6 +431,7 @@ fun PCScreen() {
                 currentSort = sortOption,
                 currentFilterType = filterType,
                 onlyFavorites = showFavoritesOnly,
+                onlyShinies = showShiniesOnly,
                 onSortSelected = { 
                     sortOption = it
                     showSortDialog = false 
@@ -438,6 +442,10 @@ fun PCScreen() {
                 },
                 onToggleFavorites = {
                     showFavoritesOnly = !showFavoritesOnly
+                    showSortDialog = false
+                },
+                onToggleShinies = {
+                    showShiniesOnly = !showShiniesOnly
                     showSortDialog = false
                 },
                 onDismiss = { showSortDialog = false }
@@ -451,9 +459,11 @@ fun SortDialog(
     currentSort: PokemonSortOption,
     currentFilterType: PokeType?,
     onlyFavorites: Boolean,
+    onlyShinies: Boolean,
     onSortSelected: (PokemonSortOption) -> Unit,
     onTypeFilterSelected: (PokeType?) -> Unit,
     onToggleFavorites: () -> Unit,
+    onToggleShinies: () -> Unit,
     onDismiss: () -> Unit
 ) {
     Box(
@@ -477,15 +487,25 @@ fun SortDialog(
                 PixelDivider()
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                // Sección de Favoritos
-                RetroButton(
-                    text = if (onlyFavorites) "VER TODOS" else "SOLO FAVORITOS",
-                    onClick = onToggleFavorites,
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = if (onlyFavorites) GoldPoke else Color(0xFFE53935),
-                    contentColor = Color.White,
-                    fontSize = 12.sp
-                )
+                // Sección de Favoritos y Shinies
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    RetroButton(
+                        text = if (onlyFavorites) "VER TODOS" else "FAVORITOS",
+                        onClick = onToggleFavorites,
+                        modifier = Modifier.weight(1f),
+                        containerColor = if (onlyFavorites) GoldPoke else Color(0xFFE53935),
+                        contentColor = Color.White,
+                        fontSize = 11.sp
+                    )
+                    RetroButton(
+                        text = if (onlyShinies) "VER TODOS" else "SHINIES",
+                        onClick = onToggleShinies,
+                        modifier = Modifier.weight(1f),
+                        containerColor = if (onlyShinies) GoldPoke else Color(0xFFFFA000),
+                        contentColor = Color.White,
+                        fontSize = 11.sp
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 PixelDivider()
@@ -669,6 +689,10 @@ fun PokedexDialog(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 RetroText(text = "DATOS POKÉDEX", fontSize = 14.sp, color = Color(0xFF1B3022))
+                                if (pokemon.isShiny) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(Icons.Default.Star, contentDescription = "Shiny", tint = Color(0xFFFFD700), modifier = Modifier.size(18.dp))
+                                }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 IconButton(onClick = { onToggleFavorite(pokemon) }) {
                                     Icon(
@@ -822,6 +846,18 @@ private fun PCPokemonCard(pokemon: Pokemon, isParty: Boolean = false, onClick: (
                     modifier = Modifier
                         .size(16.dp)
                         .align(Alignment.BottomEnd)
+                        .padding(2.dp)
+                )
+            }
+            
+            if (pokemon.isShiny) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = Color(0xFFFFD700),
+                    modifier = Modifier
+                        .size(18.dp)
+                        .align(Alignment.TopEnd)
                         .padding(2.dp)
                 )
             }
