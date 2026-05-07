@@ -237,7 +237,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
 
     Box(modifier = Modifier.fillMaxSize()) {
         SafariRetroHeader(
-            title = "ZONA SAFARI",
+            title = "¿QUIÉN ES?",
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
@@ -254,21 +254,11 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                     onNavigateBack()
                 }
             },
-            extraContent = {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (difficulty != GuessDifficulty.EASY) {
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("SEG", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                Text("$timeLeft", color = if (timeLeft <= 2) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                            }
-                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text("MONEDAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                            Text("$sessionCoins 💰", color = GoldPoke, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                        }
-                    }
+            rightContent = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("$sessionCoins", color = GoldPoke, fontSize = 18.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("💰", fontSize = 16.sp)
                 }
             }
         )
@@ -281,15 +271,25 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(top = 90.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                if (difficulty != GuessDifficulty.EASY && !isRevealed) {
+                    RetroStatCard(
+                        label = "TIEMPO",
+                        value = "$timeLeft",
+                        containerColor = if (timeLeft <= 2) Color(0xFFE53935) else Color(0xFF2D5A27),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
             if (difficulty == GuessDifficulty.EASY) {
                 RetroText(
-                    text = "¿CUAL ES ESTE POKÉMON?",
-                    fontSize = 22.sp,
+                    text = "¿CUÁL ES ESTE POKÉMON?",
+                    fontSize = 24.sp,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(bottom = 32.dp)
                 )
             }
 

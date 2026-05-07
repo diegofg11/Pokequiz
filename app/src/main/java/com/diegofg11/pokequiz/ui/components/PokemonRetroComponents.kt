@@ -17,6 +17,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -282,78 +283,101 @@ fun SafariRetroHeader(
     onBackClick: () -> Unit,
     onHelpClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    extraContent: @Composable () -> Unit = {}
+    rightContent: (@Composable () -> Unit)? = null,
+    extraContent: (@Composable () -> Unit)? = null
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            // Título en Caja Retro (Centro)
-            RetroMenuBox(
-                modifier = Modifier.wrapContentWidth().padding(horizontal = 48.dp),
-                backgroundColor = Color(0xFF2D5A27),
-                borderColor = Color(0xFF1B3022)
-            ) {
-                Text(
-                    text = title.uppercase(),
-                    textAlign = TextAlign.Center,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White,
-                    fontFamily = FontFamily.Monospace
+    val height = if (extraContent != null) 110.dp else 70.dp
+    
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .drawBehind {
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.4f),
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 6.dp.toPx()
                 )
-            }
-
-        // Botón Atrás (Izquierda) - Ahora a juego con el de ayuda
-        Surface(
-            onClick = onBackClick,
-            modifier = Modifier
-                .size(36.dp)
-                .align(Alignment.CenterStart),
-            shape = CircleShape,
-            color = Color(0xFF2D5A27),
-            contentColor = Color.White,
-            border = BorderStroke(2.dp, Color(0xFF1B3022))
+            },
+        color = Color(0xFF1B3022)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
-
-        // Botón Ayuda (Derecha)
-        if (onHelpClick != null) {
-            Surface(
-                onClick = onHelpClick,
+            Row(
                 modifier = Modifier
-                    .size(36.dp)
-                    .align(Alignment.CenterEnd),
-                shape = CircleShape,
-                color = Color(0xFF2D5A27),
-                contentColor = Color.White,
-                border = BorderStroke(2.dp, Color(0xFF1B3022))
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("?", fontWeight = FontWeight.Black, fontSize = 18.sp)
+                // Left: Back Button (Balanced with right side)
+                Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
+                    Surface(
+                        onClick = onBackClick,
+                        modifier = Modifier.size(40.dp),
+                        shape = CircleShape,
+                        color = Color(0xFF2D5A27),
+                        contentColor = Color.White,
+                        border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
+                        }
+                    }
+                }
+
+                // Center: Title
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = title.uppercase(),
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Monospace,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1
+                    )
+                }
+
+                // Right: Custom Content or Help
+                Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterEnd) {
+                    if (rightContent != null) {
+                        rightContent()
+                    } else if (onHelpClick != null) {
+                        Surface(
+                            onClick = onHelpClick,
+                            modifier = Modifier.size(40.dp),
+                            shape = CircleShape,
+                            color = Color(0xFF2D5A27),
+                            contentColor = Color.White,
+                            border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("?", fontWeight = FontWeight.Black, fontSize = 20.sp)
+                            }
+                        }
+                    }
                 }
             }
-        }
-        
-        // Contenido Extra (Estadísticas, Monedas, etc.) debajo del título para que no se superpongan
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            extraContent()
+
+            if (extraContent != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, start = 24.dp, end = 24.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    extraContent()
+                }
+            }
         }
     }
 }
@@ -462,6 +486,49 @@ fun RetroDifficultyCard(
 }
 
 @Composable
+fun RetroStatCard(
+    label: String,
+    value: String,
+    containerColor: Color,
+    contentColor: Color = Color.White,
+    modifier: Modifier = Modifier,
+    icon: String? = null
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = containerColor,
+        border = BorderStroke(2.dp, Color.Black.copy(alpha = 0.2f)),
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = label.uppercase(),
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black,
+                color = contentColor.copy(alpha = 0.7f),
+                fontFamily = FontFamily.Monospace
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (icon != null) {
+                    Text(icon, fontSize = 16.sp, modifier = Modifier.padding(end = 4.dp))
+                }
+                Text(
+                    text = value,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
+                    color = contentColor,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun InfoItem(label: String, value: String, color: Color) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -517,51 +584,49 @@ fun SafariResultScreen(
             // Icono de Resultado
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(80.dp)
                     .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), CircleShape)
                     .border(4.dp, Color.Black.copy(alpha = 0.2f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     if (isVictory) "🏆" else "❌",
-                    fontSize = 50.sp
+                    fontSize = 40.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Título Principal
             RetroText(
                 text = title.uppercase(),
-                fontSize = 38.sp,
+                fontSize = 32.sp,
                 textAlign = TextAlign.Center,
                 color = if (isVictory) Color.White else Color(0xFF1B3022)
             )
 
             // Subtítulo (Modo)
-            Text(
+            RetroText(
                 text = subtitle,
                 color = if (isVictory) Color(0xFF2D5A27) else Color(0xFF1B3022).copy(alpha = 0.7f),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(top = 4.dp)
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Descripción
             Text(
                 text = description,
                 color = Color(0xFF1B3022).copy(alpha = 0.8f),
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily.Monospace,
-                lineHeight = 18.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                lineHeight = 16.sp,
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Monedas Ganadas
             RetroMenuBox(
@@ -571,21 +636,21 @@ fun SafariResultScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
                         color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
-                        fontSize = 22.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("💰", fontSize = 18.sp)
+                    Text("💰", fontSize = 16.sp)
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Botones de Acción
             RetroButton(
@@ -593,7 +658,7 @@ fun SafariResultScreen(
                 onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
+                    .height(48.dp),
                 containerColor = Color(0xFF2D5A27),
                 contentColor = Color.White
             )
@@ -603,10 +668,11 @@ fun SafariResultScreen(
             RetroButton(
                 text = "VOLVER AL MENÚ",
                 onClick = onExit,
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.Gray,
-                contentColor = Color.White,
-                fontSize = 12.sp
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                containerColor = Color.DarkGray,
+                contentColor = Color.White
             )
         }
     }

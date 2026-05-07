@@ -226,81 +226,80 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            SafariRetroHeader(
-                title = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
-                onBackClick = {
-                    if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
-                        showExitWarning = true
-                    } else if (!isProcessing) {
-                        onNavigateBack()
-                    }
-                },
-                extraContent = {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                        RetroMenuBox(
-                            backgroundColor = Color(0x33000000),
-                            borderColor = Color.White.copy(alpha = 0.5f),
-                            modifier = Modifier.wrapContentSize()
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Favorite, contentDescription = "Vidas", tint = Color(0xFFE53935), modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "x $lives",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 12.sp
-                                )
-                            }
-                        }
-                    }
+        SafariRetroHeader(
+            title = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
+            onBackClick = {
+                if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
+                    showExitWarning = true
+                } else if (!isProcessing) {
+                    onNavigateBack()
                 }
-            )
-            
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = GoldPoke)
-                }
-            } else {
-                if (difficulty == MemoryDifficulty.INFERNAL) {
-                val timerProgress by animateFloatAsState(
-                    targetValue = timeLeft.toFloat() / maxTime.toFloat(),
-                    animationSpec = tween(1000)
-                )
-                
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LinearProgressIndicator(
-                        progress = { timerProgress },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .border(1.dp, Color.White, RoundedCornerShape(4.dp)),
-                        color = if (timeLeft <= 5) (if (flashTimer) Color.Red else Color.Yellow) else Color.Green,
-                        trackColor = Color.DarkGray
+            },
+            rightContent = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = if (difficulty == MemoryDifficulty.INFERNAL) "∞" else "$lives",
+                        color = if (lives <= 2 && difficulty != MemoryDifficulty.INFERNAL) Color(0xFFFF5252) else Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Monospace
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(Icons.Default.Favorite, contentDescription = "Vidas", tint = Color(0xFFE53935), modifier = Modifier.size(18.dp))
                 }
             }
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = GoldPoke)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 120.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                items(cards.size) { index ->
-                    MemoryCard(
-                        cardData = cards[index],
-                        onClick = { handleCardClick(index) }
+                if (difficulty == MemoryDifficulty.INFERNAL) {
+                    val timerProgress by animateFloatAsState(
+                        targetValue = timeLeft.toFloat() / maxTime.toFloat(),
+                        label = "timer",
+                        animationSpec = tween(1000)
                     )
+                    
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        LinearProgressIndicator(
+                            progress = { timerProgress },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(12.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .border(2.dp, Color.White, RoundedCornerShape(6.dp)),
+                            color = if (timeLeft <= 5) (if (flashTimer) Color.Red else Color.Yellow) else Color(0xFF4CAF50),
+                            trackColor = Color.DarkGray
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f),
+                    userScrollEnabled = false
+                ) {
+                    items(cards.size) { index ->
+                        MemoryCard(
+                            cardData = cards[index],
+                            onClick = { handleCardClick(index) }
+                        )
+                    }
                 }
             }
         }
@@ -342,7 +341,6 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
             onDismiss = { showExitWarning = false }
         )
     }
-}
 }
 
 @Composable

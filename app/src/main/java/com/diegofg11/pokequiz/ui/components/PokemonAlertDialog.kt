@@ -38,25 +38,22 @@ fun PokemonAlertDialog(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Surface(
+            RetroMenuBox(
+                backgroundColor = if (isError) Color(0xFFFBE6E6) else Color(0xFFE3F2FD),
+                borderColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, start = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = if (isError) Color(0xFFFBE6E6) else Color(0xFFE6F2FF),
-                border = BorderStroke(4.dp, if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2)),
-                shadowElevation = 8.dp
+                    .padding(top = 24.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = 20.dp, start = 20.dp, end = 20.dp),
+                        .padding(top = 24.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    RetroText(
                         text = title,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 24.sp,
+                        fontSize = 22.sp,
                         color = if (isError) Color(0xFFB71C1C) else Color(0xFF0D47A1),
                         textAlign = TextAlign.Center
                     )
@@ -65,61 +62,57 @@ fun PokemonAlertDialog(
                     
                     Text(
                         text = message,
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.DarkGray,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                     )
                     
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     
                     if (onConfirm != null && confirmText != null) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             RetroButton(
-                                text = "CANCELAR",
+                                text = "SALIR",
                                 onClick = onDismiss,
-                                modifier = Modifier.weight(1f).height(48.dp),
-                                containerColor = Color.Gray,
-                                fontSize = 12.sp
+                                modifier = Modifier.weight(1f).height(46.dp),
+                                containerColor = Color.DarkGray,
+                                fontSize = 10.sp
                             )
                             RetroButton(
-                                text = confirmText,
+                                text = confirmText.uppercase(),
                                 onClick = onConfirm,
-                                modifier = Modifier.weight(1f).height(48.dp),
+                                modifier = Modifier.weight(1.2f).height(46.dp),
                                 containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
-                                fontSize = 12.sp
+                                fontSize = 10.sp
                             )
                         }
                     } else {
                         RetroButton(
                             text = "ENTENDIDO",
                             onClick = onDismiss,
-                            modifier = Modifier.fillMaxWidth(0.8f).height(48.dp),
+                            modifier = Modifier.fillMaxWidth(0.8f).height(46.dp),
                             containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
-                            fontSize = 14.sp
+                            fontSize = 12.sp
                         )
                     }
                 }
             }
             
-            // Icono en la esquina superior izquierda
-            Surface(
+            // Retro Styled Icon Box
+            RetroMenuBox(
+                backgroundColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
+                borderColor = Color.Black,
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(44.dp)
                     .align(Alignment.TopStart)
-                    .border(
-                        3.dp,
-                        if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
-                        CircleShape
-                    ),
-                shape = CircleShape,
-                color = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
-                shadowElevation = 10.dp
+                    .offset(x = (-4).dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Icon(
                         imageVector = if (isError) Icons.Default.Warning else Icons.Default.Info,
                         contentDescription = "Icon",

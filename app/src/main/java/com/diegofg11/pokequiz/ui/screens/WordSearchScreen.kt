@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -212,55 +213,72 @@ fun WordSearchGame(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            SafariRetroHeader(
-                title = "SOPA POKÉ",
-                onBackClick = onNavigateBack,
-                extraContent = {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("PALABRAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                Text("${foundWords.size}/${targetWords.size}", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                            }
-                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("TIEMPO", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                Text("$timeLeft", color = if (timeLeft < 10) Color.Red else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                            }
-                        }
-                    }
-                }
-            )
+        SafariRetroHeader(
+            title = "SOPA POKÉ",
+            onBackClick = onNavigateBack
+        )
 
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = GoldPoke)
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = GoldPoke)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 80.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Large Stats Bar outside header
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    RetroStatCard(
+                        label = "PALABRAS",
+                        value = "${foundWords.size}/${targetWords.size}",
+                        containerColor = Color(0xFF1B76D2), // Blueish
+                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                    )
+                    
+                    RetroStatCard(
+                        label = "TIEMPO",
+                        value = "$timeLeft",
+                        containerColor = if (timeLeft < 10) Color(0xFFE53935) else Color(0xFF2D5A27),
+                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                    )
+                }
+
                 RetroMenuBox(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     backgroundColor = Color.White.copy(alpha = 0.1f),
                     borderColor = Color.Black.copy(alpha = 0.3f)
                 ) {
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         targetWords.forEach { word ->
                             val isFound = foundWords.contains(word)
-                            Text(
-                                text = word,
-                                color = if (isFound) Color(0xFF2D5A27) else Color.Black,
-                                fontSize = 10.sp,
-                                fontWeight = if (isFound) FontWeight.ExtraBold else FontWeight.Normal,
-                                fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.padding(4.dp),
-                                style = if (isFound) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle.Default
-                            )
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = if (isFound) Color(0xFF2D5A27) else Color.White.copy(alpha = 0.2f),
+                                border = BorderStroke(1.dp, if (isFound) Color.White else Color.Black.copy(alpha = 0.3f)),
+                                modifier = Modifier.padding(2.dp)
+                            ) {
+                                Text(
+                                    text = word,
+                                    color = if (isFound) Color.White else Color.Black,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Black,
+                                    fontFamily = FontFamily.Monospace,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = if (isFound) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle.Default
+                                )
+                            }
                         }
                     }
                 }
