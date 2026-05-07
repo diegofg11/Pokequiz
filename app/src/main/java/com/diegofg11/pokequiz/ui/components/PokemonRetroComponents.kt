@@ -12,7 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.animation.core.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -579,27 +580,39 @@ fun SafariResultScreen(
     onRetry: () -> Unit,
     onExit: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "results")
+    val offsetY by infiniteTransition.animateFloat(
+        initialValue = -5f,
+        targetValue = 5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
+
     RetroBackground(
         modifier = Modifier.pointerInput(Unit) { detectTapGestures {} }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(32.dp)
+                .offset(y = offsetY.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             // Icono de Resultado
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(90.dp)
                     .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), androidx.compose.ui.graphics.RectangleShape)
-                    .border(4.dp, Color.Black.copy(alpha = 0.2f), androidx.compose.ui.graphics.RectangleShape),
+                    .border(4.dp, Color.Black.copy(alpha = 0.3f), androidx.compose.ui.graphics.RectangleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     if (isVictory) "🏆" else "❌",
-                    fontSize = 40.sp
+                    fontSize = 48.sp
                 )
             }
 
@@ -608,7 +621,7 @@ fun SafariResultScreen(
             // Título Principal
             RetroText(
                 text = title.uppercase(),
-                fontSize = 32.sp,
+                fontSize = 36.sp,
                 textAlign = TextAlign.Center,
                 color = if (isVictory) Color.White else Color(0xFF1B3022)
             )
@@ -617,7 +630,7 @@ fun SafariResultScreen(
             RetroText(
                 text = subtitle,
                 color = if (isVictory) Color(0xFF2D5A27) else Color(0xFF1B3022).copy(alpha = 0.7f),
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
 
@@ -627,60 +640,58 @@ fun SafariResultScreen(
             Text(
                 text = description,
                 color = Color(0xFF1B3022).copy(alpha = 0.8f),
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily.Monospace,
-                lineHeight = 16.sp,
+                lineHeight = 18.sp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Monedas Ganadas
-            RetroMenuBox(
-                backgroundColor = Color.Black.copy(alpha = 0.05f),
-                borderColor = if (isVictory) GoldPoke else Color.Gray,
-                modifier = Modifier.wrapContentSize()
+            // Monedas Ganadas (Ahora sin recuadro, más limpio)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.05f))
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
-                        color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        fontFamily = FontFamily.Monospace
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("💰", fontSize = 16.sp)
-                }
+                Text(
+                    text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
+                    color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("💰", fontSize = 20.sp)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            // Botones de Acción
+            // Botones de Acción Gigantes
             RetroButton(
                 text = "INTENTAR DE NUEVO",
                 onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(64.dp),
                 containerColor = Color(0xFF2D5A27),
-                contentColor = Color.White
+                contentColor = Color.White,
+                fontSize = 18.sp
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             RetroButton(
                 text = "VOLVER AL MENÚ",
                 onClick = onExit,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(64.dp),
                 containerColor = Color.DarkGray,
-                contentColor = Color.White
+                contentColor = Color.White,
+                fontSize = 18.sp
             )
         }
     }
