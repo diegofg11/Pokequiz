@@ -183,7 +183,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             Spacer(modifier = Modifier.weight(0.1f))
 
             RetroText(
-                text = "TIENDA GACHA",
+                text = "BAZAR POKÉMON",
                 fontSize = 34.sp,
                 color = Color.White
             )

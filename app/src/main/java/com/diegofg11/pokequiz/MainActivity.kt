@@ -229,8 +229,8 @@ fun RetroBottomNavigation(
         ) {
             RetroNavItem(label = "MAPA", selected = currentRoute == "map", onClick = { onNavigate("map") })
             RetroNavItem(label = "PC", selected = currentRoute == "pc", onClick = { onNavigate("pc") })
-            RetroNavItem(label = "GACHA", selected = currentRoute == "gacha", onClick = { onNavigate("gacha") })
-            RetroNavItem(label = "ZONA", selected = currentRoute == "games" || currentRoute?.startsWith("safari_zone") == true, onClick = { onNavigate("games") })
+            RetroNavItem(label = "BAZAR", selected = currentRoute == "gacha", onClick = { onNavigate("gacha") })
+            RetroNavItem(label = "SAFARI", selected = currentRoute == "games" || currentRoute?.startsWith("safari_zone") == true, onClick = { onNavigate("games") })
             RetroNavItem(label = "PERFIL", selected = currentRoute == "user", onClick = { onNavigate("user") })
         }
     }
