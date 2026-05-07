@@ -34,7 +34,7 @@ interface PokeApi {
     suspend fun rewardUser(@Body request: RewardRequest): Response<User>
 
     @POST("api/user/safari/reward")
-    suspend fun safariReward(@Body request: RewardRequest): Response<User>
+    suspend fun safariReward(@Body request: com.diegofg11.pokequiz.models.SafariRewardRequest): Response<User>
 
     @GET("api/minigames/quickbattle")
     suspend fun getQuickBattleOpponent(): Response<QuickBattleOpponent>

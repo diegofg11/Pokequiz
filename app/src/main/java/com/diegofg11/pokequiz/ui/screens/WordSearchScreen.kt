@@ -201,6 +201,8 @@ fun WordSearchGame(
                 SafariUtils.rewardUser(
                     scope = scope,
                     coins = -cost,
+                    gameType = "wordsearch",
+                    difficulty = difficulty.name,
                     onSuccess = { showResultDialog = true },
                     onError = { 
                         onError(it)
@@ -336,6 +338,8 @@ fun WordSearchGame(
                                                     SafariUtils.rewardUser(
                                                         scope = scope,
                                                         coins = rewardWin,
+                                                        gameType = "wordsearch",
+                                                        difficulty = difficulty.name,
                                                         onSuccess = { showResultDialog = true },
                                                         onError = { 
                                                             onError(it)

@@ -250,6 +250,8 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                     SafariUtils.rewardUser(
                         scope = scope,
                         coins = sessionCoins,
+                        gameType = "guess",
+                        difficulty = difficulty.name,
                         onSuccess = { showRewardDialog = true },
                         onError = { 
                             onError(it)

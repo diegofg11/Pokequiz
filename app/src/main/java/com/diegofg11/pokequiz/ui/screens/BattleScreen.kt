@@ -374,7 +374,7 @@ fun BattleScreen(
                     {
                         scope.launch {
                             try { 
-                                Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId, 100)) 
+                                Network.api.rewardUser(com.diegofg11.pokequiz.models.RewardRequest(com.diegofg11.pokequiz.utils.SessionManager.currentUserId, levelId)) 
                                 withContext(Dispatchers.Main) { 
                                     showGameOver = false
                                     onBattleWin() 

@@ -137,6 +137,8 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 SafariUtils.rewardUser(
                     scope = scope,
                     coins = -losePenalty,
+                    gameType = "memory",
+                    difficulty = difficulty.name,
                     onSuccess = { showResultDialog = true },
                     onError = { 
                         globalError = it
@@ -189,6 +191,8 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                         SafariUtils.rewardUser(
                             scope = scope,
                             coins = winReward,
+                            gameType = "memory",
+                            difficulty = difficulty.name,
                             onSuccess = { showResultDialog = true },
                             onError = { 
                                 globalError = it
@@ -211,6 +215,8 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                         SafariUtils.rewardUser(
                             scope = scope,
                             coins = -losePenalty,
+                            gameType = "memory",
+                            difficulty = difficulty.name,
                             onSuccess = { showResultDialog = true },
                             onError = { 
                                 globalError = it
@@ -343,6 +349,8 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                 SafariUtils.rewardUser(
                     scope = scope,
                     coins = -losePenalty,
+                    gameType = "memory",
+                    difficulty = difficulty.name,
                     onSuccess = { onNavigateBack() },
                     onError = { onNavigateBack() }
                 )

@@ -131,7 +131,7 @@ fun PokeDojoScreen(
                                             else -> 0
                                         }
                                     }
-                                    SafariUtils.rewardUser(scope = scope, coins = reward)
+                                    SafariUtils.rewardUser(scope = scope, coins = reward, gameType = "dojo", difficulty = difficulty.name)
                                 }
                             )
                         }
@@ -147,6 +147,8 @@ fun PokeDojoScreen(
                                     SafariUtils.rewardUser(
                                         scope = scope,
                                         coins = -20,
+                                        gameType = "dojo",
+                                        difficulty = "NORMAL",
                                         onSuccess = {
                                             score = 0
                                             timeLeft = 30
@@ -160,6 +162,8 @@ fun PokeDojoScreen(
                                     SafariUtils.rewardUser(
                                         scope = scope,
                                         coins = -50,
+                                        gameType = "dojo",
+                                        difficulty = "INFERNAL",
                                         onSuccess = {
                                             score = 0
                                             timeLeft = 20

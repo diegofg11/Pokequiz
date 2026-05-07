@@ -30,8 +30,14 @@ data class LevelResponse(
 
 data class RewardRequest(
     val userId: Int,
-    val levelId: Int,
-    val coinsEarned: Int
+    val levelId: Int
+)
+
+data class SafariRewardRequest(
+    val userId: Int,
+    val coinsEarned: Int,
+    val gameType: String,
+    val difficulty: String
 )
 
 data class TogglePartyRequest(

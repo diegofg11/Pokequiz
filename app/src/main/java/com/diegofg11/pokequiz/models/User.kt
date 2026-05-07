@@ -4,5 +4,6 @@ data class User(
     val id: Int,
     val nombre: String,
     val nivelProgreso: Int,
-    val monedasGacha: Int
+    val monedasGacha: Int,
+    val token: String? = null
 )

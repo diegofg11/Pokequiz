@@ -198,6 +198,7 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                     if (response.isSuccessful && response.body() != null) {
                                         val user = response.body()!!
                                         SessionManager.saveUserId(context, user.id)
+                                        user.token?.let { SessionManager.saveToken(context, it) }
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
                                         val errorBody = response.errorBody()?.string()
@@ -326,6 +327,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                     if (response.isSuccessful && response.body() != null) {
                                         val user = response.body()!!
                                         SessionManager.saveUserId(context, user.id)
+                                        user.token?.let { SessionManager.saveToken(context, it) }
                                         SessionManager.setFirstTime(context, true)
                                         TutorialManager.startTutorial(context)
                                         withContext(Dispatchers.Main) { onSuccess() }

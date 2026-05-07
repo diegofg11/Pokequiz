@@ -1,7 +1,6 @@
 package com.diegofg11.pokequiz.utils
 
 import com.diegofg11.pokequiz.api.Network
-import com.diegofg11.pokequiz.models.RewardRequest
 import com.diegofg11.pokequiz.models.MemoryCardData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +16,8 @@ object SafariUtils {
     fun rewardUser(
         scope: CoroutineScope,
         coins: Int,
+        gameType: String,
+        difficulty: String,
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {}
     ) {
@@ -28,10 +29,11 @@ object SafariUtils {
         scope.launch {
             try {
                 val response = Network.api.safariReward(
-                    RewardRequest(
+                    com.diegofg11.pokequiz.models.SafariRewardRequest(
                         userId = SessionManager.currentUserId,
-                        levelId = 0,
-                        coinsEarned = coins
+                        coinsEarned = coins,
+                        gameType = gameType,
+                        difficulty = difficulty
                     )
                 )
                 withContext(Dispatchers.Main) {

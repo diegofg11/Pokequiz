@@ -146,7 +146,7 @@ fun QuickBattleScreen(
                                             gameState = SafariGameState.RESULT
                                             val rewardBase = if (isInverse) 250 else 150
                                             val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else 0
-                                            SafariUtils.rewardUser(scope = scope, coins = reward)
+                                            SafariUtils.rewardUser(scope = scope, coins = reward, gameType = "quickbattle", difficulty = "default")
                                         } else {
                                             fetchNewOpponent()
                                         }
@@ -172,6 +172,8 @@ fun QuickBattleScreen(
                                             SafariUtils.rewardUser(
                                                 scope = scope,
                                                 coins = -20,
+                                                gameType = "quickbattle",
+                                                difficulty = "default",
                                                 onSuccess = {
                                                     isInverse = false
                                                     victories = 0
@@ -196,6 +198,8 @@ fun QuickBattleScreen(
                                             SafariUtils.rewardUser(
                                                 scope = scope,
                                                 coins = -40,
+                                                gameType = "quickbattle",
+                                                difficulty = "default",
                                                 onSuccess = {
                                                     isInverse = true
                                                     victories = 0
