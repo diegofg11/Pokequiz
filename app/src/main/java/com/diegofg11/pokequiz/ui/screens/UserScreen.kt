@@ -41,12 +41,14 @@ import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import com.diegofg11.pokequiz.utils.WallpaperManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun UserScreen(onLogout: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var user by remember { mutableStateOf<User?>(null) }
     var pokedexCount by remember { mutableIntStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
@@ -432,6 +434,37 @@ fun UserScreen(onLogout: () -> Unit) {
 
                         Spacer(modifier = Modifier.height(16.dp))
                         
+                        RetroButton(
+                            text = "DAR MONEDAS (CHEATS)",
+                            onClick = {
+                                scope.launch {
+                                    try {
+                                        val resp = withContext(Dispatchers.IO) {
+                                            Network.api.safariReward(com.diegofg11.pokequiz.models.SafariRewardRequest(
+                                                userId = SessionManager.currentUserId,
+                                                coinsEarned = 100,
+                                                gameType = "MEMORIA",
+                                                difficulty = "EASY"
+                                            ))
+                                        }
+                                        if (resp.isSuccessful) {
+                                            user = resp.body()
+                                            Toast.makeText(context, "¡100 Monedas añadidas!", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            val errorBody = resp.errorBody()?.string()
+                                            Toast.makeText(context, "Error: ${errorBody ?: resp.message()}", Toast.LENGTH_LONG).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "Excepción: ${e.message}", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
+                            containerColor = Color(0xFFC62828),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
                         RetroButton(
                             text = "CERRAR SESIÓN",
                             onClick = {
