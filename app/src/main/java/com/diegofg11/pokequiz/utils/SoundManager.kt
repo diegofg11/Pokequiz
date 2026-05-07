@@ -18,6 +18,7 @@ object SoundManager {
 
         if (currentResId == resId) {
             mediaPlayer?.let {
+                it.isLooping = true
                 if (it.isPlaying) {
                     it.setVolume(volume, volume)
                     return
@@ -28,17 +29,14 @@ object SoundManager {
         stopMusic()
 
         try {
-            mediaPlayer = MediaPlayer().apply {
-                val afd = appContext.resources.openRawResourceFd(resId)
-                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                afd.close()
+            mediaPlayer = MediaPlayer.create(appContext, resId)?.apply {
                 setVolume(volume, volume)
                 isLooping = true
-                prepare()
                 start()
             }
             currentResId = resId
         } catch (e: Exception) {
+            Log.e(TAG, "Error al reproducir música: ${e.message}")
             currentResId = -1
         }
     }
@@ -73,6 +71,7 @@ object SoundManager {
     fun resumeMusic() {
         try {
             mediaPlayer?.let {
+                it.isLooping = true
                 if (!it.isPlaying) {
                     it.setVolume(volume, volume)
                     it.start()
@@ -90,7 +89,7 @@ object SoundManager {
                 it.release()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error al detener msica: ${e.message}")
+            Log.e(TAG, "Error al detener música: ${e.message}")
         } finally {
             mediaPlayer = null
             currentResId = -1

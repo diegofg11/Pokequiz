@@ -31,6 +31,9 @@ import com.diegofg11.pokequiz.ui.components.PokeBallIcon
 import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import kotlinx.coroutines.launch
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.diegofg11.pokequiz.ui.components.TutorialBox
+import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.TutorialManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,116 +118,166 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        val isFullScreen = currentRoute?.startsWith("battle") == true ||
-                                currentRoute == "welcome" ||
-                                currentRoute?.startsWith("safari_zone") == true
+                // --- GESTIÓN DEL TUTORIAL ---
+                com.diegofg11.pokequiz.utils.TutorialManager.init(context)
 
-                        if (!isFullScreen) {
-                            RetroBottomNavigation(
-                                currentRoute = currentRoute,
-                                onNavigate = { route ->
-                                    navController.navigate(route) {
-                                        if (route == "map") {
-                                            popUpTo("map") { inclusive = true }
-                                        } else {
-                                            popUpTo("map") { saveState = true }
-                                            restoreState = true
+                val tutorialSteps = listOf(
+                    "map" to ("EL MAPA" to "Aquí verás los niveles disponibles. Pulsa en uno para empezar una batalla y progresar."),
+                    "pc" to ("TU EQUIPO (PC)" to "En el PC podrás gestionar tus Pokémon y elegir quiénes te acompañan en batalla."),
+                    "gacha" to ("EL BAZAR" to "¡Usa tus monedas aquí para conseguir nuevos Pokémon aleatorios!"),
+                    "games" to ("ZONA SAFARI" to "¡Gana monedas extra jugando a divertidos minijuegos de tipos y memoria!"),
+                    "user" to ("TU PERFIL" to "Personaliza tu avatar y el fondo de pantalla desde aquí.")
+                )
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        bottomBar = {
+                            val isFullScreen = currentRoute?.startsWith("battle") == true ||
+                                    currentRoute == "welcome" ||
+                                    currentRoute?.startsWith("safari_zone") == true
+
+                            if (!isFullScreen) {
+                                RetroBottomNavigation(
+                                    currentRoute = currentRoute,
+                                    onNavigate = { route ->
+                                        navController.navigate(route) {
+                                            if (route == "map") {
+                                                popUpTo("map") { inclusive = true }
+                                            } else {
+                                                popUpTo("map") { saveState = true }
+                                                restoreState = true
+                                            }
+                                            launchSingleTop = true
                                         }
-                                        launchSingleTop = true
                                     }
-                                }
-                            )
+                                )
+                            }
+                        }
+                    ) { innerPadding ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = "welcome",
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
+                            composable("welcome") {
+                                WelcomeScreen(
+                                    onEnterClick = {
+                                        navController.navigate("map") {
+                                            popUpTo("welcome") { inclusive = true }
+                                        }
+                                    }
+                                )
+                            }
+                            composable("map") {
+                                MapScreen(
+                                    completedLevel = completedLevel,
+                                    onNavigateToBattle = { levelId ->
+                                        navController.navigate("battle/$levelId")
+                                    }
+                                )
+                            }
+                            composable("battle/{levelId}") { backStackEntry ->
+                                val levelId =
+                                    backStackEntry.arguments?.getString("levelId")?.toIntOrNull() ?: 1
+                                BattleScreen(
+                                    levelId = levelId,
+                                    onBattleWin = {
+                                        scope.launch {
+                                            try {
+                                                val response =
+                                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                                        com.diegofg11.pokequiz.api.Network.api.getUser(
+                                                            com.diegofg11.pokequiz.utils.SessionManager.currentUserId
+                                                        )
+                                                    }
+                                                if (response.isSuccessful && response.body() != null) {
+                                                    completedLevel = response.body()!!.nivelProgreso
+                                                }
+                                            } catch (e: Exception) {
+                                                globalErrorMessage =
+                                                    "Error de sincronización con el servidor."
+                                            }
+                                            // Volver al mapa tras la victoria
+                                            navController.navigate("map") {
+                                                popUpTo("map") { inclusive = true }
+                                            }
+                                        }
+                                    },
+                                    onNavigateBack = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                            composable("pc") {
+                                PCScreen()
+                            }
+                            composable("gacha") {
+                                GachaScreen(onNavigateToPC = {
+                                    navController.navigate("pc") {
+                                        popUpTo("map") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                })
+                            }
+                            composable("games") {
+                                MinigamesScreen(navController = navController)
+                            }
+                            composable("safari_zone/{gameIndex}") { backStackEntry ->
+                                val gameIndex =
+                                    backStackEntry.arguments?.getString("gameIndex")?.toIntOrNull() ?: 0
+                                com.diegofg11.pokequiz.ui.screens.SafariZonePager(
+                                    initialPage = gameIndex,
+                                    onNavigateBack = { navController.popBackStack() }
+                                )
+                            }
+                            composable("user") {
+                                UserScreen(
+                                    onLogout = {
+                                        navController.navigate("welcome") {
+                                            popUpTo(0) { inclusive = true }
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = "welcome",
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable("welcome") {
-                            WelcomeScreen(
-                                onEnterClick = {
-                                    navController.navigate("map") {
-                                        popUpTo("welcome") { inclusive = true }
-                                    }
-                                }
-                            )
-                        }
-                        composable("map") {
-                            MapScreen(
-                                completedLevel = completedLevel,
-                                onNavigateToBattle = { levelId ->
-                                    navController.navigate("battle/$levelId")
-                                }
-                            )
-                        }
-                        composable("battle/{levelId}") { backStackEntry ->
-                            val levelId =
-                                backStackEntry.arguments?.getString("levelId")?.toIntOrNull() ?: 1
-                            BattleScreen(
-                                levelId = levelId,
-                                onBattleWin = {
-                                    scope.launch {
-                                        try {
-                                            val response =
-                                                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                    com.diegofg11.pokequiz.api.Network.api.getUser(
-                                                        com.diegofg11.pokequiz.utils.SessionManager.currentUserId
-                                                    )
-                                                }
-                                            if (response.isSuccessful && response.body() != null) {
-                                                completedLevel = response.body()!!.nivelProgreso
+
+                    // Overlay de Tutorial por pasos navegables
+                    if (TutorialManager.isTutorialActive) {
+                        val currentStep = TutorialManager.currentStep
+                        val stepData = tutorialSteps.getOrNull(currentStep)
+                        
+                        if (stepData != null) {
+                            val (targetRoute, content) = stepData
+                            val (title, description) = content
+                            
+                            // Si estamos en la ruta correcta, mostramos el box
+                            if (currentRoute == targetRoute) {
+                                TutorialBox(
+                                    title = title,
+                                    description = description,
+                                    buttonText = if (currentStep < tutorialSteps.size - 1) "SIGUIENTE" else "ENTENDIDO",
+                                    onNext = {
+                                        if (currentStep < tutorialSteps.size - 1) {
+                                            val nextRoute = tutorialSteps[currentStep + 1].first
+                                            TutorialManager.nextStep(context)
+                                            navController.navigate(nextRoute)
+                                        } else {
+                                            TutorialManager.finishTutorial(context)
+                                            navController.navigate("map") {
+                                                popUpTo("map") { inclusive = true }
                                             }
-                                        } catch (e: Exception) {
-                                            globalErrorMessage =
-                                                "Error de sincronización con el servidor."
-                                        }
-                                        // Volver al mapa tras la victoria
-                                        navController.navigate("map") {
-                                            popUpTo("map") { inclusive = true }
                                         }
                                     }
-                                },
-                                onNavigateBack = {
-                                    navController.popBackStack()
+                                )
+                            } else if (currentRoute != "welcome") {
+                                // Forzar navegación al inicio del tutorial si se pierde
+                                LaunchedEffect(Unit) {
+                                    navController.navigate(targetRoute)
                                 }
-                            )
-                        }
-                        composable("pc") {
-                            PCScreen()
-                        }
-                        composable("gacha") {
-                            GachaScreen(onNavigateToPC = {
-                                navController.navigate("pc") {
-                                    popUpTo("map") { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            })
-                        }
-                        composable("games") {
-                            MinigamesScreen(navController = navController)
-                        }
-                        composable("safari_zone/{gameIndex}") { backStackEntry ->
-                            val gameIndex =
-                                backStackEntry.arguments?.getString("gameIndex")?.toIntOrNull() ?: 0
-                            com.diegofg11.pokequiz.ui.screens.SafariZonePager(
-                                initialPage = gameIndex,
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
-                        composable("user") {
-                            UserScreen(
-                                onLogout = {
-                                    navController.navigate("welcome") {
-                                        popUpTo(0) { inclusive = true }
-                                    }
-                                }
-                            )
+                            }
                         }
                     }
                 }

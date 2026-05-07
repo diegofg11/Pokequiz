@@ -28,6 +28,7 @@ import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
+import com.diegofg11.pokequiz.utils.TutorialManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -325,6 +326,8 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                     if (response.isSuccessful && response.body() != null) {
                                         val user = response.body()!!
                                         SessionManager.saveUserId(context, user.id)
+                                        SessionManager.setFirstTime(context, true)
+                                        TutorialManager.startTutorial(context)
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
                                         errorMessage = "ESE NOMBRE YA EXISTE\nO OCURRIÓ UN ERROR."
