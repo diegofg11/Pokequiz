@@ -2,6 +2,7 @@ package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,9 +18,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
+import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SafariGameState
 import com.diegofg11.pokequiz.utils.SafariUtils
 import com.diegofg11.pokequiz.models.PokeType
@@ -211,12 +214,20 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
         verticalArrangement = Arrangement.Center
     ) {
         RetroMenuBox(modifier = Modifier.size(200.dp)) {
-            AsyncImage(
-                model = opponent.imageUrl,
-                contentDescription = opponent.name,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Image(
+                    painter = painterResource(id = R.drawable.battle_base),
+                    contentDescription = null,
+                    modifier = Modifier.width(300.dp).height(150.dp).align(Alignment.BottomCenter).offset(x = (-10).dp, y = 30.dp),
+                    contentScale = ContentScale.Fit
+                )
+                AsyncImage(
+                    model = opponent.imageUrl,
+                    contentDescription = opponent.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
         
         Text(

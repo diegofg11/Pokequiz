@@ -1,7 +1,10 @@
 package com.diegofg11.pokequiz.ui.screens
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Star
@@ -19,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -26,6 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.models.PokemonBattle
 import com.diegofg11.pokequiz.models.Question
@@ -38,6 +44,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.models.Pokemon
+import com.diegofg11.pokequiz.R
 
 @Composable
 fun BattleScreen(
@@ -57,6 +64,10 @@ fun BattleScreen(
     var gameOverMessage by remember { mutableStateOf("") }
     var isVictory by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    // Estados para animaciones de daño
+    var isEnemyTakingDamage by remember { mutableStateOf(false) }
+    var isPlayerTakingDamage by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -151,6 +162,12 @@ fun BattleScreen(
         var gameOverThisTurn = false
 
         if (index == currentQuestion.correctAnswerIndex) {
+            // Efecto de daño al enemigo
+            scope.launch {
+                isEnemyTakingDamage = true
+                kotlinx.coroutines.delay(500)
+                isEnemyTakingDamage = false
+            }
             opponentHp = (opponentHp - damagePerHit).coerceAtLeast(0)
             if (opponentHp <= 0) {
                 gameOverMessage = "¡HAS GANADO!"
@@ -159,6 +176,12 @@ fun BattleScreen(
                 gameOverThisTurn = true
             }
         } else {
+            // Efecto de daño al jugador
+            scope.launch {
+                isPlayerTakingDamage = true
+                kotlinx.coroutines.delay(500)
+                isPlayerTakingDamage = false
+            }
             // Recibir daño escalado: Base 25 + (Nivel Enemigo * 2) - (Nivel Jugador * 2)
             val damageTaken = (25 + (enemyLevel * 2) - (pLevelVal * 2)).coerceIn(10, 60)
             userHp = (userHp - damageTaken).coerceAtLeast(0)
@@ -243,18 +266,54 @@ fun BattleScreen(
                     PokemonStatusBox(levelData!!.enemy?.nombre ?: "ENEMIGO", "NV$eLevel", opponentHp, (levelData!!.enemy?.hpBase ?: 100) + (eLevel * 5), false)
                 }
                 // Sprite Enemigo (Arriba Derecha)
-                AsyncImage(
-                    model = levelData!!.enemy?.spriteFront,
-                    contentDescription = "Enemigo",
-                    modifier = Modifier.align(Alignment.TopEnd).padding(end = 24.dp, top = 24.dp).size(160.dp)
-                )
+                Box(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(end = 24.dp, top = 24.dp).size(160.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.battle_base),
+                        contentDescription = null,
+                        modifier = Modifier.width(250.dp).height(120.dp).align(Alignment.BottomCenter).offset(x = 0.dp, y = 30.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    val enemyShake by animateFloatAsState(
+                        targetValue = if (isEnemyTakingDamage) 10f else 0f,
+                        animationSpec = repeatable(iterations = 5, animation = tween(50), repeatMode = RepeatMode.Reverse)
+                    )
+                    AsyncImage(
+                        model = levelData!!.enemy?.spriteFront,
+                        contentDescription = "Enemigo",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(x = enemyShake.dp)
+                            .graphicsLayer(alpha = if (isEnemyTakingDamage) 0.5f else 1f)
+                    )
+                }
 
                 // Sprite Jugador (Abajo Izquierda)
-                AsyncImage(
-                    model = pSprite,
-                    contentDescription = "Jugador",
-                    modifier = Modifier.align(Alignment.BottomStart).padding(start = 24.dp, bottom = 48.dp).size(180.dp)
-                )
+                Box(
+                    modifier = Modifier.align(Alignment.BottomStart).padding(start = 24.dp, bottom = 48.dp).size(180.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.battle_base),
+                        contentDescription = null,
+                        modifier = Modifier.width(350.dp).height(180.dp).align(Alignment.BottomCenter).offset(x = (-20).dp, y = 50.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    val playerShake by animateFloatAsState(
+                        targetValue = if (isPlayerTakingDamage) 10f else 0f,
+                        animationSpec = repeatable(iterations = 5, animation = tween(50), repeatMode = RepeatMode.Reverse)
+                    )
+                    AsyncImage(
+                        model = pSprite,
+                        contentDescription = "Jugador",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(x = playerShake.dp)
+                            .graphicsLayer(alpha = if (isPlayerTakingDamage) 0.5f else 1f)
+                    )
+                }
                 // Info Jugador (Abajo Derecha)
                 Box(Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp)) {
                     PokemonStatusBox(pName, pLevel.uppercase(), userHp, pMaxHp, true)
