@@ -202,10 +202,10 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
                                         val errorBody = response.errorBody()?.string()
-                                        errorMessage = if (errorBody?.contains("no existe") == true) "EL USUARIO NO EXISTE.\nREGÍSTRATE." else "ERROR EN EL INICIO DE SESIÓN."
+                                        errorMessage = "ERROR: ${response.code()} - ${errorBody ?: "No se pudo iniciar sesión."}"
                                     }
                                 } catch (e: Exception) {
-                                    errorMessage = "ERROR DE RED."
+                                    errorMessage = "ERROR DE CONEXIÓN: ${e.localizedMessage}"
                                 } finally {
                                     isLoading = false
                                 }
@@ -332,7 +332,9 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                         TutorialManager.startTutorial(context)
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
-                                        errorMessage = "ESE NOMBRE YA EXISTE\nO OCURRIÓ UN ERROR."
+                                        val errorBody = response.errorBody()?.string()
+                                        errorMessage = if (errorBody?.contains("existe") == true) "ESE NOMBRE YA EXISTE" 
+                                                      else "ERROR: ${response.code()} - ${errorBody ?: "Desconocido"}"
                                     }
                                 } catch (e: Exception) {
                                     errorMessage = "ERROR DE RED."
