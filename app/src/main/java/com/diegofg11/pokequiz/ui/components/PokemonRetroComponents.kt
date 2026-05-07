@@ -12,11 +12,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.animation.core.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -44,9 +46,9 @@ fun RetroMenuBox(
 ) {
     Box(
         modifier = modifier
-            .border(4.dp, borderColor, RoundedCornerShape(2.dp))
+            .border(4.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
             .padding(2.dp)
-            .border(2.dp, Color.White, RoundedCornerShape(1.dp))
+            .border(2.dp, Color.White, androidx.compose.ui.graphics.RectangleShape)
             .background(backgroundColor)
     ) {
         // Subtle grid pattern
@@ -282,68 +284,99 @@ fun SafariRetroHeader(
     onBackClick: () -> Unit,
     onHelpClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    extraContent: @Composable () -> Unit = {}
+    rightContent: (@Composable () -> Unit)? = null,
+    extraContent: (@Composable () -> Unit)? = null
 ) {
-    Box(
+    val height = if (extraContent != null) 110.dp else 70.dp
+    
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Título en Caja Retro (Centro)
-        RetroMenuBox(
-            modifier = Modifier.fillMaxWidth(0.55f),
-            backgroundColor = Color(0xFF2D5A27),
-            borderColor = Color(0xFF1B3022)
-        ) {
-            Text(
-                text = title.uppercase(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                fontFamily = FontFamily.Monospace
-            )
-        }
-        
-        extraContent()
-
-        // Botón Atrás (Izquierda) - Ahora a juego con el de ayuda
-        Surface(
-            onClick = onBackClick,
-            modifier = Modifier
-                .size(36.dp)
-                .align(Alignment.CenterStart),
-            shape = CircleShape,
-            color = Color(0xFF2D5A27),
-            contentColor = Color.White,
-            border = BorderStroke(2.dp, Color(0xFF1B3022))
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+            .height(height)
+            .drawBehind {
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.4f),
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 6.dp.toPx()
                 )
-            }
-        }
-
-        // Botón Ayuda (Derecha)
-        if (onHelpClick != null) {
-            Surface(
-                onClick = onHelpClick,
+            },
+        color = Color(0xFF1B3022)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
                 modifier = Modifier
-                    .size(36.dp)
-                    .align(Alignment.CenterEnd),
-                shape = CircleShape,
-                color = Color(0xFF2D5A27),
-                contentColor = Color.White,
-                border = BorderStroke(2.dp, Color(0xFF1B3022))
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("?", fontWeight = FontWeight.Black, fontSize = 18.sp)
+                // Left: Back Button (Balanced with right side)
+                Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
+                    Surface(
+                        onClick = onBackClick,
+                        modifier = Modifier.size(40.dp),
+                        shape = androidx.compose.ui.graphics.RectangleShape,
+                        color = Color(0xFF2D5A27),
+                        contentColor = Color.White,
+                        border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
+                        }
+                    }
+                }
+
+                // Center: Title
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = title.uppercase(),
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Monospace,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1
+                    )
+                }
+
+                // Right: Custom Content or Help
+                Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterEnd) {
+                    if (rightContent != null) {
+                        rightContent()
+                    } else if (onHelpClick != null) {
+                        Surface(
+                            onClick = onHelpClick,
+                            modifier = Modifier.size(40.dp),
+                            shape = androidx.compose.ui.graphics.RectangleShape,
+                            color = Color(0xFF2D5A27),
+                            contentColor = Color.White,
+                            border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("?", fontWeight = FontWeight.Black, fontSize = 20.sp)
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (extraContent != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, start = 24.dp, end = 24.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    extraContent()
                 }
             }
         }
@@ -359,7 +392,7 @@ fun NavigationArrow(
     Surface(
         onClick = onClick,
         modifier = modifier.size(48.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = androidx.compose.ui.graphics.RectangleShape,
         color = Color(0xFF2D5A27),
         contentColor = Color.White,
         border = BorderStroke(2.dp, Color(0xFF1B3022))
@@ -393,14 +426,14 @@ fun RetroDifficultyCard(
             .height(150.dp)
             .fillMaxWidth()
             .clickable { onClick() }
-            .border(3.dp, Color(0xFF1B3022), RoundedCornerShape(8.dp))
-            .background(Color.Black.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
+            .border(3.dp, Color(0xFF1B3022), androidx.compose.ui.graphics.RectangleShape)
+            .background(Color.Black.copy(alpha = 0.05f), androidx.compose.ui.graphics.RectangleShape)
             .padding(4.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                .background(color.copy(alpha = 0.15f), androidx.compose.ui.graphics.RectangleShape)
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -433,7 +466,7 @@ fun RetroDifficultyCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
+                        .background(Color.Black.copy(alpha = 0.08f), androidx.compose.ui.graphics.RectangleShape)
                         .padding(vertical = 6.dp, horizontal = 4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
@@ -448,6 +481,57 @@ fun RetroDifficultyCard(
                         InfoItem(label = rewardLabel, value = reward, color = Color(0xFF1B5E20))
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun RetroStatCard(
+    label: String,
+    value: String,
+    containerColor: Color,
+    contentColor: Color = Color.White,
+    modifier: Modifier = Modifier,
+    icon: String? = null
+) {
+    Box(
+        modifier = modifier
+            .border(2.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
+            .padding(1.dp)
+            .border(1.dp, Color.White.copy(alpha = 0.3f), androidx.compose.ui.graphics.RectangleShape)
+            .background(containerColor, androidx.compose.ui.graphics.RectangleShape)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = label.uppercase(),
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black,
+                color = contentColor.copy(alpha = 0.8f),
+                fontFamily = FontFamily.Monospace,
+                letterSpacing = 1.sp
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (icon != null) {
+                    Text(icon, fontSize = 16.sp, modifier = Modifier.padding(end = 4.dp))
+                }
+                Text(
+                    text = value,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
+                    color = contentColor,
+                    fontFamily = FontFamily.Monospace,
+                    style = TextStyle(
+                        shadow = androidx.compose.ui.graphics.Shadow(
+                            color = Color.Black.copy(alpha = 0.3f),
+                            offset = Offset(2f, 2f),
+                            blurRadius = 2f
+                        )
+                    )
+                )
             }
         }
     }
@@ -496,51 +580,61 @@ fun SafariResultScreen(
     onRetry: () -> Unit,
     onExit: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "results")
+    val offsetY by infiniteTransition.animateFloat(
+        initialValue = -5f,
+        targetValue = 5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
+
     RetroBackground(
         modifier = Modifier.pointerInput(Unit) { detectTapGestures {} }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(32.dp)
+                .offset(y = offsetY.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             // Icono de Resultado
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), CircleShape)
-                    .border(4.dp, Color.Black.copy(alpha = 0.2f), CircleShape),
+                    .size(90.dp)
+                    .background(if (isVictory) Color(0xFF4CAF50) else Color(0xFFE53935), androidx.compose.ui.graphics.RectangleShape)
+                    .border(4.dp, Color.Black.copy(alpha = 0.3f), androidx.compose.ui.graphics.RectangleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     if (isVictory) "🏆" else "❌",
-                    fontSize = 50.sp
+                    fontSize = 48.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Título Principal
             RetroText(
                 text = title.uppercase(),
-                fontSize = 38.sp,
+                fontSize = 36.sp,
                 textAlign = TextAlign.Center,
                 color = if (isVictory) Color.White else Color(0xFF1B3022)
             )
 
             // Subtítulo (Modo)
-            Text(
+            RetroText(
                 text = subtitle,
                 color = if (isVictory) Color(0xFF2D5A27) else Color(0xFF1B3022).copy(alpha = 0.7f),
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(top = 4.dp)
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Descripción
             Text(
@@ -550,55 +644,54 @@ fun SafariResultScreen(
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily.Monospace,
                 lineHeight = 18.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Monedas Ganadas
-            RetroMenuBox(
-                backgroundColor = Color.Black.copy(alpha = 0.05f),
-                borderColor = if (isVictory) GoldPoke else Color.Gray,
-                modifier = Modifier.wrapContentSize()
+            // Monedas Ganadas (Ahora sin recuadro, más limpio)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.05f))
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                ) {
-                    Text(
-                        text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
-                        color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Black,
-                        fontFamily = FontFamily.Monospace
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("💰", fontSize = 18.sp)
-                }
+                Text(
+                    text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
+                    color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("💰", fontSize = 20.sp)
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            // Botones de Acción
+            // Botones de Acción Gigantes
             RetroButton(
                 text = "INTENTAR DE NUEVO",
                 onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
+                    .height(64.dp),
                 containerColor = Color(0xFF2D5A27),
-                contentColor = Color.White
+                contentColor = Color.White,
+                fontSize = 18.sp
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             RetroButton(
                 text = "VOLVER AL MENÚ",
                 onClick = onExit,
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp),
+                containerColor = Color.DarkGray,
                 contentColor = Color.White,
-                fontSize = 12.sp
+                fontSize = 18.sp
             )
         }
     }
@@ -670,26 +763,36 @@ fun RetroButton(
     fontSize: androidx.compose.ui.unit.TextUnit = 16.sp,
     enabled: Boolean = true
 ) {
-    Button(
-        onClick = onClick,
+    val shadowColor = borderColor.copy(alpha = 0.5f)
+    
+    Box(
         modifier = modifier
             .height(56.dp)
-            .border(2.dp, borderColor, RoundedCornerShape(8.dp)),
-        enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = containerColor.copy(alpha = 0.5f),
-            disabledContentColor = contentColor.copy(alpha = 0.5f)
-        ),
-        shape = RoundedCornerShape(8.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+            .clickable(enabled = enabled) { onClick() }
+            .border(2.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
+            .padding(1.dp)
+            .drawBehind {
+                // Sombra interior sutil
+                drawRect(
+                    color = Color.Black.copy(alpha = 0.15f),
+                    topLeft = Offset(0f, size.height * 0.6f),
+                    size = Size(size.width, size.height * 0.4f)
+                )
+            }
+            .background(
+                if (enabled) containerColor else containerColor.copy(alpha = 0.5f),
+                androidx.compose.ui.graphics.RectangleShape
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = text.uppercase(),
+            color = if (enabled) contentColor else contentColor.copy(alpha = 0.5f),
             fontWeight = FontWeight.Black,
             fontFamily = FontFamily.Monospace,
-            fontSize = fontSize
+            fontSize = fontSize,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
 }

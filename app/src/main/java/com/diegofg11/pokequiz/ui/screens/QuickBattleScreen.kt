@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -42,7 +43,9 @@ fun QuickBattleScreen(
     var currentOpponent by remember { mutableStateOf<QuickBattleOpponent?>(null) }
     var roundCount by remember { mutableIntStateOf(0) }
     var victories by remember { mutableIntStateOf(0) }
+    var showResultDialog by remember { mutableStateOf(false) }
     var globalError by remember { mutableStateOf<String?>(null) }
+    var showExitWarning by remember { mutableStateOf(false) }
     
     var isLoading by remember { mutableStateOf(false) }
     
@@ -87,117 +90,148 @@ fun QuickBattleScreen(
                     title = if (isInverse) "BATALLA INVERSA" else "BATALLA RÁPIDA",
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {
-                            gameState = SafariGameState.RESULT
+                            showExitWarning = true
                         } else {
                             gameState = SafariGameState.START
-                        }
-                    },
-                    extraContent = {
-                        if (gameState == SafariGameState.PLAYING) {
-                            Box(modifier = Modifier.fillMaxWidth().padding(end = 48.dp), contentAlignment = Alignment.CenterEnd) {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        Text("RONDA", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                        Text("${roundCount + 1}/3", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                                    }
-                                    Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.White.copy(alpha = 0.3f)))
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        Text("VICTORIAS", color = Color.White.copy(alpha = 0.6f), fontSize = 8.sp, fontFamily = FontFamily.Monospace)
-                                        Text("$victories", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                                    }
-                                }
-                            }
                         }
                     }
                 )
             }
 
-            Box(modifier = Modifier.weight(1f)) {
-                when (gameState) {
-                    SafariGameState.START -> SafariSelectionScreen(
-                        title = "BATALLA RÁPIDA",
-                        subtitle = "Demuestra tu conocimiento de tipos",
-                        cards = listOf(
-                            DifficultyCardData(
-                                "CLÁSICO", 
-                                "Tipos efectivos", 
-                                cost = "-20", 
-                                reward = "150", 
-                                color = Color(0xFFE53935), 
-                                onClick = {
-                                    if (!isLoading) {
-                                        SafariUtils.rewardUser(
-                                            scope = scope,
-                                            coins = -20,
-                                            onSuccess = {
-                                                isInverse = false
-                                                victories = 0
-                                                roundCount = 0
-                                                fetchNewOpponent {
-                                                    gameState = SafariGameState.PLAYING
-                                                }
-                                            },
-                                            onError = { globalError = it }
-                                        )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(top = if (gameState == SafariGameState.START) 0.dp else 80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (gameState == SafariGameState.PLAYING) {
+                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        // Large Stats Bar outside header
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RetroStatCard(
+                                label = "RONDA",
+                                value = "${roundCount + 1}/3",
+                                containerColor = Color(0xFF673AB7), // Purple
+                                modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                            )
+                            
+                            RetroStatCard(
+                                label = "VICTORIAS",
+                                value = "$victories",
+                                containerColor = Color(0xFFFFA000), // Amber
+                                modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                            )
+                        }
+                        
+                        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            if (isLoading) {
+                                CircularProgressIndicator(color = GoldPoke)
+                            } else if (currentOpponent != null) {
+                                QuickBattleGame(
+                                    opponent = currentOpponent!!,
+                                    isInverse = isInverse,
+                                    onResult = { won ->
+                                        if (won) victories += 1
+                                        roundCount += 1
+                                        if (roundCount >= 3) {
+                                            gameState = SafariGameState.RESULT
+                                            val rewardBase = if (isInverse) 250 else 150
+                                            val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else 0
+                                            SafariUtils.rewardUser(scope = scope, coins = reward)
+                                        } else {
+                                            fetchNewOpponent()
+                                        }
                                     }
-                                }
-                            ),
-                            DifficultyCardData(
-                                "INVERSO", 
-                                "Usa resistencias", 
-                                cost = "-40", 
-                                reward = "250", 
-                                color = Color(0xFF9C27B0), 
-                                onClick = {
-                                    if (!isLoading) {
-                                        SafariUtils.rewardUser(
-                                            scope = scope,
-                                            coins = -40,
-                                            onSuccess = {
-                                                isInverse = true
-                                                victories = 0
-                                                roundCount = 0
-                                                fetchNewOpponent {
-                                                    gameState = SafariGameState.PLAYING
-                                                }
-                                            },
-                                            onError = { globalError = it }
-                                        )
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    when (gameState) {
+                        SafariGameState.START -> SafariSelectionScreen(
+                            title = "BATALLA RÁPIDA",
+                            subtitle = "Demuestra tu conocimiento de tipos",
+                            cards = listOf(
+                                DifficultyCardData(
+                                    "CLÁSICO", 
+                                    "Tipos efectivos", 
+                                    cost = "-20", 
+                                    reward = "150", 
+                                    color = Color(0xFFE53935), 
+                                    onClick = {
+                                        if (!isLoading) {
+                                            SafariUtils.rewardUser(
+                                                scope = scope,
+                                                coins = -20,
+                                                onSuccess = {
+                                                    isInverse = false
+                                                    victories = 0
+                                                    roundCount = 0
+                                                    fetchNewOpponent {
+                                                        gameState = SafariGameState.PLAYING
+                                                    }
+                                                },
+                                                onError = { globalError = it }
+                                            )
+                                        }
                                     }
-                                }
+                                ),
+                                DifficultyCardData(
+                                    "INVERSO", 
+                                    "Usa resistencias", 
+                                    cost = "-40", 
+                                    reward = "250", 
+                                    color = Color(0xFF9C27B0), 
+                                    onClick = {
+                                        if (!isLoading) {
+                                            SafariUtils.rewardUser(
+                                                scope = scope,
+                                                coins = -40,
+                                                onSuccess = {
+                                                    isInverse = true
+                                                    victories = 0
+                                                    roundCount = 0
+                                                    fetchNewOpponent {
+                                                        gameState = SafariGameState.PLAYING
+                                                    }
+                                                },
+                                                onError = { globalError = it }
+                                            )
+                                        }
+                                    }
+                                )
                             )
                         )
-                    )
-                    SafariGameState.PLAYING -> if (isLoading) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = GoldPoke)
-                        }
-                    } else if (currentOpponent != null) {
-                        QuickBattleGame(
-                            opponent = currentOpponent!!,
+                        SafariGameState.RESULT -> QuickBattleResult(
+                            victories = victories,
                             isInverse = isInverse,
-                            onResult = { isVictory ->
-                                if (isVictory) victories++
-                                roundCount++
-                                if (roundCount >= 3) {
-                                    gameState = SafariGameState.RESULT
-                                    val rewardBase = if (isInverse) 250 else 150
-                                    val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else (rewardBase * 0.1).toInt()
-                                    SafariUtils.rewardUser(scope = scope, coins = reward)
-                                } else {
-                                    fetchNewOpponent()
-                                }
-                            }
+                            onRetry = { gameState = SafariGameState.START },
+                            onExit = onNavigateBack
                         )
+                        else -> {}
                     }
-                    SafariGameState.RESULT -> QuickBattleResult(
-                        victories = victories,
-                        isInverse = isInverse,
-                        onRetry = { gameState = SafariGameState.START },
-                        onExit = onNavigateBack
-                    )
                 }
             }
+        }
+
+        if (showExitWarning) {
+            val penalty = if (isInverse) 40 else 20
+            PokemonAlertDialog(
+                title = "¡Atención!",
+                message = "Si abandonas ahora perderás tu entrada de $penalty monedas. ¿Seguro que quieres salir?",
+                isError = true,
+                confirmText = "Abandonar",
+                onConfirm = {
+                    showExitWarning = false
+                    onNavigateBack()
+                },
+                onDismiss = { showExitWarning = false }
+            )
         }
     }
 }
@@ -218,7 +252,11 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
                 Image(
                     painter = painterResource(id = R.drawable.battle_base),
                     contentDescription = null,
-                    modifier = Modifier.width(300.dp).height(150.dp).align(Alignment.BottomCenter).offset(x = (-10).dp, y = 30.dp),
+                    modifier = Modifier
+                        .width(300.dp)
+                        .height(150.dp)
+                        .align(Alignment.BottomCenter)
+                        .offset(x = (-10).dp, y = 30.dp),
                     contentScale = ContentScale.Fit
                 )
                 AsyncImage(
@@ -302,34 +340,26 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
 
 @Composable
 fun TypeButton(type: PokeType, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier
-            .height(48.dp)
-            .border(2.dp, Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp)),
-        shape = RoundedCornerShape(8.dp),
-        color = type.color,
-        shadowElevation = 4.dp
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = type.nombreEs.uppercase(),
-                color = when(type) {
-                    PokeType.ELECTRIC, PokeType.ICE, PokeType.GROUND, PokeType.STEEL, PokeType.NORMAL -> Color.Black
-                    else -> Color.White
-                },
-                fontWeight = FontWeight.Black,
-                fontSize = 12.sp,
-                fontFamily = FontFamily.Monospace
-            )
-        }
+    val contentColor = when(type) {
+        PokeType.ELECTRIC, PokeType.ICE, PokeType.GROUND, PokeType.STEEL, PokeType.NORMAL -> Color.Black
+        else -> Color.White
     }
+
+    RetroButton(
+        text = type.nombreEs,
+        onClick = onClick,
+        modifier = modifier.height(48.dp),
+        containerColor = type.color,
+        contentColor = contentColor,
+        borderColor = Color.Black.copy(alpha = 0.5f),
+        fontSize = 11.sp
+    )
 }
 
 @Composable
 fun QuickBattleResult(victories: Int, isInverse: Boolean, onRetry: () -> Unit, onExit: () -> Unit) {
     val rewardBase = if (isInverse) 250 else 150
-    val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else (rewardBase * 0.1).toInt()
+    val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else 0
     
     SafariResultScreen(
         title = if (victories >= 2) "¡MAESTRO DE TIPOS!" else "SESIÓN FINALIZADA",
