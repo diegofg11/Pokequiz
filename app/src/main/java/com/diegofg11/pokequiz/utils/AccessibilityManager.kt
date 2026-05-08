@@ -6,8 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
-enum class ColorBlindMode {
-    NONE, PROTANOPIA, DEUTERANOPIA, TRITANOPIA, MONOCHROMACY
+enum class ColorBlindMode(val displayName: String) {
+    NONE("NINGUNO"), 
+    PROTANOPIA("PROTANOPIA"), 
+    DEUTERANOPIA("DEUTERANOPIA"), 
+    TRITANOPIA("TRITANOPIA"), 
+    MONOCHROMACY("ACROMATOPSIA")
 }
 
 object AccessibilityManager {
@@ -69,7 +73,46 @@ object AccessibilityManager {
             .edit().putString(KEY_COLOR_BLIND_MODE, mode.name).apply()
     }
 
+    fun getColorMatrix(): androidx.compose.ui.graphics.ColorMatrix {
+        val matrix = androidx.compose.ui.graphics.ColorMatrix()
+        if (colorBlindMode == ColorBlindMode.NONE) return matrix
+
+        val values = when (colorBlindMode) {
+            ColorBlindMode.PROTANOPIA -> floatArrayOf(
+                0.56667f, 0.43333f, 0f, 0f, 0f,
+                0.55833f, 0.44167f, 0f, 0f, 0f,
+                0f, 0.24167f, 0.75833f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )
+            ColorBlindMode.DEUTERANOPIA -> floatArrayOf(
+                0.625f, 0.375f, 0f, 0f, 0f,
+                0.7f, 0.3f, 0f, 0f, 0f,
+                0f, 0.3f, 0.7f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )
+            ColorBlindMode.TRITANOPIA -> floatArrayOf(
+                0.95f, 0.05f, 0f, 0f, 0f,
+                0f, 0.43333f, 0.56667f, 0f, 0f,
+                0f, 0.475f, 0.525f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )
+            ColorBlindMode.MONOCHROMACY -> floatArrayOf(
+                0.299f, 0.587f, 0.114f, 0f, 0f,
+                0.299f, 0.587f, 0.114f, 0f, 0f,
+                0.299f, 0.587f, 0.114f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )
+            else -> return matrix
+        }
+        
+        // Asignar manualmente los valores ya que setValues o similar no est disponible directamente igual
+        // En Compose ColorMatrix se usa con un floatArray de 20 elementos
+        return androidx.compose.ui.graphics.ColorMatrix(values)
+    }
+
     fun applyColorBlindFilter(color: Color): Color {
+        // Mantenemos esto por compatibilidad si algn componente lo usa fuera de RetroBackground
+        // Pero lo ideal es usar el ColorMatrix global
         if (colorBlindMode == ColorBlindMode.NONE) return color
         
         val r = color.red
@@ -78,28 +121,24 @@ object AccessibilityManager {
         
         return when (colorBlindMode) {
             ColorBlindMode.PROTANOPIA -> {
-                // Simulación/Ajuste para Protanopia (Falta de Rojo)
                 val newR = 0.567f * r + 0.433f * g
                 val newG = 0.558f * r + 0.442f * g
-                val newB = 0f * r + 0.242f * g + 0.758f * b
+                val newB = 0.242f * g + 0.758f * b
                 Color(newR.coerceIn(0f, 1f), newG.coerceIn(0f, 1f), newB.coerceIn(0f, 1f), color.alpha)
             }
             ColorBlindMode.DEUTERANOPIA -> {
-                // Simulación/Ajuste para Deuteranopia (Falta de Verde)
                 val newR = 0.625f * r + 0.375f * g
                 val newG = 0.7f * r + 0.3f * g
-                val newB = 0f * r + 0.3f * g + 0.7f * b
+                val newB = 0.3f * g + 0.7f * b
                 Color(newR.coerceIn(0f, 1f), newG.coerceIn(0f, 1f), newB.coerceIn(0f, 1f), color.alpha)
             }
             ColorBlindMode.TRITANOPIA -> {
-                // Simulación/Ajuste para Tritanopia (Falta de Azul)
                 val newR = 0.95f * r + 0.05f * g
-                val newG = 0f * r + 0.433f * g + 0.567f * b
-                val newB = 0f * r + 0.475f * g + 0.525f * b
+                val newG = 0.433f * g + 0.567f * b
+                val newB = 0.475f * g + 0.525f * b
                 Color(newR.coerceIn(0f, 1f), newG.coerceIn(0f, 1f), newB.coerceIn(0f, 1f), color.alpha)
             }
             ColorBlindMode.MONOCHROMACY -> {
-                // Acromatopsia (Escala de grises)
                 val gray = 0.299f * r + 0.587f * g + 0.114f * b
                 Color(gray, gray, gray, color.alpha)
             }

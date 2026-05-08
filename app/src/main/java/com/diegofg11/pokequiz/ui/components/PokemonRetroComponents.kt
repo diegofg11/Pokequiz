@@ -87,13 +87,35 @@ fun RetroBackground(
     content: @Composable BoxScope.() -> Unit
 ) {
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    val bgColor = if (isHighContrast) Color.Black else AccessibilityManager.applyColorBlindFilter(Color(0xFF1B3022))
-    val screenBg = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(Color(0xFF94A684))
-    val borderColor = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(Color(0xFF2D5A27))
+    val bgColor = if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    val screenBg = if (isHighContrast) Color.White else Color(0xFF94A684)
+    val borderColor = if (isHighContrast) Color.White else Color(0xFF2D5A27)
 
     Box(
         modifier = modifier
             .fillMaxSize()
+            .graphicsLayer {
+                renderEffect = if (AccessibilityManager.colorBlindMode != ColorBlindMode.NONE) {
+                    androidx.compose.ui.graphics.ColorFilter.colorMatrix(AccessibilityManager.getColorMatrix()).let { null } 
+                    // Nota: renderEffect es para efectos ms complejos, en Compose estable usaremos colorFilter si est disponible
+                    // o simplemente graphicsLayer con colorFilter no existe directamente, se usa en Canvas o Painter.
+                    // Para un Box completo, lo mejor es usar drawWithContent.
+                    null
+                } else null
+            }
+            .drawWithContent {
+                val matrix = AccessibilityManager.getColorMatrix()
+                if (AccessibilityManager.colorBlindMode != ColorBlindMode.NONE) {
+                    drawContent()
+                    drawRect(
+                        color = Color.Transparent,
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.colorMatrix(matrix),
+                        blendMode = androidx.compose.ui.graphics.BlendMode.Color
+                    )
+                } else {
+                    drawContent()
+                }
+            }
             .background(bgColor)
     ) {
         // Pixel Pattern Overlay (Capa base) - Hidden in high contrast for clarity
@@ -117,9 +139,9 @@ fun RetroBackground(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
-                .background(screenBg, RoundedCornerShape(4.dp))
-                .border(2.dp, borderColor, RoundedCornerShape(4.dp))
-                .border(4.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                .background(screenBg, androidx.compose.ui.graphics.RectangleShape)
+                .border(2.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
+                .border(4.dp, Color.Black.copy(alpha = 0.1f), androidx.compose.ui.graphics.RectangleShape)
         ) {
             // Grid de fondo muy sutil para la "pantalla"
             if (!isHighContrast) {
@@ -158,8 +180,6 @@ fun RetroText(
     var textColor = if (isHighContrast) {
         if (color == Color.White) Color.White else Color.Black
     } else color
-    
-    textColor = AccessibilityManager.applyColorBlindFilter(textColor)
 
     val style = TextStyle(
         color = textColor,
@@ -180,7 +200,7 @@ fun RetroText(
         modifier = modifier,
         contentAlignment = boxAlignment
     ) {
-        if (showShadow) {
+        if (showShadow && !isHighContrast) {
             Text(
                 text = text,
                 style = style.copy(color = shadowColor.copy(alpha = 0.3f)),
@@ -307,21 +327,23 @@ fun SafariRetroHeader(
     rightContent: (@Composable () -> Unit)? = null,
     extraContent: (@Composable () -> Unit)? = null
 ) {
-    val height = if (extraContent != null) 110.dp else 70.dp
-    
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
+    val headerBg = if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    val contentColor = Color.White
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(height)
+            .heightIn(min = 60.dp)
             .drawBehind {
                 drawLine(
-                    color = Color.Black.copy(alpha = 0.4f),
+                    color = if (isHighContrast) Color.White else Color.Black.copy(alpha = 0.4f),
                     start = Offset(0f, size.height),
                     end = Offset(size.width, size.height),
                     strokeWidth = 6.dp.toPx()
                 )
             },
-        color = Color(0xFF1B3022)
+        color = headerBg
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -339,9 +361,9 @@ fun SafariRetroHeader(
                         onClick = onBackClick,
                         modifier = Modifier.size(40.dp),
                         shape = androidx.compose.ui.graphics.RectangleShape,
-                        color = Color(0xFF2D5A27),
+                        color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
                         contentColor = Color.White,
-                        border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                        border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f))
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
@@ -356,10 +378,11 @@ fun SafariRetroHeader(
                         .padding(horizontal = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
+                    val scaledTitleSize = 15.sp * AccessibilityManager.fontScale
                     Text(
                         text = title.uppercase(),
                         color = Color.White,
-                        fontSize = 15.sp,
+                        fontSize = scaledTitleSize,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
                         textAlign = TextAlign.Center,
@@ -376,9 +399,9 @@ fun SafariRetroHeader(
                             onClick = onHelpClick,
                             modifier = Modifier.size(40.dp),
                             shape = androidx.compose.ui.graphics.RectangleShape,
-                            color = Color(0xFF2D5A27),
+                            color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
                             contentColor = Color.White,
-                            border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                            border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f))
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text("?", fontWeight = FontWeight.Black, fontSize = 20.sp)
@@ -439,11 +462,13 @@ fun RetroDifficultyCard(
     rewardLabel: String = "GANA",
     onClick: () -> Unit
 ) {
-    val borderColor = color.copy(alpha = 0.8f)
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
+    val finalColor = if (isHighContrast) Color.White else color
+    val borderColor = if (isHighContrast) Color.Black else color.copy(alpha = 0.8f)
     
     Box(
         modifier = modifier
-            .height(150.dp)
+            .heightIn(min = 150.dp)
             .fillMaxWidth()
             .clickable { onClick() }
             .border(3.dp, Color(0xFF1B3022), androidx.compose.ui.graphics.RectangleShape)
@@ -462,7 +487,7 @@ fun RetroDifficultyCard(
                 text = title.uppercase(),
                 color = Color(0xFF1B3022), // Verde casi negro para máxima lectura
                 fontWeight = FontWeight.Black,
-                fontSize = 18.sp,
+                fontSize = 18.sp * AccessibilityManager.fontScale,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center
             )
@@ -471,12 +496,12 @@ fun RetroDifficultyCard(
             Text(
                 text = subtitle,
                 color = Color.Black.copy(alpha = 0.7f),
-                fontSize = 10.sp,
+                fontSize = 10.sp * AccessibilityManager.fontScale,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 2.dp, bottom = 8.dp),
-                lineHeight = 12.sp
+                lineHeight = 12.sp * AccessibilityManager.fontScale
             )
             
             Spacer(modifier = Modifier.weight(1f))
@@ -528,7 +553,7 @@ fun RetroStatCard(
         ) {
             Text(
                 text = label.uppercase(),
-                fontSize = 9.sp,
+                fontSize = 9.sp * AccessibilityManager.fontScale,
                 fontWeight = FontWeight.Black,
                 color = contentColor.copy(alpha = 0.8f),
                 fontFamily = FontFamily.Monospace,
@@ -540,7 +565,7 @@ fun RetroStatCard(
                 }
                 Text(
                     text = value,
-                    fontSize = 20.sp,
+                    fontSize = 20.sp * AccessibilityManager.fontScale,
                     fontWeight = FontWeight.Black,
                     color = contentColor,
                     fontFamily = FontFamily.Monospace,
@@ -563,11 +588,12 @@ private fun InfoItem(label: String, value: String, color: Color) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        val isHighContrast = AccessibilityManager.isHighContrastEnabled
         Text(
             text = label, 
             fontSize = 9.sp, 
             fontWeight = FontWeight.Black, 
-            color = Color.Black.copy(alpha = 0.5f),
+            color = if (isHighContrast) Color.Black else Color.Black.copy(alpha = 0.5f),
             fontFamily = FontFamily.Monospace
         )
         Row(
@@ -581,7 +607,7 @@ private fun InfoItem(label: String, value: String, color: Color) {
             )
             Text(
                 text = value, 
-                fontSize = 14.sp, 
+                fontSize = 14.sp * AccessibilityManager.fontScale, 
                 fontWeight = FontWeight.Black, 
                 color = color,
                 fontFamily = FontFamily.Monospace
@@ -790,15 +816,13 @@ fun RetroButton(
         if (containerColor == Color.Gray) Color.DarkGray else Color.Black
     } else containerColor
     
-    finalContainerColor = AccessibilityManager.applyColorBlindFilter(finalContainerColor)
-    
-    val finalContentColor = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(contentColor)
-    val finalBorderColor = if (isHighContrast) Color.White else AccessibilityManager.applyColorBlindFilter(borderColor)
+    val finalContentColor = if (isHighContrast) Color.White else contentColor
+    val finalBorderColor = if (isHighContrast) Color.White else borderColor
     val scaledFontSize = fontSize * AccessibilityManager.fontScale
 
     Box(
         modifier = modifier
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .clickable(
                 enabled = enabled,
                 onClickLabel = if (AccessibilityManager.isScreenReaderOptimized) "Seleccionar $text" else null
