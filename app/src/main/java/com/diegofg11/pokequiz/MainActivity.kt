@@ -37,6 +37,7 @@ import com.diegofg11.pokequiz.ui.components.PokemonAlertDialog
 import kotlinx.coroutines.launch
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.diegofg11.pokequiz.ui.components.TutorialBox
+import com.diegofg11.pokequiz.utils.Logger
 import com.diegofg11.pokequiz.utils.SessionManager
 import com.diegofg11.pokequiz.utils.TutorialManager
 
@@ -55,6 +56,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         com.diegofg11.pokequiz.utils.SessionManager.init(this)
         com.diegofg11.pokequiz.utils.AccessibilityManager.init(this)
+        
+        // Limpiar logs antiguos al iniciar la app
+        Logger.cleanOldLogs(this)
+        Logger.i(this, "MainActivity", "Aplicación iniciada")
+
         requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         enableEdgeToEdge()
         setContent {
@@ -118,7 +124,7 @@ class MainActivity : ComponentActivity() {
                                     completedLevel = response.body()!!.nivelProgreso
                                 }
                             } catch (e: Exception) {
-                                android.util.Log.e("MainActivity", "Error fetching user", e)
+                                Logger.e(context, "MainActivity", "Error fetching user", e)
                                 globalErrorMessage =
                                     context.getString(R.string.connection_server_error)
                             }
@@ -212,6 +218,7 @@ class MainActivity : ComponentActivity() {
                                                     completedLevel = response.body()!!.nivelProgreso
                                                 }
                                             } catch (e: Exception) {
+                                                Logger.e(context, "MainActivity", "Sync error", e)
                                                 globalErrorMessage =
                                                     context.getString(R.string.sync_error)
                                             }
