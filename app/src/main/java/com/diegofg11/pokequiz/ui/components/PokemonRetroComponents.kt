@@ -474,15 +474,31 @@ fun NavigationArrow(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
+    
     Surface(
         onClick = onClick,
         modifier = modifier.size(48.dp),
         shape = androidx.compose.ui.graphics.RectangleShape,
-        color = Color(0xFF2D5A27),
-        contentColor = Color.White,
-        border = BorderStroke(2.dp, Color(0xFF1B3022))
+        color = if (isHighContrast) Color.Black else Color.White,
+        contentColor = if (isHighContrast) Color.White else Color.Black,
+        border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.Black)
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    if (!isHighContrast) {
+                        // Franja decorativa verde arriba para mantener consistencia con el header y bottom nav
+                        drawRect(
+                            color = Color(0xFF2D5A27),
+                            topLeft = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            size = androidx.compose.ui.geometry.Size(size.width, 4.dp.toPx())
+                        )
+                    }
+                }
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,

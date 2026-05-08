@@ -14,7 +14,7 @@ fun MinigamesScreen(navController: NavController? = null) {
 
     RetroBackground {
         Column(modifier = Modifier.fillMaxSize()) {
-            RetroHeader(isSafariStyle = true, 
+            RetroHeader(
                 title = "ZONA SAFARI",
                 onBackClick = { navController?.popBackStack() },
                 onHelpClick = { showHelp = true }

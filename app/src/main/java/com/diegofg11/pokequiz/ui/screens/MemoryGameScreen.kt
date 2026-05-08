@@ -233,7 +233,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        RetroHeader(isSafariStyle = true, 
+        RetroHeader(
             title = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
             onBackClick = {
                 if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
