@@ -210,10 +210,9 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         RetroHeader(
             title = stringResource(R.string.who_is_it),
-            isSafariStyle = true,
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
@@ -242,14 +241,15 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
         )
 
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = GoldPoke)
             }
         } else {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 90.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
