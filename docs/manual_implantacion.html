@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Implantación - Pokequiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF0000;
+            --secondary: #3B4CCA;
+            --accent: #FFDE00;
+            --bg: #f4f7f6;
+            --text: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.8rem;
+            margin: 0;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: -3rem auto 3rem;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--secondary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+        }
+
+        h3 {
+            color: var(--primary);
+            margin-top: 1.5rem;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #ccc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .important {
+            background: #fffbe6;
+            border-left: 5px solid var(--accent);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f8f8;
+            color: var(--secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--accent);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>POKEQUIZ</h1>
+    <p>Manual Técnico de Implantación</p>
+</header>
+
+<div class="container">
+    <p>Este documento constituye el manual técnico oficial para la implantación, configuración y despliegue de la aplicación <strong>Pokequiz</strong>.</p>
+
+    <hr>
+
+    <h2>1. Ficha Técnica del Proyecto</h2>
+    <ul>
+        <li><strong>Plataforma:</strong> Android (Nativo)</li>
+        <li><strong>Lenguaje:</strong> Kotlin</li>
+        <li><strong>Framework UI:</strong> Jetpack Compose</li>
+        <li><strong>Arquitectura:</strong> Basada en componentes con gestión de estado reactiva</li>
+        <li><strong>SDK Mínimo:</strong> 29 (Android 10.0)</li>
+        <li><strong>SDK Objetivo:</strong> 36 (Android 15+)</li>
+    </ul>
+
+    <h2>2. Arquitectura del Sistema</h2>
+    <h3>2.1. Frontend (Android)</h3>
+    <p>Construido con <strong>Jetpack Compose</strong> y estética "Retro GBA". Utiliza <strong>Retrofit 2</strong> para networking y <strong>Coil</strong> para procesamiento de imágenes.</p>
+    
+    <h3>2.2. Backend</h3>
+    <p>Servidor en Node.js con Express y Prisma ORM, conectado a una base de datos PostgreSQL alojada en Railway.</p>
+
+    <h2>3. Requisitos del Entorno</h2>
+    <ul>
+        <li><strong>IDE:</strong> Android Studio (Ladybug o superior).</li>
+        <li><strong>JDK:</strong> Java Development Kit 11.</li>
+        <li><strong>Hardware:</strong> Dispositivo físico o Emulador API 29+.</li>
+    </ul>
+
+    <h2>4. Configuración</h2>
+    <h3>4.1. Clonación</h3>
+    <pre>git clone &lt;url-del-repositorio&gt;</pre>
+    
+    <h3>4.2. local.properties</h3>
+    <pre>sdk.dir=C\:\\Users\\&lt;Usuario&gt;\\AppData\\Local\\Android\\Sdk</pre>
+
+    <h2>5. Integración con Servicios</h2>
+    <div class="important">
+        <strong>IMPORTANTE:</strong> La URL base del servidor está en <code>Network.kt</code>.
+    </div>
+    <pre>const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"</pre>
+
+    <h2>6. Despliegue</h2>
+    <p>Para generar el binario final, use <code>Build > Generate Signed Bundle / APK...</code> en Android Studio seleccionando la variante <code>release</code>.</p>
+
+    <h2>7. Troubleshooting</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Problema</th>
+                <th>Solución</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Error de Red</td>
+                <td>Verificar estado del backend en Railway.</td>
+            </tr>
+            <tr>
+                <td>Fallo SDK</td>
+                <td>Instalar Android API 36 en SDK Manager.</td>
+            </tr>
+            <tr>
+                <td>Gradle Sync Error</td>
+                <td>Actualizar plugin de Kotlin en build.gradle.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer>
+    &copy; 2026 Equipo de Desarrollo Pokequiz | Generado el 08/05/2026
+</footer>
+
+</body>
+</html>
