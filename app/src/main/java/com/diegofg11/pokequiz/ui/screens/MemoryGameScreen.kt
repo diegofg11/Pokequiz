@@ -289,8 +289,8 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(12.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .border(2.dp, Color.White, RoundedCornerShape(6.dp)),
+                                .clip(androidx.compose.ui.graphics.RectangleShape)
+                                .border(2.dp, Color.White, androidx.compose.ui.graphics.RectangleShape),
                             color = if (timeLeft <= 5) (if (flashTimer) Color.Red else Color.Yellow) else Color(0xFF4CAF50),
                             trackColor = Color.DarkGray
                         )

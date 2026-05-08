@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -41,6 +42,7 @@ import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.SessionManager
 import com.diegofg11.pokequiz.utils.WallpaperManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
@@ -49,6 +51,7 @@ import com.diegofg11.pokequiz.R
 @Composable
 fun UserScreen(onLogout: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var user by remember { mutableStateOf<User?>(null) }
     var pokedexCount by remember { mutableIntStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
@@ -56,6 +59,7 @@ fun UserScreen(onLogout: () -> Unit) {
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var showAvatarDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var showAccessibilityDialog by remember { mutableStateOf(false) }
     var selectedAvatar by remember { mutableStateOf(com.diegofg11.pokequiz.utils.AvatarManager.getSelectedAvatar(context)) }
 
     LaunchedEffect(Unit) {
@@ -109,6 +113,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         .border(3.dp, Color.Black, androidx.compose.ui.graphics.RectangleShape)
                 ) {
                     val displayUser = user
+                    val isHighContrast = com.diegofg11.pokequiz.utils.AccessibilityManager.isHighContrastEnabled
                     Column(
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -116,7 +121,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF2D5A27)) // Verde oscuro principal de la Zona Safari
+                                .background(if (isHighContrast) Color.Black else Color(0xFF2D5A27)) // Verde oscuro principal de la Zona Safari
                                 .padding(vertical = 8.dp)
                         ) {
                             RetroText(
@@ -146,7 +151,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 )
                                 Text(
                                     text = "000${SessionManager.currentUserId}",
-                                    fontSize = 14.sp,
+                                    fontSize = 14.sp * com.diegofg11.pokequiz.utils.AccessibilityManager.fontScale,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                     modifier = Modifier.padding(start = 16.dp)
@@ -178,8 +183,8 @@ fun UserScreen(onLogout: () -> Unit) {
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "$${displayUser?.monedasGacha ?: 0}",
-                                    fontSize = 14.sp,
+                                    text = "🪙 ${displayUser?.monedasGacha ?: 0}",
+                                    fontSize = 14.sp * com.diegofg11.pokequiz.utils.AccessibilityManager.fontScale,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                     modifier = Modifier.padding(start = 16.dp)
@@ -195,7 +200,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 )
                                 Text(
                                     text = pokedexCount.toString(),
-                                    fontSize = 14.sp,
+                                    fontSize = 14.sp * com.diegofg11.pokequiz.utils.AccessibilityManager.fontScale,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                     modifier = Modifier.padding(start = 16.dp)
@@ -349,9 +354,9 @@ fun UserScreen(onLogout: () -> Unit) {
                                         .border(
                                             width = if (selectedAvatar.id == avatar.id) 2.dp else 1.dp,
                                             color = if (selectedAvatar.id == avatar.id) GoldPoke else Color.Black.copy(alpha = 0.1f),
-                                            shape = RoundedCornerShape(4.dp)
+                                            shape = androidx.compose.ui.graphics.RectangleShape
                                         )
-                                        .clip(RoundedCornerShape(4.dp))
+                                        .clip(androidx.compose.ui.graphics.RectangleShape)
                                         .clickable {
                                             com.diegofg11.pokequiz.utils.AvatarManager.setSelectedAvatar(context, avatar.id)
                                             selectedAvatar = avatar
@@ -497,6 +502,144 @@ fun UserScreen(onLogout: () -> Unit) {
                 }
             }
         }
+
+        // --- ACCESSIBILITY DIALOG ---
+        if (showAccessibilityDialog) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.7f)).clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                RetroMenuBox(
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    backgroundColor = Color.White,
+                    borderColor = GoldPoke
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        RetroText(text = "ACCESIBILIDAD", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        val accessibilityManager = com.diegofg11.pokequiz.utils.AccessibilityManager
+
+                        // High Contrast Toggle
+                        AccessibilityToggle(
+                            label = "ALTO CONTRASTE",
+                            checked = accessibilityManager.isHighContrastEnabled,
+                            onCheckedChange = { accessibilityManager.setHighContrast(context, it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Haptic Feedback Toggle
+                        AccessibilityToggle(
+                            label = "VIBRACIÓN",
+                            checked = accessibilityManager.isHapticFeedbackEnabled,
+                            onCheckedChange = { accessibilityManager.setHapticFeedback(context, it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Screen Reader Toggle
+                        AccessibilityToggle(
+                            label = "OPTIMIZAR LECTOR",
+                            checked = accessibilityManager.isScreenReaderOptimized,
+                            onCheckedChange = { accessibilityManager.setScreenReaderOptimization(context, it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Font Scale Slider
+                        Text(
+                            text = "TAMAÑO FUENTE: ${String.format("%.1fx", accessibilityManager.fontScale)}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color.Black
+                        )
+                        Slider(
+                            value = accessibilityManager.fontScale,
+                            onValueChange = { accessibilityManager.setFontScale(context, it) },
+                            valueRange = 0.8f..1.5f,
+                            steps = 6,
+                            colors = SliderDefaults.colors(
+                                thumbColor = GoldPoke,
+                                activeTrackColor = Color(0xFF2D5A27),
+                                inactiveTrackColor = Color.LightGray
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Color Blind Mode Selector
+                        Text(
+                            text = "MODO DALTÓNICOS",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        val modes = com.diegofg11.pokequiz.utils.ColorBlindMode.values()
+                        Row(
+                            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            modes.forEach { mode ->
+                                val isSelected = accessibilityManager.colorBlindMode == mode
+                                Surface(
+                                    modifier = Modifier.clickable { accessibilityManager.setColorBlindMode(context, mode) },
+                                    color = if (isSelected) GoldPoke else Color.LightGray,
+                                    shape = androidx.compose.ui.graphics.RectangleShape,
+                                    border = BorderStroke(1.dp, Color.Black)
+                                ) {
+                                    Text(
+                                        text = mode.displayName,
+                                        fontSize = 10.sp,
+                                        color = if (isSelected) Color.White else Color.Black,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        RetroButton(
+                            text = "ACEPTAR",
+                            onClick = { showAccessibilityDialog = false },
+                            containerColor = Color.Gray,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AccessibilityToggle(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
+            color = Color.Black
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = GoldPoke,
+                checkedTrackColor = Color(0xFF2D5A27)
+            )
+        )
     }
 }
 

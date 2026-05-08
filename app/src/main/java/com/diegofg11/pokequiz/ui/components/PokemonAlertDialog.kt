@@ -62,13 +62,12 @@ fun PokemonAlertDialog(
                     
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    Text(
+                    RetroText(
                         text = message,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.DarkGray,
-                        textAlign = TextAlign.Center,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                        textAlign = TextAlign.Center
                     )
                     
                     Spacer(modifier = Modifier.height(20.dp))

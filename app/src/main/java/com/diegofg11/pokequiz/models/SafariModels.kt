@@ -62,12 +62,17 @@ enum class PokeType(val color: Color, val nombreEs: String, val stringResId: Int
     ROCK(Color(0xFFB6A136), "ROCA", R.string.type_rock),
     FAIRY(Color(0xFFD685AD), "HADA", R.string.type_fairy);
 
+    fun getAccessibleColor(): Color {
+        return com.diegofg11.pokequiz.utils.AccessibilityManager.applyColorBlindFilter(this.color)
+    }
+
     companion object {
         fun getColorByString(typeName: String): Color {
-            return entries.find { 
+            val type = entries.find { 
                 it.name.equals(typeName, ignoreCase = true) || 
                 it.nombreEs.equals(typeName, ignoreCase = true) 
-            }?.color ?: Color.Gray
+            }
+            return type?.getAccessibleColor() ?: Color.Gray
         }
 
         fun getByString(typeName: String): PokeType? {

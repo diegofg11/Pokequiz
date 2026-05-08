@@ -235,7 +235,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("$sessionCoins", color = GoldPoke, fontSize = 18.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("💰", fontSize = 16.sp)
+                    Text("🪙", fontSize = 16.sp)
                 }
             }
         )

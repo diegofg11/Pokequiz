@@ -119,13 +119,14 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
         }
     }
 
-    // Lógica de tirada
+    // Lgica de tirada
     fun doRoll() {
         if (coins < costPerRoll || gachaState != GachaAnimState.IDLE) return
         gachaState = GachaAnimState.SHAKING
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
+
                     Network.api.rollGacha(GachaRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId))
                 }
                 if (response.isSuccessful && response.body() != null) {

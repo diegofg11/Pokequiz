@@ -28,6 +28,7 @@ import com.diegofg11.pokequiz.models.User
 import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Canvas
@@ -43,6 +44,7 @@ fun MapScreen(
     var user by remember { mutableStateOf<User?>(null) }
     val totalLevels = 20 
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
     // Cargar datos del usuario para el HUD
     LaunchedEffect(Unit) {
@@ -154,17 +156,26 @@ fun MapScreen(
             }
         }
 
-        // --- HUD DE ENTRENADOR (ABAJO DERECHA) ---
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
             RetroMenuBox(
+                modifier = Modifier.clickable {
+                    scope.launch {
+                        val targetLevel = (completedLevel + 1).coerceAtMost(totalLevels)
+                        val indexToScroll = (totalLevels - targetLevel).coerceAtLeast(0)
+                        listState.animateScrollToItem(indexToScroll)
+                    }
+                },
                 backgroundColor = Color(0xFFF8F8D8),
                 borderColor = GoldPoke
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
                     Column {
                         RetroText(text = "${stringResource(R.string.level_short)} ${user?.nivelProgreso ?: completedLevel + 1}", fontSize = 12.sp, showShadow = false)
                         RetroText(text = "🪙 ${user?.monedasGacha ?: 0}", fontSize = 11.sp, showShadow = false)
