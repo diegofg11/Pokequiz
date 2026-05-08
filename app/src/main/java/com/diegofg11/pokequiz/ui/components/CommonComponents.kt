@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Componentes comunes reutilizables (iconos decorativos como la PokéBall).
+ */
 package com.diegofg11.pokequiz.ui.components
 
 import androidx.compose.foundation.Canvas

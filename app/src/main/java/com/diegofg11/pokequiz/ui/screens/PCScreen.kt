@@ -70,6 +70,14 @@ enum class PokemonSortOption(val labelResId: Int) {
     NAME(R.string.sort_name)
 }
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla del PC del Entrenador.
+ * Gestiona la colección completa de Pokémon del usuario.
+ * Permite filtrar, buscar, ordenar y gestionar el equipo activo de combate (Party).
+ * 
+ * @param onBack Callback para regresar a la pantalla anterior.
+ */
 @Composable
 fun PCScreen(onBack: () -> Unit) {
     val context = LocalContext.current

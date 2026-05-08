@@ -43,6 +43,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import com.diegofg11.pokequiz.utils.ColorBlindMode
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Contenedor con estética retro estilo GameBoy Advance.
+ * Añade bordes de píxel, un patrón de rejilla sutil y puntos decorativos en las esquinas.
+ */
 @Composable
 fun RetroMenuBox(
     modifier: Modifier = Modifier,
@@ -84,6 +89,13 @@ fun RetroMenuBox(
     }
 }
 
+/**
+ * Fondo base para todas las pantallas del juego.
+ * Implementa el sistema de accesibilidad global:
+ * - Aplica matrices de color para modos daltónicos (Protanopia, Deuteranopia, Tritanopia).
+ * - Cambia a modo de alto contraste (Blanco/Negro) si está habilitado.
+ * - Dibuja un patrón de píxeles decorativo de fondo.
+ */
 @Composable
 fun RetroBackground(
     modifier: Modifier = Modifier,
@@ -167,6 +179,10 @@ fun RetroBackground(
     }
 }
 
+/**
+ * Texto con fuente Monoespaciada y sombras retro.
+ * Escala automáticamente según el factor de fuente configurado en Accesibilidad.
+ */
 @Composable
 fun RetroText(
     text: String,

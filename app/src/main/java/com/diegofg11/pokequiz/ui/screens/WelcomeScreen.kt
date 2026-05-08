@@ -38,6 +38,13 @@ import androidx.compose.ui.text.font.FontFamily
 import com.diegofg11.pokequiz.utils.SoundManager
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla de Bienvenida y Gestión de Sesión.
+ * Actúa como orquestador para mostrar el menú inicial, login o registro.
+ * 
+ * @param onEnterClick Callback que se dispara cuando el usuario accede al juego principal.
+ */
 @Composable
 fun WelcomeScreen(onEnterClick: () -> Unit = {}) {
     val context = LocalContext.current

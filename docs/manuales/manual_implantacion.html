@@ -244,7 +244,81 @@
     </div>
 
     <div class="section-card">
-        <h2>5. RESOLUCIÓN</h2>
+        <h2>5. DESPLIEGUE LOCAL DEL BACKEND</h2>
+        <p>GUÍA PARA EJECUTAR EL BACKEND LOCALMENTE EN CASO DE FALLOS EN RAILWAY.</p>
+        
+        <h3>REQUISITOS PREVIOS</h3>
+        <ul>
+            <li>NODE.JS (VERSIÓN 18 O SUPERIOR): DESCÁRGALO DE <a href="https://nodejs.org">nodejs.org</a></li>
+            <li>POSTGRESQL (BASE DE DATOS LOCAL): INSTALA DESDE <a href="https://www.postgresql.org/download/">postgresql.org</a> O USA DOCKER</li>
+            <li>GIT: PARA CLONAR EL REPOSITORIO</li>
+        </ul>
+        
+        <h3>INSTALACIÓN DE POSTGRESQL CON DOCKER (OPCIONAL)</h3>
+        <p>SI PREFIERES DOCKER:</p>
+        <pre>docker run --name postgres-pokequiz -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=pokequiz_db -p 5432:5432 -d postgres:15</pre>
+        <p>LUEGO USA <code>DATABASE_URL="postgresql://postgres:mypassword@localhost:5432/pokequiz_db"</code></p>
+        
+        <h3>PASOS DE INSTALACIÓN</h3>
+        <ol>
+            <li>CLONAR EL REPOSITORIO DEL BACKEND:</li>
+        </ol>
+        <pre>git clone https://github.com/GaizkaDM/PokequizBackend.git
+cd PokequizBackend</pre>
+        
+        <ol start="2">
+            <li>INSTALAR DEPENDENCIAS:</li>
+        </ol>
+        <pre>npm install</pre>
+        
+        <ol start="3">
+            <li>CONFIGURAR LA BASE DE DATOS:</li>
+        </ol>
+        <p>COPIA EL ARCHIVO <code>.env</code> Y EDITA LAS VARIABLES NECESARIAS:</p>
+        <pre>cp .env .env.local  # O edita directamente .env
+# Edita las siguientes líneas:
+DATABASE_URL="postgresql://usuario:password@localhost:5432/pokequiz_db"
+JWT_SECRET="tu_clave_secreta_segura_aqui"
+PORT=3001</pre>
+        
+        <ol start="4">
+            <li>EJECUTAR LAS MIGRACIONES DE PRISMA:</li>
+        </ol>
+        <pre>npx prisma migrate dev</pre>
+        
+        <ol start="5">
+            <li>GENERAR EL CLIENTE DE PRISMA:</li>
+        </ol>
+        <pre>npx prisma generate</pre>
+        
+        <ol start="6">
+            <li>POBLAR LA BASE DE DATOS CON DATOS INICIALES:</li>
+        </ol>
+        <pre>npm run seed</pre>
+        
+        <ol start="7">
+            <li>INICIAR EL SERVIDOR:</li>
+        </ol>
+        <pre>npm start</pre>
+        <p>EL BACKEND ESTARÁ DISPONIBLE EN <code>http://localhost:3001</code></p>
+        
+        <h3>CONEXIÓN DEL FRONTEND</h3>
+        <p>MODIFICAR EL ARCHIVO <code>Network.kt</code> EN EL PROYECTO ANDROID PARA APUNTAR AL BACKEND LOCAL:</p>
+        <pre>const val BASE_URL = "http://10.0.2.2:3001/"</pre>
+        <div class="important">
+            USA <code>10.0.2.2</code> EN LUGAR DE <code>localhost</code> PARA EL EMULADOR DE ANDROID.
+        </div>
+        
+        <h3>SOLUCIÓN DE PROBLEMAS</h3>
+        <ul>
+            <li>SI EL PUERTO 3001 ESTÁ OCUPADO, CAMBIA EL PORT EN <code>.env</code></li>
+            <li>VERIFICA QUE POSTGRESQL ESTÉ EJECUTÁNDOSE</li>
+            <li>REINICIA EL EMULADOR DESPUÉS DE CAMBIAR LA URL</li>
+        </ul>
+    </div>
+
+    <div class="section-card">
+        <h2>6. RESOLUCIÓN</h2>
         <table>
             <thead>
                 <tr>

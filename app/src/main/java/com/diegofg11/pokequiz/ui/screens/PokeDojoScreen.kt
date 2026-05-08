@@ -1,3 +1,8 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla del minijuego PokeDojo (Whack-a-Mole con Pokémon).
+ * Diglett, Dugtrio, Pikachu y Voltorb aparecen en agujeros; el usuario debe golpearlos para ganar puntos.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*

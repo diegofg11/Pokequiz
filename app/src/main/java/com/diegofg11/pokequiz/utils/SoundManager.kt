@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Gestor de audio. Controla la reproducción, volumen y ciclo de vida de la música de fondo.
+ */
 package com.diegofg11.pokequiz.utils
 
 import android.content.Context

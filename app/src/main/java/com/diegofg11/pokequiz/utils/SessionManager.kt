@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Gestor de sesión del usuario. Persiste el ID, token JWT e idioma en SharedPreferences.
+ */
 package com.diegofg11.pokequiz.utils
 
 import android.content.Context

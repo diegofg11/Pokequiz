@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Utilidades auxiliares para la gestión de sprites y URLs de Pokémon.
+ */
 package com.diegofg11.pokequiz.utils
 
 import com.diegofg11.pokequiz.api.Network

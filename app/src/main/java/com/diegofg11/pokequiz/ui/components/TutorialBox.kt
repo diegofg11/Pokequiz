@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Caja de tutorial interactiva que guía al usuario en su primera partida.
+ */
 package com.diegofg11.pokequiz.ui.components
 
 import androidx.compose.animation.*

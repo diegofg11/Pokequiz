@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Gestor del tutorial de primera partida. Controla los pasos y la persistencia del estado.
+ */
 package com.diegofg11.pokequiz.utils
 
 import android.content.Context

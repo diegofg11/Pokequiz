@@ -1,3 +1,6 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ */
 package com.diegofg11.pokequiz
 
 import android.os.Bundle

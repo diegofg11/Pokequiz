@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Tema principal de Material 3 para la aplicación Pokequiz.
+ */
 package com.diegofg11.pokequiz.ui.theme
 
 import android.app.Activity

@@ -1,3 +1,8 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla del minijuego Batalla Rápida.
+ * El usuario elige tipos efectivos/resistentes contra Pokémon enemigos en 3 rondas.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*

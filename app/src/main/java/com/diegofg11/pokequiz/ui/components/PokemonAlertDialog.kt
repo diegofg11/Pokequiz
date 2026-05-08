@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Diálogo de alerta con estilo retro Pokémon (errores y notificaciones).
+ */
 package com.diegofg11.pokequiz.ui.components
 
 import androidx.compose.foundation.BorderStroke

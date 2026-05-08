@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Diálogo de ayuda con secciones explicativas para cada pantalla del juego.
+ */
 package com.diegofg11.pokequiz.ui.components
 
 import androidx.compose.foundation.background

@@ -49,6 +49,16 @@ import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SoundManager
 import com.diegofg11.pokequiz.utils.PokemonUtils
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla principal de Batalla. 
+ * Gestiona el combate por turnos basado en preguntas de trivia entre el equipo del usuario 
+ * y un Pokémon enemigo salvaje generado por el servidor.
+ * 
+ * @param levelId ID del nivel/ruta que se está jugando.
+ * @param onBattleWin Callback ejecutado cuando el usuario gana la batalla.
+ * @param onNavigateBack Callback para regresar al mapa.
+ */
 @Composable
 fun BattleScreen(
     levelId: Int,

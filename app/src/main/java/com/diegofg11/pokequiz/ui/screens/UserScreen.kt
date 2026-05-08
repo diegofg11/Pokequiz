@@ -49,6 +49,14 @@ import androidx.compose.ui.res.stringResource
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SafariUtils
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla de perfil de usuario. 
+ * Muestra la Tarjeta de Entrenador, permite cambiar fondos/avatares y 
+ * gestiona los ajustes de idioma, volumen y accesibilidad.
+ * 
+ * @param onLogout Callback que se ejecuta cuando el usuario cierra sesión.
+ */
 @Composable
 fun UserScreen(onLogout: () -> Unit) {
     val context = LocalContext.current
@@ -499,7 +507,8 @@ fun UserScreen(onLogout: () -> Unit) {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // BOTÓN CHEAT MONEDAS
+                        // --- BOTÓN CHEAT MONEDAS (SÓLO PARA DESARROLLO/TESTING) ---
+                        // Permite obtener 100 monedas rápidamente para probar el Gacha.
                         RetroButton(
                             text = stringResource(R.string.free_coins_btn) + " (CHEAT)",
                             onClick = {
@@ -551,7 +560,9 @@ fun UserScreen(onLogout: () -> Unit) {
             }
         }
 
-        // --- ACCESSIBILITY DIALOG ---
+        // --- DIÁLOGO DE ACCESIBILIDAD ---
+        // Permite configurar Alto Contraste, Vibración, Tamaño de Fuente, etc.
+        // Los cambios se guardan globalmente vía AccessibilityManager.
         if (showAccessibilityDialog) {
             Box(
                 modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.7f)).clickable(enabled = false) {},

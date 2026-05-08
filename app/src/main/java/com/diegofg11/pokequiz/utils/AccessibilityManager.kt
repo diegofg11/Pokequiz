@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
+/**
+ * Modos de daltonismo soportados por la aplicación.
+ */
 enum class ColorBlindMode(val displayName: String) {
     NONE("NINGUNO"), 
     PROTANOPIA("PROTANOPIA"), 
@@ -14,6 +17,12 @@ enum class ColorBlindMode(val displayName: String) {
     MONOCHROMACY("ACROMATOPSIA")
 }
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Gestor global de Accesibilidad.
+ * Almacena y persiste los ajustes de visión y respuesta física del usuario.
+ * Proporciona las matrices de color necesarias para aplicar los filtros daltónicos.
+ */
 object AccessibilityManager {
     private const val PREFS_NAME = "accessibility_prefs"
     private const val KEY_HIGH_CONTRAST = "high_contrast"

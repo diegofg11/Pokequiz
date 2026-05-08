@@ -8,10 +8,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Utilidades para la Zona Safari y Minijuegos.
+ * Contiene la lógica de recompensas, generación de juegos de memoria y sopas de letras.
+ */
 object SafariUtils {
 
     /**
-     * Helper to reward user and handle common UI states.
+     * Otorga monedas al usuario tras completar un minijuego.
+     * @param scope Scope de corrutina para la llamada a red.
+     * @param coins Cantidad de monedas a sumar.
+     * @param gameType Identificador del juego (ej: "dojo", "memory").
+     * @param difficulty Nivel de dificultad jugado.
+     * @param onSuccess Callback en caso de éxito.
+     * @param onError Callback en caso de error con el mensaje detallado.
      */
     fun rewardUser(
         scope: CoroutineScope,

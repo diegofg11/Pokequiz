@@ -48,6 +48,15 @@ import com.diegofg11.pokequiz.utils.AccessibilityManager
 
 private enum class GachaAnimState { IDLE, SHAKING, OPENING, REVEALED }
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla de la Tienda / Bazar (Gacha).
+ * Permite al usuario gastar monedas para obtener Pokémon aleatorios.
+ * Incluye una secuencia de animación (temblor y apertura) antes de revelar el Pokémon obtenido.
+ * 
+ * @param onBack Callback para volver a la pantalla anterior.
+ * @param onNavigateToPC Callback para ir directamente a la colección de Pokémon.
+ */
 @Composable
 fun GachaScreen(onBack: () -> Unit, onNavigateToPC: () -> Unit) {
     val context = LocalContext.current

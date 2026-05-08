@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Paleta de colores global del sistema de diseño de Pokequiz.
+ */
 package com.diegofg11.pokequiz.ui.theme
 
 import androidx.compose.ui.graphics.Color

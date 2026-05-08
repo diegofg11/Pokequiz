@@ -1,3 +1,9 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla del minijuego "¿Quién es ese Pokémon?".
+ * El usuario debe identificar un Pokémon a partir de su silueta.
+ * Soporta tres niveles de dificultad con transformaciones visuales progresivas.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState

@@ -1,3 +1,7 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Gestor de fondos de pantalla del mapa. Persiste la selección del usuario.
+ */
 package com.diegofg11.pokequiz.utils
 
 import android.content.Context

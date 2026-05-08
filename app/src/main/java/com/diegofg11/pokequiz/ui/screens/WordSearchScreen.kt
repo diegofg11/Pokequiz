@@ -1,3 +1,8 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla del minijuego Sopa de Letras Pokémon.
+ * El usuario arrastra para seleccionar nombres de Pokémon ocultos en una cuadrícula de letras.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*

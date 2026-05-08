@@ -1,3 +1,8 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Contenedor paginado de la Zona Safari.
+ * Permite navegar horizontalmente entre los 5 minijuegos disponibles.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*

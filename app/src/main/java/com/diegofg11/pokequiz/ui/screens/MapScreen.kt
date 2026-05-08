@@ -35,6 +35,15 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla de Mapa / Selección de Niveles.
+ * Muestra una lista vertical de niveles (rutas) que el usuario puede recorrer.
+ * Gestiona el estado de desbloqueo basado en el progreso del usuario guardado en el servidor.
+ * 
+ * @param completedLevel El nivel más alto completado por el usuario.
+ * @param onNavigateToBattle Callback para iniciar la batalla en un nivel específico.
+ */
 @Composable
 fun MapScreen(
     completedLevel: Int,

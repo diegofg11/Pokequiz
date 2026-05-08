@@ -1,3 +1,8 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla de selección de Minijuegos de la Zona Safari.
+ * Muestra las opciones disponibles: Siluetas, Memorama, Sopa de Letras, Batalla Rápida y PokeDojo.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.foundation.layout.*

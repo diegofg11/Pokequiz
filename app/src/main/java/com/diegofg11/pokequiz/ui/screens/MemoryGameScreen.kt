@@ -1,3 +1,9 @@
+/**
+ * @authors: Gaizka, Diego y Xiker
+ * Pantalla del minijuego de Memoria (Memorama).
+ * El usuario debe emparejar cartas con sprites de Pokémon.
+ * Modo Normal: vidas limitadas. Modo Infernal: tiempo limitado y cartas se mezclan.
+ */
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
