@@ -57,6 +57,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.res.painterResource
 
 enum class PokemonSortOption(val label: String) {
@@ -65,7 +67,6 @@ enum class PokemonSortOption(val label: String) {
     LEVEL("NIVEL"),
     NAME("A-Z")
 }
-import androidx.compose.ui.res.painterResource
 
 @Composable
 fun PCScreen(onBack: () -> Unit) {
@@ -370,8 +371,9 @@ fun PCScreen(onBack: () -> Unit) {
                 )
             }
         }
+    }
 
-        selectedIndex?.let { idx ->
+    selectedIndex?.let { idx ->
             val safeIdx = idx.coerceIn(0, pokemonList.lastIndex)
             PokedexDialog(
                 pokemonList = pokemonList,
