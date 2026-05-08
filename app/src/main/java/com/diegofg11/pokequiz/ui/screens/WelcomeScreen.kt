@@ -203,8 +203,14 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                         user.token?.let { SessionManager.saveToken(context, it) }
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
-                                        val errorBody = response.errorBody()?.string()
-                                        errorMessage = "${context.getString(R.string.error_prefix)} ${response.code()} - ${errorBody ?: context.getString(R.string.login_failed)}"
+                                        val errorJson = response.errorBody()?.string()
+                                        val message = try {
+                                            val obj = org.json.JSONObject(errorJson)
+                                            obj.getString("error")
+                                        } catch (e: Exception) {
+                                            errorJson ?: context.getString(R.string.login_failed)
+                                        }
+                                        errorMessage = message
                                     }
                                 } catch (e: Exception) {
                                     errorMessage = "${context.getString(R.string.connection_error_prefix)} ${e.localizedMessage}"
@@ -334,9 +340,14 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                         TutorialManager.startTutorial(context)
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
-                                        val errorBody = response.errorBody()?.string()
-                                        errorMessage = if (errorBody?.contains("existe") == true) context.getString(R.string.name_exists_error) 
-                                                      else "${context.getString(R.string.error_prefix)} ${response.code()} - ${errorBody ?: context.getString(R.string.unknown_error)}"
+                                        val errorJson = response.errorBody()?.string()
+                                        val message = try {
+                                            val obj = org.json.JSONObject(errorJson)
+                                            obj.getString("error")
+                                        } catch (e: Exception) {
+                                            errorJson ?: context.getString(R.string.unknown_error)
+                                        }
+                                        errorMessage = message
                                     }
                                 } catch (e: Exception) {
                                     errorMessage = context.getString(R.string.network_error)
