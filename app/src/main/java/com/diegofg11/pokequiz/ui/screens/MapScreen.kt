@@ -93,11 +93,7 @@ fun MapScreen(
         // Capa de contraste
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.1f)))
 
-        // Cabecera Estándar (Sin botón de atrás por ser pantalla principal)
-        RetroHeader(
-            title = "RUTA ${user?.nivelProgreso ?: completedLevel + 1}",
-            onHelpClick = { showHelp = true }
-        )
+        // El header se moverá al final del Box para asegurar que esté por encima de la lista
 
         // Lista de niveles
         LazyColumn(
@@ -127,41 +123,6 @@ fun MapScreen(
             }
         }
 
-        // --- HUD DE UBICACIÓN (ARRIBA) ---
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .offset(y = (-8).dp),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            RetroMenuBox(
-                modifier = Modifier.width(220.dp),
-                backgroundColor = Color.White,
-                borderColor = Color(0xFF2D5A27)
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
-                ) {
-                    RetroText(
-                        text = "RUTA POKÉQUIZ", 
-                        fontSize = 16.sp, 
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = "EXPLORANDO REGIÓN", 
-                        fontSize = 9.sp, 
-                        color = Color.Gray, 
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
 
         Box(
             modifier = Modifier
@@ -190,6 +151,14 @@ fun MapScreen(
                 }
             }
         }
+
+        // Cabecera Estándar (Al final para que quede por encima de todo)
+        RetroHeader(
+            title = "RUTA POKÉQUIZ",
+            subtitle = "EXPLORANDO REGIÓN",
+            titleAlignment = Alignment.CenterStart,
+            onHelpClick = { showHelp = true }
+        )
     }
 
     if (showHelp) {

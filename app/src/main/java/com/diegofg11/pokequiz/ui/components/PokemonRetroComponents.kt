@@ -327,7 +327,9 @@ fun RetroHeader(
     modifier: Modifier = Modifier,
     isSafariStyle: Boolean = false, // Si es true, usa el estilo verde antiguo para juegos
     rightContent: (@Composable () -> Unit)? = null,
-    extraContent: (@Composable () -> Unit)? = null
+    extraContent: (@Composable () -> Unit)? = null,
+    subtitle: String? = null,
+    titleAlignment: Alignment = Alignment.Center
 ) {
     val height = if (extraContent != null) 110.dp else 70.dp
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
@@ -385,13 +387,12 @@ fun RetroHeader(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = if (isSafariStyle) 0.dp else 6.dp),
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Left: Back Button
-                Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
-                    if (onBackClick != null) {
+                if (onBackClick != null) {
+                    Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
                         Surface(
                             onClick = onBackClick,
                             modifier = Modifier.size(40.dp),
@@ -409,6 +410,12 @@ fun RetroHeader(
                             }
                         }
                     }
+                } else if (titleAlignment != Alignment.Center) {
+                    // Si no hay botón atrás y no está centrado, reducimos el espacio para que el texto esté más a la izquierda
+                    Spacer(modifier = Modifier.width(8.dp))
+                } else {
+                    // Mantenemos el espacio para asegurar que el título centrado siga centrado si hay algo a la derecha
+                    Box(modifier = Modifier.size(width = 80.dp, height = 40.dp))
                 }
 
                 // Center: Title
@@ -416,18 +423,36 @@ fun RetroHeader(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 4.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = titleAlignment
                 ) {
-                    val scaledTitleSize = 16.sp * AccessibilityManager.fontScale
-                    Text(
-                        text = title.uppercase(),
-                        color = contentColor,
-                        fontSize = scaledTitleSize,
-                        fontWeight = FontWeight.Black,
-                        fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1
-                    )
+                    val scaledTitleSize = 20.sp * AccessibilityManager.fontScale
+                    val scaledSubtitleSize = 12.sp * AccessibilityManager.fontScale
+                    
+                    Column(
+                        horizontalAlignment = if (titleAlignment == Alignment.Center) Alignment.CenterHorizontally else Alignment.Start,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = title.uppercase(),
+                            color = contentColor,
+                            fontSize = scaledTitleSize,
+                            fontWeight = FontWeight.Black,
+                            fontFamily = FontFamily.Monospace,
+                            textAlign = if (titleAlignment == Alignment.Center) TextAlign.Center else TextAlign.Start,
+                            maxLines = 1
+                        )
+                        if (subtitle != null) {
+                            Text(
+                                text = subtitle.uppercase(),
+                                color = if (isSafariStyle) Color.White.copy(alpha = 0.7f) else Color.Gray,
+                                fontSize = scaledSubtitleSize,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                textAlign = if (titleAlignment == Alignment.Center) TextAlign.Center else TextAlign.Start,
+                                maxLines = 1
+                            )
+                        }
+                    }
                 }
 
                 // Right: Custom Content or Help
