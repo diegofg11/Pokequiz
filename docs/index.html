@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Configuración básica del documento -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentación - Pokequiz</title>
+    
+    <!-- Fuentes: Inter para lectura y Press Start 2P para estética Pixel/Retro -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
+        /* Variables de diseño: Colores oficiales del proyecto Pokequiz */
         :root {
             --primary: #EE1515; /* Rojo Pokebola */
-            --secondary: #37474F; /* Gris oscuro azulado oficial */
-            --retro-bg: #ECEFF1; /* Fondo retro oficial */
+            --secondary: #37474F; /* Gris oscuro para bordes y texto */
+            --retro-bg: #ECEFF1; /* Fondo de las tarjetas (Gris azulado) */
             --white: #FFFFFF;
-            --bg-page: #94A684; /* Verde pantalla GBA oficial */
-            --blue: #3B4CCA;
+            --bg-page: #94A684; /* Verde pantalla GBA */
+            --blue: #0A285F; /* Azul oscuro para Guía de Usuario */
+            --green: #4CAF50; /* Verde para Registro de Pruebas */
             --border-thick: 4px;
             --border-thin: 2px;
         }
@@ -25,10 +31,10 @@
 
         html, body {
             height: 100%;
-            overflow: hidden;
             background-color: var(--bg-page);
         }
 
+        /* Contenedor principal con sistema de 'Scroll Snap' para navegación por pantallas */
         .page-container {
             height: 100vh;
             overflow-y: scroll;
@@ -43,12 +49,13 @@
             position: relative;
         }
 
-        /* ESTILO POKEBOLA (HERO) */
+        /* --- PANTALLA 1: HERO / POKEBOLA --- */
         .hero {
             display: flex;
             flex-direction: column;
             background: linear-gradient(180deg, var(--primary) 50%, var(--white) 50%);
             border-bottom: 8px solid var(--secondary);
+            overflow: hidden;
         }
 
         .top-half {
@@ -69,6 +76,7 @@
             gap: 2rem;
         }
 
+        /* Línea negra y botón central de la Pokebola decorativa */
         .mid-line {
             position: absolute;
             top: 50%;
@@ -123,6 +131,7 @@
             text-align: center;
         }
 
+        /* Flecha de navegación animada */
         .scroll-arrow {
             width: 60px;
             height: 60px;
@@ -135,12 +144,6 @@
             text-decoration: none;
             font-size: 1.8rem;
             animation: bounce 2s infinite;
-            transition: all 0.2s;
-        }
-
-        .scroll-arrow:hover {
-            background: var(--secondary);
-            color: white;
         }
 
         @keyframes bounce {
@@ -149,34 +152,33 @@
             60% {transform: translateY(-5px);}
         }
 
-        /* ESTILO MANUALES (CARDS) */
+        /* --- PANTALLA 2: SECCIÓN DE MANUALES --- */
         .main-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background-image: 
-                radial-gradient(var(--secondary) 1px, transparent 1px);
+            background-image: radial-gradient(var(--secondary) 1px, transparent 1px);
             background-size: 20px 20px;
             background-color: var(--bg-page);
         }
 
         .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 3rem;
-            max-width: 1100px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
             width: 100%;
         }
 
-        /* Imitación de RetroMenuBox */
+        /* Estilo de tarjeta Retro: Imita el componente RetroMenuBox de la app */
         .card {
             background-color: var(--retro-bg);
             border: var(--border-thick) solid var(--secondary);
             outline: var(--border-thin) solid white;
             outline-offset: calc(var(--border-thin) * -1 - var(--border-thick));
-            padding: 3rem;
+            padding: 2rem;
             text-align: center;
             text-decoration: none;
             color: inherit;
@@ -184,75 +186,74 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
         }
 
-        /* Corner Dots de la app */
-        .card::before, .card::after, .card .dot-tl, .card .dot-tr {
+        /* Puntos decorativos en las esquinas */
+        .card .dot-tl, .card .dot-tr {
             content: '';
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             background: var(--secondary);
         }
-        .card::before { bottom: 0; left: 0; }
-        .card::after { bottom: 0; right: 0; }
         .card .dot-tl { top: 0; left: 0; }
         .card .dot-tr { top: 0; right: 0; }
 
         .card:hover {
             transform: translate(-4px, -4px);
-            box-shadow: 12px 12px 0px var(--secondary);
+            box-shadow: 10px 10px 0px var(--secondary);
         }
 
         .icon-box {
-            width: 100px;
-            height: 100px;
+            width: 80px; height: 80px;
             background: white;
             border: 3px solid var(--secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 2rem;
-            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
         }
 
         .card h2 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: var(--secondary);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .card p {
             font-family: monospace;
             font-weight: bold;
             color: var(--secondary);
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 1.5rem;
         }
 
         .btn {
-            background: var(--secondary);
             color: white;
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             border: none;
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.2s;
             margin-top: auto;
+            width: 100%;
         }
 
-        .card:hover .btn {
-            background: var(--primary);
-            box-shadow: 4px 4px 0px #880000;
-        }
+        /* Estilos cromáticos para diferenciar cada manual */
+        .card-red .icon-box { border-color: var(--primary); color: var(--primary); }
+        .card-red .btn { background: var(--primary); }
+        
+        .card-blue .icon-box { border-color: var(--blue); color: var(--blue); }
+        .card-blue .btn { background: var(--blue); }
+        
+        .card-green .icon-box { border-color: var(--green); color: var(--green); }
+        .card-green .btn { background: var(--green); }
 
         footer {
-            padding: 2rem;
+            padding: 3rem;
             text-align: center;
             font-family: monospace;
             color: var(--secondary);
@@ -260,55 +261,64 @@
             background-color: var(--bg-page);
         }
 
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; gap: 2rem; }
-            .card { padding: 2rem 1.5rem; }
-            h1 { font-size: 2rem; }
+        /* Ajustes para dispositivos móviles */
+        @media (max-width: 600px) {
+            .container { grid-template-columns: 1fr; }
+            section { height: auto; min-height: 100vh; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Contenedor con Scroll Snapping -->
     <div class="page-container">
         
-        <!-- PANTALLA 1 -->
+        <!-- PANTALLA DE INICIO (ESTILO POKEBOLA) -->
         <section class="hero">
             <div class="mid-line"></div>
             <div class="pokeball-button"></div>
-
             <div class="top-half">
                 <h1>POKEQUIZ</h1>
             </div>
-
             <div class="bottom-half">
                 <p class="subtitle">CENTRO DE<br>DOCUMENTACIÓN</p>
                 <a href="#manuales" class="scroll-arrow">↓</a>
             </div>
         </section>
 
-        <!-- PANTALLA 2 -->
+        <!-- SECCIÓN DE ACCESO A LOS MANUALES -->
         <section class="main-content" id="manuales">
             <div class="container">
-                <!-- Card de Implantación -->
-                <a href="manuales/manual_implantacion.html" class="card">
+                <!-- Enlace al Manual de Implantación (Técnico) -->
+                <a href="manuales/manual_implantacion.html" class="card card-red">
                     <div class="dot-tl"></div><div class="dot-tr"></div>
                     <div class="icon-box">⚙️</div>
                     <h2>IMPLANTACIÓN</h2>
-                    <p>GUÍA TÉCNICA PARA DESARROLLADORES. REQUISITOS, CONFIGURACIÓN Y DESPLIEGUE.</p>
+                    <p>GUÍA TÉCNICA PARA DESARROLLADORES Y DEPURACIÓN.</p>
                     <div class="btn">ABRIR</div>
                 </a>
 
-                <!-- Card de Usuario -->
-                <a href="manuales/manual_usuario.html" class="card">
+                <!-- Enlace a la Guía del Usuario (Jugador) -->
+                <a href="manuales/manual_usuario.html" class="card card-blue">
                     <div class="dot-tl"></div><div class="dot-tr"></div>
                     <div class="icon-box">🎒</div>
                     <h2>GUÍA USUARIO</h2>
-                    <p>TODO LO QUE NECESITAS SABER PARA JUGAR, COMBATIR Y COMPLETAR TU COLECCIÓN.</p>
+                    <p>MANUAL COMPLETO PARA ENTRENADORES Y JUGADORES.</p>
+                    <div class="btn">ABRIR</div>
+                </a>
+
+                <!-- Enlace al Registro de Pruebas (QA) -->
+                <a href="manuales/registro_pruebas.html" class="card card-green">
+                    <div class="dot-tl"></div><div class="dot-tr"></div>
+                    <div class="icon-box">🧪</div>
+                    <h2>TEST LOG</h2>
+                    <p>REGISTRO REALISTA DE PRUEBAS Y VALIDACIÓN QA FINAL.</p>
                     <div class="btn">ABRIR</div>
                 </a>
             </div>
         </section>
 
+        <!-- Pie de página informativo -->
         <footer>
             &copy; 2026 POKEQUIZ PROJECT | RETRO STYLE DOCUMENTATION
         </footer>
