@@ -7,10 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #EE1515;
-            --secondary: #37474F;
+            --primary: #FFCC00;
+            --secondary: #0A285F;
+            --accent: #FB1B1B;
             --retro-bg: #ECEFF1;
-            --white: #FFFFFF;
             --bg-page: #94A684;
             --border-thick: 4px;
             --border-thin: 2px;
@@ -31,32 +31,32 @@
             padding: 2rem 1rem;
         }
 
-        /* Retro Header */
         header {
-            background-color: var(--white);
-            border-bottom: 8px solid #2D5A27;
+            background-color: var(--secondary);
+            border-bottom: 8px solid var(--accent);
             padding: 2rem;
             text-align: center;
             position: relative;
             margin-bottom: 2rem;
-            border: var(--border-thick) solid var(--secondary);
+            border: var(--border-thick) solid black;
         }
 
         header h1 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
-            color: var(--secondary);
+            font-size: 1.2rem;
+            color: var(--primary);
             text-transform: uppercase;
         }
 
         header p {
             margin-top: 1rem;
             font-weight: bold;
+            color: white;
             letter-spacing: 2px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: var(--retro-bg);
             border: var(--border-thick) solid var(--secondary);
@@ -81,22 +81,39 @@
         .dot-tl { top: 0; left: 0; }
         .dot-tr { top: 0; right: 0; }
 
+        .section-card {
+            background: white;
+            border: 3px solid var(--secondary);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
         h2 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            color: white;
-            background-color: var(--secondary);
-            padding: 1rem;
-            margin: 2rem 0 1rem -3rem;
-            display: inline-block;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: var(--secondary);
+            border-radius: 50%;
         }
 
         h3 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
-            color: var(--primary);
-            margin: 1.5rem 0 0.5rem 0;
+            font-size: 0.7rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            border-bottom: 2px dashed var(--secondary);
+            padding-bottom: 0.5rem;
         }
 
         p, li {
@@ -108,7 +125,6 @@
 
         ul {
             padding-left: 2rem;
-            margin-bottom: 1.5rem;
         }
 
         code {
@@ -124,53 +140,37 @@
             padding: 1.5rem;
             border: 3px solid var(--secondary);
             overflow-x: auto;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             margin: 1rem 0;
             box-shadow: inset 4px 4px 0px rgba(0,0,0,0.5);
+            font-family: 'Courier New', Courier, monospace;
         }
 
         .important {
             background: #FFF9C4;
-            border: 3px solid var(--secondary);
-            padding: 1.5rem;
-            margin: 2rem 0;
-            position: relative;
-        }
-
-        .important::before {
-            content: '!';
-            position: absolute;
-            top: -15px;
-            left: -15px;
-            background: var(--primary);
-            color: white;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
             border: 2px solid var(--secondary);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 2rem 0;
-            border: 3px solid var(--secondary);
+            margin: 1.5rem 0;
+            border: 2px solid var(--secondary);
         }
 
         th, td {
-            padding: 1rem;
-            border: 2px solid var(--secondary);
+            padding: 0.8rem;
+            border: 1px solid var(--secondary);
             text-align: left;
-            background: white;
+            font-size: 0.9rem;
         }
 
         th {
             background: #CFD8DC;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
+            font-weight: bold;
         }
 
         .back-link {
@@ -185,7 +185,7 @@
         }
 
         .back-link:hover {
-            background: var(--primary);
+            background: var(--accent);
         }
 
         footer {
@@ -200,69 +200,74 @@
 
 <header>
     <h1>IMPLANTACIÓN</h1>
-    <p>POKEQUIZ TECHNICAL DOCS</p>
+    <p>POKEQUIZ TECHNICAL HANDBOOK</p>
 </header>
 
 <div class="container">
     <div class="dot-tl"></div><div class="dot-tr"></div>
     
-    <p>ESTE DOCUMENTO CONSTITUYE EL MANUAL TÉCNICO OFICIAL PARA LA IMPLANTACIÓN Y DESPLIEGUE DEL ECOSISTEMA <strong>POKEQUIZ</strong>.</p>
-
-    <h2>1. FICHA TÉCNICA</h2>
-    <ul>
-        <li>PLATAFORMA: ANDROID NATIVO</li>
-        <li>SDK MÍNIMO: 29 (ANDROID 10.0)</li>
-        <li>SDK OBJETIVO: 36 (ANDROID 15+)</li>
-        <li>UI: JETPACK COMPOSE (RETRO GBA STYLE)</li>
-    </ul>
-
-    <h2>2. ARQUITECTURA</h2>
-    <h3>FRONTEND (ANDROID)</h3>
-    <p>SISTEMA BASADO EN COMPONENTES RETRO PERSONALIZADOS. COMUNICACIÓN VÍA RETROFIT 2 Y PROCESAMIENTO DE IMÁGENES CON COIL.</p>
-    
-    <h3>BACKEND</h3>
-    <p>NODE.JS + EXPRESS + PRISMA ORM. BASE DE DATOS POSTGRESQL EN RAILWAY.</p>
-
-    <h2>3. REQUISITOS</h2>
-    <p>SE REQUIERE ANDROID STUDIO (LADYBUG+) Y JAVA JDK 11 CONFIGURADO. ESPACIO MÍNIMO EN DISCO DE 4GB PARA HERRAMIENTAS DE COMPILACIÓN.</p>
-
-    <h2>4. CONFIGURACIÓN</h2>
-    <h3>CLONACIÓN DEL REPOSITORIO</h3>
-    <pre>git clone https://github.com/diegofg11/Pokequiz.git</pre>
-    
-    <h3>SDK ANDROID</h3>
-    <p>CONFIGURAR EN <code>local.properties</code>:</p>
-    <pre>sdk.dir=C\:\\Users\\USUARIO\\AppData\\Local\\Android\\Sdk</pre>
-
-    <h2>5. SERVICIOS</h2>
-    <div class="important">
-        LA URL BASE DEL SERVIDOR DE PRODUCCIÓN SE GESTIONA EN EL ARCHIVO <code>Network.kt</code>.
+    <div class="section-card">
+        <h2>1. FICHA TÉCNICA</h2>
+        <p>CONFIGURACIÓN BASE DEL PROYECTO ANDROID.</p>
+        <ul>
+            <li>PLATAFORMA: ANDROID NATIVO (KOTLIN)</li>
+            <li>SDK MÍNIMO: 29 | SDK OBJETIVO: 36</li>
+            <li>UI FRAMEWORK: JETPACK COMPOSE</li>
+        </ul>
     </div>
-    <pre>const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"</pre>
 
-    <h2>6. TROUBLESHOOTING</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ERROR</th>
-                <th>SOLUCIÓN</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>CONEXIÓN</td>
-                <td>REVISAR ESTADO EN RAILWAY O URL EN NETWORK.KT</td>
-            </tr>
-            <tr>
-                <td>SDK 36</td>
-                <td>INSTALAR DESDE EL SDK MANAGER DE ANDROID STUDIO</td>
-            </tr>
-            <tr>
-                <td>GRADLE</td>
-                <td>SINCRONIZAR PROYECTO CON ARCHIVOS DE GRADLE</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="section-card">
+        <h2>2. ARQUITECTURA</h2>
+        <h3>FRONTEND</h3>
+        <p>SISTEMA REACTIVO CON GESTIÓN DE ESTADO. COMUNICACIÓN MEDIANTE RETROFIT 2 Y COIL PARA IMÁGENES.</p>
+        
+        <h3>BACKEND</h3>
+        <p>NODE.JS + EXPRESS + PRISMA ORM SOBRE POSTGRESQL (RAILWAY).</p>
+    </div>
+
+    <div class="section-card">
+        <h2>3. CONFIGURACIÓN</h2>
+        <h3>CLONACIÓN</h3>
+        <pre>git clone https://github.com/diegofg11/Pokequiz.git</pre>
+        
+        <h3>LOCAL PROPERTIES</h3>
+        <p>ASEGÚRATE DE TENER EL SDK DIR CORRECTO:</p>
+        <pre>sdk.dir=C\:\\Users\\USER\\AppData\\Local\\Android\\Sdk</pre>
+    </div>
+
+    <div class="section-card">
+        <h2>4. SERVICIOS API</h2>
+        <div class="important">
+            LA URL DE PRODUCCIÓN ESTÁ DEFINIDA EN NETWORK.KT
+        </div>
+        <pre>const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"</pre>
+    </div>
+
+    <div class="section-card">
+        <h2>5. RESOLUCIÓN</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ERROR</th>
+                    <th>SOLUCIÓN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>RECURSOS</td>
+                    <td>EJECUTAR "CLEAN PROJECT"</td>
+                </tr>
+                <tr>
+                    <td>API 36</td>
+                    <td>INSTALAR DESDE SDK MANAGER</td>
+                </tr>
+                <tr>
+                    <td>CONEXIÓN</td>
+                    <td>REVISAR ESTADO EN RAILWAY</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <a href="../index.html" class="back-link">< VOLVER</a>
 </div>
