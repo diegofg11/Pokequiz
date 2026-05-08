@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía del Entrenador - Pokequiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFCC00;
+            --secondary: #0A285F;
+            --accent: #FB1B1B;
+            --retro-bg: #ECEFF1;
+            --bg-page: #94A684;
+            --border-thick: 4px;
+            --border-thin: 2px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: monospace;
+            background-color: var(--bg-page);
+            color: var(--secondary);
+            background-image: radial-gradient(var(--secondary) 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            background-color: var(--secondary);
+            border-bottom: 8px solid var(--accent);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            margin-bottom: 2rem;
+            border: var(--border-thick) solid black;
+        }
+
+        header h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        header p {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--retro-bg);
+            border: var(--border-thick) solid var(--secondary);
+            outline: var(--border-thin) solid white;
+            outline-offset: calc(var(--border-thin) * -1 - var(--border-thick));
+            padding: 3rem;
+            position: relative;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+        }
+
+        /* Corner Dots */
+        .container::before, .container::after, .dot-tl, .dot-tr {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--secondary);
+            z-index: 5;
+        }
+        .container::before { bottom: 0; left: 0; }
+        .container::after { bottom: 0; right: 0; }
+        .dot-tl { top: 0; left: 0; }
+        .dot-tr { top: 0; right: 0; }
+
+        .section-card {
+            background: white;
+            border: 3px solid var(--secondary);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: var(--secondary);
+            border-radius: 50%;
+        }
+
+        h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            border-bottom: 2px dashed var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+
+        p, li {
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            padding-left: 2rem;
+        }
+
+        .tip {
+            background: #E1F5FE;
+            border: 2px solid var(--secondary);
+            padding: 1rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+        }
+
+        .back-link:hover {
+            background: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>GUÍA ENTRENADOR</h1>
+    <p>POKEQUIZ OFFICIAL HANDBOOK</p>
+</header>
+
+<div class="container">
+    <div class="dot-tl"></div><div class="dot-tr"></div>
+    
+    <div class="section-card">
+        <h2>1. COMIENZA AQUÍ</h2>
+        <p>¡BIENVENIDO A POKEQUIZ! PARA SER EL MEJOR, DEBERÁS CAPTURAR A LOS 151 POKÉMON ORIGINALES DE KANTO.</p>
+        <h3>REGISTRO</h3>
+        <p>ELIGE TU NOMBRE Y TU PRIMER COMPAÑERO: BULBASAUR, CHARMANDER O SQUIRTLE.</p>
+    </div>
+
+    <div class="section-card">
+        <h2>2. COMBATE RPG</h2>
+        <p>LOS COMBATES MEZCLAN ESTRATEGIA Y CONOCIMIENTO.</p>
+        <ul>
+            <li>PREGUNTAS: ACIERTA PARA ATACAR AL RIVAL.</li>
+            <li>VIDA (PS): CUIDADO CON LOS FALLOS, RESTARÁN VIDA A TU POKÉMON.</li>
+            <li>ROTACIÓN: SI TU LUCHADOR CAE, EL SIGUIENTE EN TU EQUIPO DE 3 SALDRÁ AL CAMPO.</li>
+        </ul>
+        <div class="tip">
+            CONSEJO: ¡MANTÉN A TUS 3 POKÉMON CON BUEN NIVEL PARA AGUANTAR MÁS PREGUNTAS!
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>3. GESTIÓN PC</h2>
+        <p>ADMINISTRA TU EQUIPO EN LA PANTALLA DE PC.</p>
+        <ul>
+            <li>EQUIPO ACTIVO: ELIGE TUS 3 MEJORES POKÉMON.</li>
+            <li>FAVORITOS: MARCA A TUS MEJORES COMPAÑEROS CON UN CORAZÓN.</li>
+        </ul>
+    </div>
+
+    <div class="section-card">
+        <h2>4. BAZAR Y SAFARI</h2>
+        <h3>BAZAR (GACHA)</h3>
+        <p>USA TUS MONEDAS PARA CAPTURAR NUEVOS POKÉMON. LOS REPETIDOS TE DAN +50 EXP EXTRA.</p>
+        
+        <h3>ZONA SAFARI</h3>
+        <p>GANA MONEDAS GRATIS EN LOS 5 MINIJUEGOS: SILUETAS, MEMORAMA, SOPA DE LETRAS, BATALLA DE TIPOS Y POKÉ-DOJO.</p>
+    </div>
+
+    <a href="../index.html" class="back-link">< VOLVER</a>
+</div>
+
+<footer>
+    &copy; 2026 POKEQUIZ PROJECT | RETRO STYLE DOCUMENTATION
+</footer>
+
+</body>
+</html>
