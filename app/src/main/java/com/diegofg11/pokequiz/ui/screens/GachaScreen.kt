@@ -184,17 +184,29 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             Spacer(modifier = Modifier.weight(0.1f))
 
             RetroText(
-                text = "BAZAR POKÉMON",
-                fontSize = 34.sp,
-                color = Color.White
+                text = if (gachaState == GachaAnimState.REVEALED) "¡MAGNÍFICO!" else "BAZAR POKÉMON",
+                fontSize = if (gachaState == GachaAnimState.REVEALED) 38.sp else 34.sp,
+                color = if (gachaState == GachaAnimState.REVEALED) GoldPoke else Color.White
             )
-            Text(
-                text = "¡Toca la Pokéball para abrirla!",
-                fontSize = 14.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                color = Color.Black.copy(alpha = 0.6f),
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            
+            if (gachaState != GachaAnimState.REVEALED) {
+                Text(
+                    text = "¡Toca la Pokéball para abrirla!",
+                    fontSize = 14.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    color = Color.Black.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            } else {
+                Text(
+                    text = "HAS OBTENIDO UN NUEVO COMPAÑERO",
+                    fontSize = 12.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -369,32 +381,51 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 }
                 GachaAnimState.REVEALED -> {
                     RetroButton(
-                        text = "TIRAR OTRA VEZ",
-                        onClick = { gachaState = GachaAnimState.IDLE; revealedPokemon = null },
+                        text = "TIRAR OTRA VEZ ($costPerRoll 🪙)",
+                        onClick = { 
+                            revealedPokemon = null
+                            gachaState = GachaAnimState.IDLE
+                            doRoll() 
+                        },
+                        enabled = coins >= costPerRoll,
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = RedPoke,
                         fontSize = 18.sp
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    RetroButton(
-                        text = "VER MI PC",
-                        onClick = onNavigateToPC,
-                        modifier = Modifier.fillMaxWidth(),
-                        containerColor = Color(0xFF2D5A27),
-                        fontSize = 18.sp
-                    )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RetroButton(
+                            text = "VOLVER",
+                            onClick = { 
+                                revealedPokemon = null
+                                gachaState = GachaAnimState.IDLE 
+                            },
+                            modifier = Modifier.weight(1f),
+                            containerColor = Color.Gray,
+                            fontSize = 16.sp
+                        )
+                        RetroButton(
+                            text = "VER MI PC",
+                            onClick = onNavigateToPC,
+                            modifier = Modifier.weight(1f),
+                            containerColor = Color(0xFF2D5A27),
+                            fontSize = 16.sp
+                        )
+                    }
                 }
                 else -> {}
             }
 
             Spacer(modifier = Modifier.weight(0.1f))
-            Text(
-                text = "COSTE: $costPerRoll MONEDAS",
-                fontSize = 11.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                color = Color.Black.copy(alpha = 0.4f),
-                textAlign = TextAlign.Center
-            )
+            if (gachaState != GachaAnimState.REVEALED) {
+                Text(
+                    text = "COSTE: $costPerRoll MONEDAS",
+                    fontSize = 11.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    color = Color.Black.copy(alpha = 0.4f),
+                    textAlign = TextAlign.Center
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
