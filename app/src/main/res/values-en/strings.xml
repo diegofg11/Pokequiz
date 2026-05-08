@@ -116,10 +116,14 @@
     <string name="change_profile">Change profile picture</string>
     <string name="account_settings">ACCOUNT SETTINGS</string>
     <string name="logout_and_more">Log out and more</string>
+    <string name="accessibility_title">ACCESSIBILITY</string>
+    <string name="accessibility_subtitle">Contrast, vibration and more</string>
     <string name="select_wallpaper">SELECT WALLPAPER</string>
     <string name="wallpaper_updated">Wallpaper updated</string>
     <string name="select_trainer">SELECT TRAINER</string>
     <string name="trainer_updated">Trainer updated</string>
+    <string name="free_coins_btn">🎁 +100 FREE COINS</string>
+    <string name="coins_added_success">100 coins added!</string>
     <string name="cancel">CANCEL</string>
     <string name="settings">SETTINGS</string>
     <string name="volume_label">VOLUME: %d%%</string>
@@ -297,4 +301,9 @@
     <string name="desc_enemy">Enemy</string>
     <string name="desc_player">Player</string>
     <string name="language_label">LANGUAGE:</string>
+    <string name="accessibility_high_contrast">HIGH CONTRAST</string>
+    <string name="accessibility_vibration">VIBRATION</string>
+    <string name="accessibility_screen_reader">OPTIMIZE READER</string>
+    <string name="accessibility_font_size">FONT SIZE: %s</string>
+    <string name="accessibility_color_blind">COLOR BLIND MODE</string>
 </resources>

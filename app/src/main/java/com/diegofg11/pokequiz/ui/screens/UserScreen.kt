@@ -47,6 +47,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.diegofg11.pokequiz.R
+import com.diegofg11.pokequiz.utils.SafariUtils
 
 @Composable
 fun UserScreen(onLogout: () -> Unit) {
@@ -497,6 +498,34 @@ fun UserScreen(onLogout: () -> Unit) {
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
+
+                        // BOTÓN CHEAT MONEDAS
+                        RetroButton(
+                            text = stringResource(R.string.free_coins_btn) + " (CHEAT)",
+                            onClick = {
+                                SafariUtils.rewardUser(
+                                    scope = scope,
+                                    coins = 100,
+                                    gameType = "cheat",
+                                    difficulty = "none",
+                                    onSuccess = {
+                                        scope.launch {
+                                            val userId = SessionManager.currentUserId
+                                            val userResp = withContext(Dispatchers.IO) { Network.api.getUser(userId) }
+                                            if (userResp.isSuccessful) {
+                                                user = userResp.body()
+                                                Toast.makeText(context, context.getString(R.string.coins_added_success), Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    },
+                                    onError = { errorMsg -> Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show() }
+                                )
+                            },
+                            containerColor = GoldPoke,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
                         
                         RetroButton(
                             text = stringResource(R.string.logout),
@@ -534,14 +563,14 @@ fun UserScreen(onLogout: () -> Unit) {
                     borderColor = GoldPoke
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        RetroText(text = "ACCESIBILIDAD", fontSize = 16.sp)
+                        RetroText(text = stringResource(R.string.accessibility_title), fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(20.dp))
 
                         val accessibilityManager = com.diegofg11.pokequiz.utils.AccessibilityManager
 
                         // High Contrast Toggle
                         AccessibilityToggle(
-                            label = "ALTO CONTRASTE",
+                            label = stringResource(R.string.accessibility_high_contrast),
                             checked = accessibilityManager.isHighContrastEnabled,
                             onCheckedChange = { accessibilityManager.setHighContrast(context, it) }
                         )
@@ -550,7 +579,7 @@ fun UserScreen(onLogout: () -> Unit) {
 
                         // Haptic Feedback Toggle
                         AccessibilityToggle(
-                            label = "VIBRACIÓN",
+                            label = stringResource(R.string.accessibility_vibration),
                             checked = accessibilityManager.isHapticFeedbackEnabled,
                             onCheckedChange = { accessibilityManager.setHapticFeedback(context, it) }
                         )
@@ -559,7 +588,7 @@ fun UserScreen(onLogout: () -> Unit) {
 
                         // Screen Reader Toggle
                         AccessibilityToggle(
-                            label = "OPTIMIZAR LECTOR",
+                            label = stringResource(R.string.accessibility_screen_reader),
                             checked = accessibilityManager.isScreenReaderOptimized,
                             onCheckedChange = { accessibilityManager.setScreenReaderOptimization(context, it) }
                         )
@@ -568,7 +597,7 @@ fun UserScreen(onLogout: () -> Unit) {
 
                         // Font Scale Slider
                         Text(
-                            text = "TAMAÑO FUENTE: ${String.format("%.1fx", accessibilityManager.fontScale)}",
+                            text = stringResource(R.string.accessibility_font_size, String.format("%.1fx", accessibilityManager.fontScale)),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace,
@@ -590,7 +619,7 @@ fun UserScreen(onLogout: () -> Unit) {
 
                         // Color Blind Mode Selector
                         Text(
-                            text = "MODO DALTÓNICOS",
+                            text = stringResource(R.string.accessibility_color_blind),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace,
@@ -625,7 +654,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         Spacer(modifier = Modifier.height(24.dp))
 
                         RetroButton(
-                            text = "ACEPTAR",
+                            text = stringResource(R.string.understood),
                             onClick = { showAccessibilityDialog = false },
                             containerColor = Color.Gray,
                             modifier = Modifier.fillMaxWidth()

@@ -127,10 +127,14 @@
     <string name="change_profile">Cambiar imagen de perfil</string>
     <string name="account_settings">AJUSTES DE CUENTA</string>
     <string name="logout_and_more">Cerrar sesión y otros</string>
+    <string name="accessibility_title">ACCESIBILIDAD</string>
+    <string name="accessibility_subtitle">Contraste, vibración y más</string>
     <string name="select_wallpaper">SELECCIONAR FONDO</string>
     <string name="wallpaper_updated">Fondo actualizado</string>
     <string name="select_trainer">SELECCIONAR ENTRENADOR</string>
     <string name="trainer_updated">Entrenador actualizado</string>
+    <string name="free_coins_btn">🎁 +100 MONEDAS GRATIS</string>
+    <string name="coins_added_success">¡100 monedas añadidas!</string>
     <string name="cancel">CANCELAR</string>
     <string name="settings">AJUSTES</string>
     <string name="volume_label">VOLUMEN: %d%%</string>
@@ -308,4 +312,9 @@
     <string name="desc_enemy">Enemigo</string>
     <string name="desc_player">Jugador</string>
     <string name="language_label">IDIOMA:</string>
+    <string name="accessibility_high_contrast">ALTO CONTRASTE</string>
+    <string name="accessibility_vibration">VIBRACIÓN</string>
+    <string name="accessibility_screen_reader">OPTIMIZAR LECTOR</string>
+    <string name="accessibility_font_size">TAMAÑO FUENTE: %s</string>
+    <string name="accessibility_color_blind">MODO DALTÓNICOS</string>
 </resources>
