@@ -32,6 +32,7 @@ import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SoundManager
 import androidx.compose.ui.platform.LocalContext
 import com.diegofg11.pokequiz.utils.SafariUtils
+import androidx.compose.ui.res.stringResource
 import com.diegofg11.pokequiz.models.*
 import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.delay
@@ -57,7 +58,7 @@ fun GuessPokemonScreen(
 
     if (globalError != null) {
         PokemonAlertDialog(
-            title = "¡Error!",
+            title = stringResource(R.string.error_title),
             message = globalError!!,
             isError = true,
             onDismiss = { globalError = null }
@@ -66,12 +67,12 @@ fun GuessPokemonScreen(
 
     if (difficulty == null) {
         SafariSelectionScreen(
-            title = "¿CUAL ES ESTE POKÉMON?",
-            subtitle = "Selecciona un modo para empezar",
+            title = stringResource(R.string.guess_title),
+            subtitle = stringResource(R.string.select_mode),
             cards = listOf(
-                DifficultyCardData("FÁCIL", "Sin límites", "-30", "15", Color(0xFF4CAF50), { difficulty = GuessDifficulty.EASY }),
-                DifficultyCardData("DIFÍCIL", "5s | Rotado", "-40", "20", Color(0xFFFF9800), { difficulty = GuessDifficulty.HARD }),
-                DifficultyCardData("INFERNAL", "4s | Caos Visual", "-80", "40", Color(0xFFE53935), { difficulty = GuessDifficulty.INFERNAL }, span = 2)
+                DifficultyCardData(stringResource(R.string.easy), stringResource(R.string.no_limits), "-30", "15", Color(0xFF4CAF50), { difficulty = GuessDifficulty.EASY }),
+                DifficultyCardData(stringResource(R.string.hard), stringResource(R.string.time_rotated), "-40", "20", Color(0xFFFF9800), { difficulty = GuessDifficulty.HARD }),
+                DifficultyCardData(stringResource(R.string.infernal), stringResource(R.string.time_chaos), "-80", "40", Color(0xFFE53935), { difficulty = GuessDifficulty.INFERNAL }, span = 2)
             )
         )
     } else {
@@ -85,6 +86,7 @@ fun GuessPokemonScreen(
 
 @Composable
 fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, onError: (String) -> Unit) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
     var currentTargetId by remember { mutableIntStateOf(1) }
@@ -170,10 +172,10 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                     currentTargetId = resp.targetId
                     currentOptions = resp.options.map { it.id to it.name }
                 } else {
-                    onError("No se pudo cargar la siguiente ronda.")
+                    onError(context.getString(R.string.round_load_error))
                 }
             } catch (e: Exception) {
-                onError("Error de conexión.")
+                onError(context.getString(R.string.connection_error))
             }
         }
     }
@@ -210,7 +212,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
 
     Box(modifier = Modifier.fillMaxSize()) {
         SafariRetroHeader(
-            title = "¿QUIÉN ES?",
+            title = stringResource(R.string.who_is_it),
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
@@ -252,7 +254,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
             ) {
                 if (difficulty != GuessDifficulty.EASY && !isRevealed) {
                     RetroStatCard(
-                        label = "TIEMPO",
+                        label = stringResource(R.string.time_label),
                         value = "$timeLeft",
                         containerColor = if (timeLeft <= 2) Color(0xFFE53935) else Color(0xFF2D5A27),
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -261,7 +263,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
 
             if (difficulty == GuessDifficulty.EASY) {
                 RetroText(
-                    text = "¿CUÁL ES ESTE POKÉMON?",
+                    text = stringResource(R.string.which_pokemon),
                     fontSize = 24.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 32.dp)
@@ -279,7 +281,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                 ) {
                     AsyncImage(
                         model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${currentTargetId}.png",
-                        contentDescription = "Pokémon misterioso",
+                        contentDescription = stringResource(R.string.desc_mystery_pokemon),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(8.dp)
@@ -337,11 +339,11 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
 
     if (showRewardDialog) {
         SafariResultScreen(
-            title = if (sessionCoins >= 0) "¡VICTORIA!" else "DERROTA",
-            subtitle = "MODO ${difficulty.name}",
+            title = if (sessionCoins >= 0) stringResource(R.string.victory) else stringResource(R.string.defeat),
+            subtitle = stringResource(R.string.mode_format, difficulty.name),
             description = if (sessionCoins >= 0) 
-                "¡Increíble! Tienes un ojo experto para las siluetas Pokémon." 
-                else "La silueta te ha confundido esta vez. ¡Sigue practicando!",
+                stringResource(R.string.guess_victory_desc) 
+                else stringResource(R.string.guess_defeat_desc),
             isVictory = sessionCoins >= 0,
             coinsEarned = sessionCoins,
             onRetry = {

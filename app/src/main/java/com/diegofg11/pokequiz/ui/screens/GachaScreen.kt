@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.diegofg11.pokequiz.R
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.GachaRequest
@@ -67,7 +69,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             }
         } catch (e: Exception) {
             Log.e("GachaScreen", "Error loading coins", e)
-            errorMessage = "No se pudo conectar con el servidor para cargar tus monedas."
+            errorMessage = context.getString(R.string.coins_load_error)
         }
     }
 
@@ -146,7 +148,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             } catch (e: Exception) {
                 Log.e("GachaScreen", "Exception: ${e.message}")
                 withContext(Dispatchers.Main) {
-                    errorMessage = "Error de red"
+                    errorMessage = context.getString(R.string.error_generic)
                 }
                 gachaState = GachaAnimState.IDLE
             }
@@ -156,7 +158,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
     RetroBackground {
         if (errorMessage != null) {
             PokemonAlertDialog(
-                title = "¡Error!",
+                title = stringResource(R.string.error_title),
                 message = errorMessage!!,
                 isError = true,
                 onDismiss = { errorMessage = null }
@@ -184,12 +186,12 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             Spacer(modifier = Modifier.weight(0.1f))
 
             RetroText(
-                text = "BAZAR POKÉMON",
+                text = stringResource(R.string.bazaar_title),
                 fontSize = 34.sp,
                 color = Color.White
             )
             Text(
-                text = "¡Toca la Pokéball para abrirla!",
+                text = stringResource(R.string.tap_pokeball),
                 fontSize = 14.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 color = Color.Black.copy(alpha = 0.6f),
@@ -299,7 +301,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         RetroText(
-                            text = if (isNewPull) "¡NUEVO POKÉMON!" else "¡REPETIDO! (+50 EXP)",
+                            text = if (isNewPull) stringResource(R.string.new_pokemon) else stringResource(R.string.repeated_pokemon),
                             fontSize = 12.sp,
                             color = if (isNewPull) GoldPoke else Color(0xFF2D5A27)
                         )
@@ -312,13 +314,14 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             revealedPokemon!!.tipos.forEach { tipo ->
+                                val pokeType = PokeType.getByString(tipo)
                                 Surface(
                                     shape = androidx.compose.ui.graphics.RectangleShape,
-                                    color = PokeType.getColorByString(tipo),
+                                    color = pokeType?.color ?: Color.Gray,
                                     border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
                                 ) {
                                     Text(
-                                        text = tipo.uppercase(),
+                                        text = pokeType?.let { stringResource(it.stringResId) } ?: tipo.uppercase(),
                                         color = Color.White,
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
@@ -349,7 +352,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
             when (gachaState) {
                 GachaAnimState.IDLE -> {
                     RetroButton(
-                        text = "ABRIR POKÉBALL ($costPerRoll 🪙)",
+                        text = stringResource(R.string.open_pokeball, costPerRoll),
                         onClick = { doRoll() },
                         enabled = coins >= costPerRoll,
                         modifier = Modifier.fillMaxWidth(),
@@ -358,7 +361,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                     )
                     if (coins < costPerRoll) {
                         Text(
-                            text = "No tienes suficientes monedas.",
+                            text = stringResource(R.string.not_enough_coins),
                             color = Color(0xFFB71C1C),
                             fontSize = 12.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -369,7 +372,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                 }
                 GachaAnimState.REVEALED -> {
                     RetroButton(
-                        text = "TIRAR OTRA VEZ",
+                        text = stringResource(R.string.roll_again),
                         onClick = { gachaState = GachaAnimState.IDLE; revealedPokemon = null },
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = RedPoke,
@@ -377,7 +380,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     RetroButton(
-                        text = "VER MI PC",
+                        text = stringResource(R.string.see_my_pc),
                         onClick = onNavigateToPC,
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = Color(0xFF2D5A27),
@@ -389,7 +392,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
 
             Spacer(modifier = Modifier.weight(0.1f))
             Text(
-                text = "COSTE: $costPerRoll MONEDAS",
+                text = stringResource(R.string.cost_label, costPerRoll),
                 fontSize = 11.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 color = Color.Black.copy(alpha = 0.4f),

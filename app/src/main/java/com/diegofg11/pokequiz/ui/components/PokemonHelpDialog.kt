@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.res.stringResource
+import com.diegofg11.pokequiz.R
 
 @Composable
 fun PokemonHelpDialog(
@@ -95,7 +97,7 @@ fun PokemonHelpDialog(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = "ENTENDIDO",
+                            text = stringResource(R.string.understood),
                             fontWeight = FontWeight.Black,
                             fontSize = 14.sp,
                             fontFamily = FontFamily.Monospace

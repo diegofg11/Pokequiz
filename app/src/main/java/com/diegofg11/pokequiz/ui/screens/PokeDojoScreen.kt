@@ -1,6 +1,8 @@
 package com.diegofg11.pokequiz.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.ui.res.stringResource
+import com.diegofg11.pokequiz.R
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,7 +55,7 @@ fun PokeDojoScreen(
 
     if (globalError != null) {
         PokemonAlertDialog(
-            title = "Error",
+            title = stringResource(R.string.error_title),
             message = globalError ?: "",
             onDismiss = { globalError = null },
             onConfirm = { globalError = null }
@@ -64,7 +66,7 @@ fun PokeDojoScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             if (gameState != SafariGameState.START) {
                 SafariRetroHeader(
-                    title = "POKÉ-DOJO",
+                    title = stringResource(R.string.dojo_title),
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {
                             gameState = SafariGameState.RESULT
@@ -91,14 +93,14 @@ fun PokeDojoScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RetroStatCard(
-                                label = "PUNTOS",
+                                label = stringResource(R.string.dojo_points),
                                 value = "$score",
                                 containerColor = Color(0xFFFB8C00), // Orange
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
                             )
                             
                             RetroStatCard(
-                                label = "TIEMPO",
+                                label = stringResource(R.string.dojo_time),
                                 value = "$timeLeft",
                                 containerColor = if (timeLeft < 5) Color(0xFFE53935) else Color(0xFF2D5A27),
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
@@ -139,10 +141,10 @@ fun PokeDojoScreen(
                 } else {
                     when (gameState) {
                         SafariGameState.START -> SafariSelectionScreen(
-                            title = "POKÉ-DOJO",
-                            subtitle = "¡Golpea a los Pokémon que asomen!",
+                            title = stringResource(R.string.dojo_title),
+                            subtitle = stringResource(R.string.dojo_subtitle),
                             cards = listOf(
-                                DifficultyCardData("NORMAL", "30s | Estándar", "-20", "350", Color(0xFF795548), {
+                                DifficultyCardData(stringResource(R.string.normal), stringResource(R.string.dojo_normal_desc), "-20", "350", Color(0xFF795548), {
                                     difficulty = DojoDifficulty.NORMAL
                                     SafariUtils.rewardUser(
                                         scope = scope,
@@ -157,7 +159,7 @@ fun PokeDojoScreen(
                                         onError = { globalError = it }
                                     )
                                 }),
-                                DifficultyCardData("INFERNAL", "20s | ¡Caos!", "-50", "750", Color(0xFFE53935), {
+                                DifficultyCardData(stringResource(R.string.infernal), stringResource(R.string.dojo_infernal_desc), "-50", "750", Color(0xFFE53935), {
                                     difficulty = DojoDifficulty.INFERNAL
                                     SafariUtils.rewardUser(
                                         scope = scope,
@@ -257,7 +259,7 @@ fun PokeDojoGame(
         PixelDivider(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
 
         if (difficulty == DojoDifficulty.INFERNAL) {
-            Text("¡MODO INFERNAL!", color = Color(0xFFE53935), fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
+            Text("¡${stringResource(R.string.mode_infernal)}!", color = Color(0xFFE53935), fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -345,23 +347,25 @@ fun DojoHole(state: HoleState, onClick: () -> Unit) {
 fun PokeDojoResult(score: Int, difficulty: DojoDifficulty, onRetry: () -> Unit, onExit: () -> Unit) {
     val (rank, reward) = when (difficulty) {
         DojoDifficulty.INFERNAL -> when {
-            score >= 1000 -> "ORO" to 750
-            score >= 600 -> "PLATA" to 350
-            score >= 200 -> "BRONCE" to 120
-            else -> "NINGUNO" to 0
+            score >= 1000 -> stringResource(R.string.dojo_rank_gold) to 750
+            score >= 600 -> stringResource(R.string.dojo_rank_silver) to 350
+            score >= 200 -> stringResource(R.string.dojo_rank_bronze) to 120
+            else -> stringResource(R.string.dojo_rank_none) to 0
         }
         DojoDifficulty.NORMAL -> when {
-            score >= 500 -> "ORO" to 350
-            score >= 300 -> "PLATA" to 180
-            score >= 100 -> "BRONCE" to 60
-            else -> "NINGUNO" to 0
+            score >= 500 -> stringResource(R.string.dojo_rank_gold) to 350
+            score >= 300 -> stringResource(R.string.dojo_rank_silver) to 180
+            score >= 100 -> stringResource(R.string.dojo_rank_bronze) to 60
+            else -> stringResource(R.string.dojo_rank_none) to 0
         }
     }
 
+    val difficultyStr = if (difficulty == DojoDifficulty.INFERNAL) stringResource(R.string.infernal) else stringResource(R.string.normal)
+
     SafariResultScreen(
-        title = if (reward > 0) "¡SESIÓN FINALIZADA!" else "SESIÓN FINALIZADA",
-        subtitle = "POKÉ-DOJO - RANGO $rank",
-        description = "Has conseguido un total de $score puntos en el modo ${difficulty.name}.",
+        title = if (reward > 0) stringResource(R.string.dojo_session_ended_victory) else stringResource(R.string.dojo_session_ended),
+        subtitle = stringResource(R.string.dojo_result_subtitle, rank),
+        description = stringResource(R.string.dojo_result_desc, score, difficultyStr),
         isVictory = reward > 0,
         coinsEarned = reward,
         onRetry = onRetry,

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.models.PokemonBattle
 import com.diegofg11.pokequiz.models.Question
@@ -112,7 +113,7 @@ fun BattleScreen(
                     userHp = 100 // Fallback
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) { errorMessage = "Error de red" }
+                withContext(Dispatchers.Main) { errorMessage = context.getString(R.string.error_generic) }
             } finally {
                 isLoading = false
             }
@@ -122,7 +123,7 @@ fun BattleScreen(
 
     if (errorMessage != null) {
         PokemonAlertDialog(
-            title = "¡Error!",
+            title = stringResource(R.string.error_title),
             message = errorMessage!!,
             isError = true,
             onDismiss = {
@@ -149,10 +150,10 @@ fun BattleScreen(
     val currentQuestion = levelData!!.questions.getOrNull(currentQuestionIndex) ?: return
     val playerPokemon = currentParty.getOrNull(currentPlayerIndex)
     val pLevelVal = playerPokemon?.level ?: 1
-    val pName = playerPokemon?.nombre ?: "Sin Pokémon"
+    val pName = playerPokemon?.nombre ?: stringResource(R.string.no_pokemon)
     val pSprite = playerPokemon?.spriteBack ?: "" // Coil handles empty gracefully
     val pMaxHp = (playerPokemon?.hpBase ?: 100) + (pLevelVal * 5)
-    val pLevel = "Nv$pLevelVal"
+    val pLevel = "${stringResource(R.string.level_prefix)}$pLevelVal"
 
     val checkAnswer: (Int) -> Unit = { index ->
         val isCorrect = index == currentQuestion.correctAnswerIndex
@@ -184,7 +185,7 @@ fun BattleScreen(
                         opponentHp = (opponentHp - damage.damageDealt).coerceAtLeast(0)
                         
                         if (opponentHp <= 0) {
-                            gameOverMessage = "¡HAS GANADO!"
+                            gameOverMessage = context.getString(R.string.you_won)
                             isVictory = true
                             showGameOver = true
                             gameOverThisTurn = true
@@ -203,7 +204,7 @@ fun BattleScreen(
                                 val nextPkmn = currentParty[currentPlayerIndex]
                                 userHp = nextPkmn.hpBase + (nextPkmn.level * 5)
                             } else {
-                                gameOverMessage = "HAS PERDIDO..."
+                                gameOverMessage = context.getString(R.string.you_lost)
                                 isVictory = false
                                 showGameOver = true
                                 gameOverThisTurn = true
@@ -270,7 +271,7 @@ fun BattleScreen(
                 // Info Enemigo (Arriba Izquierda)
                 Box(Modifier.align(Alignment.TopStart).padding(start = 16.dp, top = 32.dp)) {
                     val eLevel = levelData!!.enemy?.level ?: 1
-                    PokemonStatusBox(levelData!!.enemy?.nombre ?: "ENEMIGO", "NV$eLevel", opponentHp, (levelData!!.enemy?.hpBase ?: 100) + (eLevel * 5), false)
+                    PokemonStatusBox(levelData!!.enemy?.nombre ?: stringResource(R.string.enemy_label), "${stringResource(R.string.level_prefix)}$eLevel", opponentHp, (levelData!!.enemy?.hpBase ?: 100) + (eLevel * 5), false)
                 }
                 // Sprite Enemigo (Arriba Derecha)
                 Box(
@@ -289,7 +290,7 @@ fun BattleScreen(
                     )
                     AsyncImage(
                         model = levelData!!.enemy?.spriteFront,
-                        contentDescription = "Enemigo",
+                        contentDescription = stringResource(R.string.desc_enemy),
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(x = enemyShake.dp)
@@ -314,7 +315,7 @@ fun BattleScreen(
                     )
                     AsyncImage(
                         model = pSprite,
-                        contentDescription = "Jugador",
+                        contentDescription = stringResource(R.string.desc_player),
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(x = playerShake.dp)
@@ -387,7 +388,7 @@ fun BattleScreen(
                                 }
                             } catch (e: Exception) {
                                 withContext(Dispatchers.Main) {
-                                    errorMessage = "Error al reclamar la recompensa."
+                                    errorMessage = context.getString(R.string.reward_claim_error)
                                 }
                             }
                         }
@@ -417,7 +418,7 @@ fun PokemonStatusBox(name: String, level: String, currentHp: Int, maxHp: Int, is
             // Barra de PS Retro
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "PS", 
+                    text = stringResource(R.string.hp_label), 
                     color = Color(0xFFE8B040), 
                     fontWeight = FontWeight.Black, 
                     fontSize = 10.sp, 
@@ -488,7 +489,7 @@ fun GameOverOverlay(message: String, isVictory: Boolean, onDismiss: () -> Unit) 
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 RetroText(
-                    text = if (isVictory) "¡VICTORIA!" else "DERROTA",
+                    text = if (isVictory) stringResource(R.string.victory) else stringResource(R.string.defeat),
                     fontSize = 32.sp,
                     color = if (isVictory) Color(0xFFB8860B) else Color(0xFFB71C1C)
                 )
@@ -509,7 +510,7 @@ fun GameOverOverlay(message: String, isVictory: Boolean, onDismiss: () -> Unit) 
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 RetroButton(
-                    text = "VOLVER AL MAPA",
+                    text = stringResource(R.string.back_to_map),
                     onClick = onDismiss,
                     containerColor = if (isVictory) Color(0xFF2D5A27) else RedPoke,
                     modifier = Modifier.fillMaxWidth()

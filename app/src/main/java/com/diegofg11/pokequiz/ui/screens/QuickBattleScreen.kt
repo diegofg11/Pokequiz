@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
@@ -64,10 +65,10 @@ fun QuickBattleScreen(
                     currentOpponent = response.body()
                     onSuccess()
                 } else {
-                    globalError = "No se pudo obtener un oponente del servidor."
+                    globalError = context.getString(R.string.quickbattle_load_error)
                 }
             } catch (e: Exception) {
-                globalError = "Error de conexión: ${e.localizedMessage}"
+                globalError = "${context.getString(R.string.connection_error_prefix)} ${e.localizedMessage}"
             } finally {
                 isLoading = false
             }
@@ -80,7 +81,7 @@ fun QuickBattleScreen(
 
     if (globalError != null) {
         PokemonAlertDialog(
-            title = "Error",
+            title = stringResource(R.string.error_title),
             message = globalError ?: "",
             onDismiss = { globalError = null },
             onConfirm = { globalError = null }
@@ -91,7 +92,7 @@ fun QuickBattleScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             if (gameState != SafariGameState.START) {
                 SafariRetroHeader(
-                    title = if (isInverse) "BATALLA INVERSA" else "BATALLA RÁPIDA",
+                    title = if (isInverse) stringResource(R.string.quickbattle_inverse_title) else stringResource(R.string.quickbattle_help_title),
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {
                             showExitWarning = true
@@ -118,14 +119,14 @@ fun QuickBattleScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RetroStatCard(
-                                label = "RONDA",
+                                label = stringResource(R.string.quickbattle_round),
                                 value = "${roundCount + 1}/3",
                                 containerColor = Color(0xFF673AB7), // Purple
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
                             )
                             
                             RetroStatCard(
-                                label = "VICTORIAS",
+                                label = stringResource(R.string.quickbattle_victories),
                                 value = "$victories",
                                 containerColor = Color(0xFFFFA000), // Amber
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
@@ -158,12 +159,12 @@ fun QuickBattleScreen(
                 } else {
                     when (gameState) {
                         SafariGameState.START -> SafariSelectionScreen(
-                            title = "BATALLA RÁPIDA",
-                            subtitle = "Demuestra tu conocimiento de tipos",
+                            title = stringResource(R.string.quickbattle_help_title),
+                            subtitle = stringResource(R.string.quickbattle_subtitle),
                             cards = listOf(
                                 DifficultyCardData(
-                                    "CLÁSICO", 
-                                    "Tipos efectivos", 
+                                    stringResource(R.string.quickbattle_classic), 
+                                    stringResource(R.string.quickbattle_classic_desc), 
                                     cost = "-20", 
                                     reward = "150", 
                                     color = Color(0xFFE53935), 
@@ -188,8 +189,8 @@ fun QuickBattleScreen(
                                     }
                                 ),
                                 DifficultyCardData(
-                                    "INVERSO", 
-                                    "Usa resistencias", 
+                                    stringResource(R.string.quickbattle_inverse), 
+                                    stringResource(R.string.quickbattle_inverse_desc), 
                                     cost = "-40", 
                                     reward = "250", 
                                     color = Color(0xFF9C27B0), 
@@ -230,10 +231,10 @@ fun QuickBattleScreen(
         if (showExitWarning) {
             val penalty = if (isInverse) 40 else 20
             PokemonAlertDialog(
-                title = "¡Atención!",
-                message = "Si abandonas ahora perderás tu entrada de $penalty monedas. ¿Seguro que quieres salir?",
+                title = stringResource(R.string.notice_title),
+                message = stringResource(R.string.exit_warning_msg, penalty),
                 isError = true,
-                confirmText = "Abandonar",
+                confirmText = stringResource(R.string.abandon),
                 onConfirm = {
                     showExitWarning = false
                     onNavigateBack()
@@ -246,6 +247,7 @@ fun QuickBattleScreen(
 
 @Composable
 fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult: (Boolean) -> Unit) {
+    val context = LocalContext.current
     var selectedType by remember { mutableStateOf<PokeType?>(null) }
     var showEffect by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -285,7 +287,7 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
         )
 
         Text(
-            if (isInverse) "¿Qué tipo NO es muy efectivo?" else "¿Qué tipo es súper efectivo?",
+            if (isInverse) stringResource(R.string.quickbattle_question_not) else stringResource(R.string.quickbattle_question_super),
             fontSize = 12.sp,
             fontFamily = FontFamily.Monospace,
             modifier = Modifier.padding(bottom = 24.dp)
@@ -315,9 +317,9 @@ fun QuickBattleGame(opponent: QuickBattleOpponent, isInverse: Boolean, onResult:
                                     val targetList = if (isInverse) opponent.resistances else opponent.weaknesses
                                     val isWin = targetList.contains(type)
                                     showEffect = if (isInverse) {
-                                        if (isWin) "¡NO ES MUY EFECTIVO!" else "¡ES SÚPER EFECTIVO! (MAL)"
+                                        if (isWin) context.getString(R.string.quickbattle_effect_not_good) else context.getString(R.string.quickbattle_effect_super_bad)
                                     } else {
-                                        if (isWin) "¡SÚPER EFECTIVO!" else "NO ES MUY EFECTIVO..."
+                                        if (isWin) context.getString(R.string.quickbattle_effect_super) else context.getString(R.string.quickbattle_effect_not)
                                     }
                                     scope.launch {
                                         delay(1500)
@@ -354,7 +356,7 @@ fun TypeButton(type: PokeType, onClick: () -> Unit, modifier: Modifier = Modifie
     }
 
     RetroButton(
-        text = type.nombreEs,
+        text = stringResource(type.stringResId),
         onClick = onClick,
         modifier = modifier.height(48.dp),
         containerColor = type.color,
@@ -370,9 +372,9 @@ fun QuickBattleResult(victories: Int, isInverse: Boolean, onRetry: () -> Unit, o
     val reward = if (victories == 3) rewardBase else if (victories == 2) (rewardBase * 0.4).toInt() else 0
     
     SafariResultScreen(
-        title = if (victories >= 2) "¡MAESTRO DE TIPOS!" else "SESIÓN FINALIZADA",
-        subtitle = "BATALLA ${if (isInverse) "INVERSA" else "RÁPIDA"} - $victories/3 VICTORIAS",
-        description = if (isInverse) "Has dominado las resistencias Pokémon." else "Has demostrado tus conocimientos en el campo de batalla.",
+        title = if (victories >= 2) stringResource(R.string.quickbattle_master) else stringResource(R.string.dojo_session_ended),
+        subtitle = stringResource(R.string.quickbattle_result_subtitle, if (isInverse) stringResource(R.string.quickbattle_inverse) else stringResource(R.string.quickbattle_classic), victories),
+        description = if (isInverse) stringResource(R.string.quickbattle_result_desc_inverse) else stringResource(R.string.quickbattle_result_desc_classic),
         isVictory = victories >= 2,
         coinsEarned = reward,
         onRetry = onRetry,

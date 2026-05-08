@@ -43,6 +43,8 @@ import com.diegofg11.pokequiz.utils.WallpaperManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import com.diegofg11.pokequiz.R
 
 @Composable
 fun UserScreen(onLogout: () -> Unit) {
@@ -69,7 +71,7 @@ fun UserScreen(onLogout: () -> Unit) {
                 pokedexCount = pcResp.body()?.size ?: 0
             }
         } catch (e: Exception) {
-            errorMessage = "Error al cargar datos del usuario"
+            errorMessage = context.getString(R.string.user_load_error)
         } finally {
             isLoading = false
         }
@@ -78,7 +80,7 @@ fun UserScreen(onLogout: () -> Unit) {
     RetroBackground {
         if (errorMessage != null) {
             PokemonAlertDialog(
-                title = "¡Error!",
+                title = stringResource(R.string.error_title),
                 message = errorMessage!!,
                 isError = true,
                 onDismiss = { errorMessage = null }
@@ -118,7 +120,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 .padding(vertical = 8.dp)
                         ) {
                             RetroText(
-                                text = "TARJETA ENTRENADOR",
+                                text = stringResource(R.string.trainer_card),
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 modifier = Modifier.padding(start = 16.dp)
@@ -136,7 +138,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Nº ID",
+                                    text = stringResource(R.string.id_number),
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -152,14 +154,14 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 
                                 Text(
-                                    text = "NOMBRE",
+                                    text = stringResource(R.string.name_label),
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = (displayUser?.nombre ?: "INVITADO").uppercase(),
+                                    text = (displayUser?.nombre ?: stringResource(R.string.guest)).uppercase(),
                                     fontSize = 14.sp,
                                     color = Color(0xFF2D5A27), // Resaltado con el verde Safari
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -169,7 +171,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text(
-                                    text = "DINERO",
+                                    text = stringResource(R.string.money_label),
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -185,7 +187,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text(
-                                    text = "POKéDEX",
+                                    text = stringResource(R.string.pokedex_label),
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -212,7 +214,7 @@ fun UserScreen(onLogout: () -> Unit) {
                             ) {
                                 Image(
                                     painter = painterResource(id = selectedAvatar.resId),
-                                    contentDescription = "Avatar de ${selectedAvatar.name}",
+                                    contentDescription = stringResource(R.string.desc_avatar, selectedAvatar.name),
                                     modifier = Modifier.fillMaxSize().padding(4.dp),
                                     contentScale = ContentScale.Fit
                                 )
@@ -237,22 +239,22 @@ fun UserScreen(onLogout: () -> Unit) {
                     Column {
                         ActionMenuItem(
                             icon = Icons.Default.Edit,
-                            title = "PERSONALIZAR MAPA",
-                            subtitle = "Cambiar fondo de pantalla",
+                            title = stringResource(R.string.customize_map),
+                            subtitle = stringResource(R.string.change_wallpaper),
                             onClick = { showWallpaperDialog = true }
                         )
                         HorizontalDivider(thickness = 2.dp, color = Color.Black)
                         ActionMenuItem(
                             icon = Icons.Default.Edit,
-                            title = "PERSONALIZAR ENTRENADOR",
-                            subtitle = "Cambiar imagen de perfil",
+                            title = stringResource(R.string.customize_trainer),
+                            subtitle = stringResource(R.string.change_profile),
                             onClick = { showAvatarDialog = true }
                         )
                         HorizontalDivider(thickness = 2.dp, color = Color.Black)
                         ActionMenuItem(
                             icon = Icons.Default.Settings,
-                            title = "AJUSTES DE CUENTA",
-                            subtitle = "Cerrar sesión y otros",
+                            title = stringResource(R.string.account_settings),
+                            subtitle = stringResource(R.string.logout_and_more),
                             onClick = { showSettingsDialog = true }
                         )
                     }
@@ -272,7 +274,7 @@ fun UserScreen(onLogout: () -> Unit) {
                     borderColor = GoldPoke
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        RetroText(text = "SELECCIONAR FONDO", fontSize = 16.sp)
+                        RetroText(text = stringResource(R.string.select_wallpaper), fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         val wallpapers = WallpaperManager.getAllWallpapers()
@@ -292,7 +294,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                         .clickable {
                                             WallpaperManager.setSelectedWallpaper(context, index)
                                             showWallpaperDialog = false
-                                            Toast.makeText(context, "Fondo actualizado", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.wallpaper_updated), Toast.LENGTH_SHORT).show()
                                         }
                                 ) {
                                     Image(
@@ -307,7 +309,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         
                         Spacer(modifier = Modifier.height(20.dp))
                         RetroButton(
-                            text = "CANCELAR",
+                            text = stringResource(R.string.cancel),
                             onClick = { showWallpaperDialog = false },
                             containerColor = Color.Gray,
                             modifier = Modifier.fillMaxWidth()
@@ -329,7 +331,7 @@ fun UserScreen(onLogout: () -> Unit) {
                     borderColor = GoldPoke
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        RetroText(text = "SELECCIONAR ENTRENADOR", fontSize = 16.sp)
+                        RetroText(text = stringResource(R.string.select_trainer), fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         val avatars = com.diegofg11.pokequiz.utils.AvatarManager.availableAvatars
@@ -354,7 +356,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                             com.diegofg11.pokequiz.utils.AvatarManager.setSelectedAvatar(context, avatar.id)
                                             selectedAvatar = avatar
                                             showAvatarDialog = false
-                                            Toast.makeText(context, "Entrenador actualizado", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.trainer_updated), Toast.LENGTH_SHORT).show()
                                         }
                                         .padding(8.dp)
                                 ) {
@@ -378,7 +380,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         
                         Spacer(modifier = Modifier.height(20.dp))
                         RetroButton(
-                            text = "CANCELAR",
+                            text = stringResource(R.string.cancel),
                             onClick = { showAvatarDialog = false },
                             containerColor = Color.Gray,
                             modifier = Modifier.fillMaxWidth()
@@ -400,7 +402,7 @@ fun UserScreen(onLogout: () -> Unit) {
                     borderColor = GoldPoke
                 ) {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        RetroText(text = "AJUSTES", fontSize = 16.sp)
+                        RetroText(text = stringResource(R.string.settings), fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(24.dp))
 
                         // Control de Volumen
@@ -408,7 +410,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                text = "VOLUMEN: ${(volume * 100).toInt()}%",
+                                text = stringResource(R.string.volume_label, (volume * 100).toInt()),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
@@ -431,9 +433,49 @@ fun UserScreen(onLogout: () -> Unit) {
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
+
+                        // Control de Idioma
+                        var currentLang by remember { mutableStateOf(com.diegofg11.pokequiz.utils.SessionManager.getLanguage(context)) }
+                        
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = stringResource(R.string.language_label),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                color = Color.Black
+                            )
+                        }
+                        
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            RetroButton(
+                                text = "ES",
+                                onClick = { 
+                                    com.diegofg11.pokequiz.utils.SessionManager.setLanguage(context, "es")
+                                    currentLang = "es"
+                                    (context as? android.app.Activity)?.recreate()
+                                },
+                                modifier = Modifier.weight(1f),
+                                containerColor = if (currentLang == "es") GoldPoke else Color.LightGray,
+                                contentColor = if (currentLang == "es") Color.White else Color.Black
+                            )
+                            RetroButton(
+                                text = "EN",
+                                onClick = { 
+                                    com.diegofg11.pokequiz.utils.SessionManager.setLanguage(context, "en")
+                                    currentLang = "en"
+                                    (context as? android.app.Activity)?.recreate()
+                                },
+                                modifier = Modifier.weight(1f),
+                                containerColor = if (currentLang == "en") GoldPoke else Color.LightGray,
+                                contentColor = if (currentLang == "en") Color.White else Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
                         
                         RetroButton(
-                            text = "CERRAR SESIÓN",
+                            text = stringResource(R.string.logout),
                             onClick = {
                                 SessionManager.logout(context)
                                 showSettingsDialog = false
@@ -446,7 +488,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
                         
                         RetroButton(
-                            text = "VOLVER",
+                            text = stringResource(R.string.go_back),
                             onClick = { showSettingsDialog = false },
                             containerColor = Color.Gray,
                             modifier = Modifier.fillMaxWidth()

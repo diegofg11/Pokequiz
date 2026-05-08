@@ -35,6 +35,9 @@ import com.diegofg11.pokequiz.models.MinigamePokemon
 import com.diegofg11.pokequiz.api.Network
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import com.diegofg11.pokequiz.R
 
 @Composable
 fun MemoryGameScreen(
@@ -49,11 +52,11 @@ fun MemoryGameScreen(
     
     if (difficulty == null) {
         SafariSelectionScreen(
-            title = "MEMORAMA",
-            subtitle = "Selecciona un modo para empezar",
+            title = stringResource(R.string.memorama),
+            subtitle = stringResource(R.string.select_mode),
             cards = listOf(
-                DifficultyCardData("NORMAL", "5 Vidas | Relajado", "-20", "80", Color(0xFF4CAF50), { difficulty = MemoryDifficulty.NORMAL }),
-                DifficultyCardData("INFERNAL", "Caótico | 20s", "-50", "200", Color(0xFFE53935), { difficulty = MemoryDifficulty.INFERNAL })
+                DifficultyCardData(stringResource(R.string.normal), stringResource(R.string.memory_desc_normal), "-20", "80", Color(0xFF4CAF50), { difficulty = MemoryDifficulty.NORMAL }),
+                DifficultyCardData(stringResource(R.string.infernal), stringResource(R.string.memory_desc_infernal), "-50", "200", Color(0xFFE53935), { difficulty = MemoryDifficulty.INFERNAL })
             )
         )
     } else {
@@ -66,6 +69,7 @@ fun MemoryGameScreen(
 
 @Composable
 fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
     val cards = remember { mutableStateListOf<MemoryCardData>() }
@@ -111,10 +115,10 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                     isLoading = false
                     initializeGame()
                 } else {
-                    globalError = "No se pudo cargar la lista de Pokémon."
+                    globalError = context.getString(R.string.memory_load_error)
                 }
             } catch (e: Exception) {
-                globalError = "Error de conexión: ${e.localizedMessage}"
+                globalError = "${context.getString(R.string.connection_error_prefix)} ${e.localizedMessage}"
             }
         }
     }
@@ -151,7 +155,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
 
     if (globalError != null) {
         PokemonAlertDialog(
-            title = "¡Error!",
+            title = stringResource(R.string.error_title),
             message = globalError!!,
             isError = true,
             onDismiss = { globalError = null }
@@ -234,7 +238,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         SafariRetroHeader(
-            title = if (difficulty == MemoryDifficulty.INFERNAL) "MODO INFERNAL" else "MEMORAMA",
+            title = if (difficulty == MemoryDifficulty.INFERNAL) stringResource(R.string.mode_infernal) else stringResource(R.string.memorama),
             onBackClick = {
                 if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
                     showExitWarning = true
@@ -252,7 +256,7 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
                         fontFamily = FontFamily.Monospace
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Icon(Icons.Default.Favorite, contentDescription = "Vidas", tint = Color(0xFFE53935), modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Favorite, contentDescription = stringResource(R.string.desc_lives), tint = Color(0xFFE53935), modifier = Modifier.size(18.dp))
                 }
             }
         )
@@ -322,11 +326,11 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
 
     if (showResultDialog) {
         SafariResultScreen(
-            title = if (hasWon) "¡VICTORIA!" else "DERROTA",
-            subtitle = "MEMORAMA - ${difficulty.name}",
+            title = if (hasWon) stringResource(R.string.victory) else stringResource(R.string.defeat),
+            subtitle = "${stringResource(R.string.memorama)} - ${difficulty.name}",
             description = if (hasWon) 
-                "¡Excelente memoria! Has encontrado todas las parejas Pokémon." 
-                else "¡No te rindas! Entrena tu memoria para la próxima vez.",
+                stringResource(R.string.memory_victory_desc) 
+                else stringResource(R.string.memory_defeat_desc),
             isVictory = hasWon,
             coinsEarned = if (hasWon) winReward else -losePenalty,
             onRetry = {
@@ -339,10 +343,10 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
 
     if (showExitWarning) {
         PokemonAlertDialog(
-            title = "¡Atención!",
-            message = "Si abandonas ahora se te cobrará la entrada de $losePenalty monedas. ¿Seguro que quieres salir?",
+            title = stringResource(R.string.notice_title),
+            message = stringResource(R.string.exit_warning_msg, losePenalty),
             isError = true,
-            confirmText = "Abandonar",
+            confirmText = stringResource(R.string.abandon),
             onConfirm = {
                 showExitWarning = false
                 isProcessing = true
@@ -390,7 +394,7 @@ fun MemoryCard(cardData: MemoryCardData, onClick: () -> Unit) {
             ) {
                 AsyncImage(
                     model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cardData.pokemonId}.png",
-                    contentDescription = "Sprite de Pokémon",
+                    contentDescription = stringResource(R.string.desc_pokemon_sprite),
                     modifier = Modifier.fillMaxSize().padding(4.dp),
                     contentScale = ContentScale.Fit
                 )

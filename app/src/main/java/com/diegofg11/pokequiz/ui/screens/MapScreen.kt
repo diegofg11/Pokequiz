@@ -29,6 +29,7 @@ import com.diegofg11.pokequiz.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -135,13 +136,13 @@ fun MapScreen(
                     modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
                 ) {
                     RetroText(
-                        text = "RUTA POKÉQUIZ", 
+                        text = stringResource(R.string.route_pokequiz), 
                         fontSize = 16.sp, 
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
-                        text = "EXPLORANDO REGIÓN", 
+                        text = stringResource(R.string.exploring_region), 
                         fontSize = 9.sp, 
                         color = Color.Gray, 
                         fontWeight = FontWeight.Bold,
@@ -165,7 +166,7 @@ fun MapScreen(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        RetroText(text = "NIVEL ${user?.nivelProgreso ?: completedLevel + 1}", fontSize = 12.sp, showShadow = false)
+                        RetroText(text = "${stringResource(R.string.level_short)} ${user?.nivelProgreso ?: completedLevel + 1}", fontSize = 12.sp, showShadow = false)
                         RetroText(text = "🪙 ${user?.monedasGacha ?: 0}", fontSize = 11.sp, showShadow = false)
                     }
                 }
@@ -227,14 +228,14 @@ fun LevelItem(
 
                 Column {
                     RetroText(
-                        text = "NIVEL $levelId",
+                        text = stringResource(R.string.level_format, levelId),
                         fontSize = 12.sp,
                         color = if (isUnlocked) Color.Black else Color.White,
                         showShadow = false
                     )
                     if (isCompleted) {
                         Text(
-                            text = "COMPLETO", 
+                            text = stringResource(R.string.level_complete), 
                             fontSize = 8.sp, 
                             color = Color(0xFF4CAF50),
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -242,7 +243,7 @@ fun LevelItem(
                         )
                     } else if (!isUnlocked) {
                         Text(
-                            text = "BLOQUEADO", 
+                            text = stringResource(R.string.level_locked), 
                             fontSize = 9.sp, 
                             color = Color.White.copy(alpha = 0.8f),
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,

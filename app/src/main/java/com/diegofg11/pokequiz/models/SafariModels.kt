@@ -1,6 +1,7 @@
 package com.diegofg11.pokequiz.models
 
 import androidx.compose.ui.graphics.Color
+import com.diegofg11.pokequiz.R
 
 /**
  * Common difficulties for minigames.
@@ -41,25 +42,25 @@ enum class WordSearchDifficulty {
 
 // --- Quick Battle Models ---
 
-enum class PokeType(val color: Color, val nombreEs: String) {
-    FIRE(Color(0xFFEE8130), "FUEGO"),
-    WATER(Color(0xFF6390F0), "AGUA"),
-    GRASS(Color(0xFF7AC74C), "PLANTA"),
-    ELECTRIC(Color(0xFFF7D02C), "ELÉCTRICO"),
-    GROUND(Color(0xFFE2BF65), "TIERRA"),
-    FLYING(Color(0xFFA98FF3), "VOLADOR"),
-    ICE(Color(0xFF96D9D6), "HIELO"),
-    FIGHTING(Color(0xFFC22E28), "LUCHA"),
-    PSYCHIC(Color(0xFFF95587), "PSÍQUICO"),
-    BUG(Color(0xFFA6B91A), "BICHO"),
-    POISON(Color(0xFFA33EA1), "VENENO"),
-    GHOST(Color(0xFF735797), "FANTASMA"),
-    DRAGON(Color(0xFF6F35FC), "DRAGÓN"),
-    STEEL(Color(0xFFB7B7CE), "ACERO"),
-    DARK(Color(0xFF705746), "SINIESTRO"),
-    NORMAL(Color(0xFFA8A77A), "NORMAL"),
-    ROCK(Color(0xFFB6A136), "ROCA"),
-    FAIRY(Color(0xFFD685AD), "HADA");
+enum class PokeType(val color: Color, val nombreEs: String, val stringResId: Int) {
+    FIRE(Color(0xFFEE8130), "FUEGO", R.string.type_fire),
+    WATER(Color(0xFF6390F0), "AGUA", R.string.type_water),
+    GRASS(Color(0xFF7AC74C), "PLANTA", R.string.type_grass),
+    ELECTRIC(Color(0xFFF7D02C), "ELÉCTRICO", R.string.type_electric),
+    GROUND(Color(0xFFE2BF65), "TIERRA", R.string.type_ground),
+    FLYING(Color(0xFFA98FF3), "VOLADOR", R.string.type_flying),
+    ICE(Color(0xFF96D9D6), "HIELO", R.string.type_ice),
+    FIGHTING(Color(0xFFC22E28), "LUCHA", R.string.type_fighting),
+    PSYCHIC(Color(0xFFF95587), "PSÍQUICO", R.string.type_psychic),
+    BUG(Color(0xFFA6B91A), "BICHO", R.string.type_bug),
+    POISON(Color(0xFFA33EA1), "VENENO", R.string.type_poison),
+    GHOST(Color(0xFF735797), "FANTASMA", R.string.type_ghost),
+    DRAGON(Color(0xFF6F35FC), "DRAGÓN", R.string.type_dragon),
+    STEEL(Color(0xFFB7B7CE), "ACERO", R.string.type_steel),
+    DARK(Color(0xFF705746), "SINIESTRO", R.string.type_dark),
+    NORMAL(Color(0xFFA8A77A), "NORMAL", R.string.type_normal),
+    ROCK(Color(0xFFB6A136), "ROCA", R.string.type_rock),
+    FAIRY(Color(0xFFD685AD), "HADA", R.string.type_fairy);
 
     companion object {
         fun getColorByString(typeName: String): Color {
@@ -67,6 +68,13 @@ enum class PokeType(val color: Color, val nombreEs: String) {
                 it.name.equals(typeName, ignoreCase = true) || 
                 it.nombreEs.equals(typeName, ignoreCase = true) 
             }?.color ?: Color.Gray
+        }
+
+        fun getByString(typeName: String): PokeType? {
+            return entries.find { 
+                it.name.equals(typeName, ignoreCase = true) || 
+                it.nombreEs.equals(typeName, ignoreCase = true) 
+            }
         }
     }
 }

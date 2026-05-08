@@ -1,0 +1,300 @@
+<resources>
+    <string name="app_name">Pokequiz</string>
+
+    <!-- ═══ Welcome / Auth ═══ -->
+    <string name="continue_btn">CONTINUE</string>
+    <string name="login_btn">LOG IN</string>
+    <string name="new_user_btn">NEW USER</string>
+    <string name="login_title">LOG IN</string>
+    <string name="your_name_label">YOUR NAME</string>
+    <string name="enter_btn">ENTER</string>
+    <string name="back_to_menu">BACK TO MENU</string>
+    <string name="register_title">NEW USER</string>
+    <string name="register_btn">REGISTER</string>
+    <string name="choose_starter">CHOOSE YOUR STARTER:</string>
+    <string name="name_empty_error">NAME CANNOT BE EMPTY</string>
+    <string name="name_exists_error">THAT NAME ALREADY EXISTS</string>
+    <string name="network_error">NETWORK ERROR.</string>
+    <string name="connection_error_prefix">CONNECTION ERROR:</string>
+    <string name="error_prefix">ERROR:</string>
+    <string name="login_failed">Could not log in.</string>
+    <string name="unknown_error">Unknown</string>
+    <string name="loading_dots">…</string>
+
+    <!-- ═══ Bottom Navigation ═══ -->
+    <string name="nav_map">MAP</string>
+    <string name="nav_pc">PC</string>
+    <string name="nav_bazaar">SHOP</string>
+    <string name="nav_safari">SAFARI</string>
+    <string name="nav_profile">PROFILE</string>
+
+    <!-- ═══ Tutorial ═══ -->
+    <string name="tutorial_map_title">THE MAP</string>
+    <string name="tutorial_map_desc">Here you can see available levels. Tap one to start a battle and progress.</string>
+    <string name="tutorial_pc_title">YOUR TEAM (PC)</string>
+    <string name="tutorial_pc_desc">In the PC you can manage your Pokémon and choose who joins you in battle.</string>
+    <string name="tutorial_gacha_title">THE SHOP</string>
+    <string name="tutorial_gacha_desc">Use your coins here to get new random Pokémon!</string>
+    <string name="tutorial_safari_title">SAFARI ZONE</string>
+    <string name="tutorial_safari_desc">Earn extra coins playing fun type and memory minigames!</string>
+    <string name="tutorial_profile_title">YOUR PROFILE</string>
+    <string name="tutorial_profile_desc">Customize your avatar and wallpaper from here.</string>
+    <string name="tutorial_next">NEXT</string>
+    <string name="tutorial_understood">GOT IT</string>
+
+    <!-- ═══ Map Screen ═══ -->
+    <string name="route_pokequiz">POKÉQUIZ ROUTE</string>
+    <string name="exploring_region">EXPLORING REGION</string>
+    <string name="level_format">LEVEL %d</string>
+    <string name="level_short">LEVEL</string>
+    <string name="level_complete">COMPLETE</string>
+    <string name="level_locked">LOCKED</string>
+
+    <!-- ═══ Battle Screen ═══ -->
+    <string name="error_title">Error!</string>
+    <string name="no_pokemon">No Pokémon</string>
+    <string name="level_prefix">Lv</string>
+    <string name="hp_label">HP</string>
+    <string name="you_won">YOU WON!</string>
+    <string name="you_lost">YOU LOST…</string>
+    <string name="victory">VICTORY!</string>
+    <string name="defeat">DEFEAT</string>
+    <string name="back_to_map">BACK TO MAP</string>
+    <string name="reward_claim_error">Error claiming the reward.</string>
+    <string name="enemy_label">ENEMY</string>
+
+    <!-- ═══ Gacha Screen ═══ -->
+    <string name="bazaar_title">POKÉMON SHOP</string>
+    <string name="tap_pokeball">Tap the Pokéball to open it!</string>
+    <string name="open_pokeball">OPEN POKÉBALL (%d 🪙)</string>
+    <string name="not_enough_coins">You don\'t have enough coins.</string>
+    <string name="roll_again">ROLL AGAIN</string>
+    <string name="see_my_pc">SEE MY PC</string>
+    <string name="new_pokemon">NEW POKÉMON!</string>
+    <string name="repeated_pokemon">DUPLICATE! (+50 EXP)</string>
+    <string name="cost_label">COST: %d COINS</string>
+    <string name="coins_load_error">Could not connect to the server to load your coins.</string>
+
+    <!-- ═══ PC Screen ═══ -->
+    <string name="current_team">CURRENT TEAM</string>
+    <string name="pc_collection">PC COLLECTION</string>
+    <string name="pc_empty">THE PC IS EMPTY!</string>
+    <string name="total_pokemon">TOTAL: %d POKÉMON</string>
+    <string name="search_name">SEARCH NAME…</string>
+    <string name="filter_sort">FILTER &amp; SORT</string>
+    <string name="see_all">SEE ALL</string>
+    <string name="favorites">FAVORITES</string>
+    <string name="shinies">SHINIES</string>
+    <string name="sort_by">SORT BY:</string>
+    <string name="filter_by_type">FILTER BY TYPE:</string>
+    <string name="clear">CLEAR</string>
+    <string name="close">CLOSE</string>
+    <string name="pokedex_data">POKÉDEX DATA</string>
+    <string name="no_data">No data registered.</string>
+    <string name="lv_label">LVL</string>
+    <string name="hp_stat_label">HP</string>
+    <string name="exp_label">EXP</string>
+    <string name="leave_in_pc">LEAVE IN PC</string>
+    <string name="add_to_team">TO TEAM</string>
+    <string name="team_full">Team is full (Max 3)</string>
+    <string name="save_fav_error">Error saving favorite</string>
+    <string name="sort_recent">RECENT</string>
+    <string name="sort_pokedex">POKé #</string>
+    <string name="sort_level">LEVEL</string>
+    <string name="sort_name">A-Z</string>
+
+    <!-- ═══ User Screen ═══ -->
+    <string name="trainer_card">TRAINER CARD</string>
+    <string name="id_number">ID No.</string>
+    <string name="name_label">NAME</string>
+    <string name="money_label">MONEY</string>
+    <string name="pokedex_label">POKéDEX</string>
+    <string name="guest">GUEST</string>
+    <string name="customize_map">CUSTOMIZE MAP</string>
+    <string name="change_wallpaper">Change wallpaper</string>
+    <string name="customize_trainer">CUSTOMIZE TRAINER</string>
+    <string name="change_profile">Change profile picture</string>
+    <string name="account_settings">ACCOUNT SETTINGS</string>
+    <string name="logout_and_more">Log out and more</string>
+    <string name="select_wallpaper">SELECT WALLPAPER</string>
+    <string name="wallpaper_updated">Wallpaper updated</string>
+    <string name="select_trainer">SELECT TRAINER</string>
+    <string name="trainer_updated">Trainer updated</string>
+    <string name="cancel">CANCEL</string>
+    <string name="settings">SETTINGS</string>
+    <string name="volume_label">VOLUME: %d%%</string>
+    <string name="logout">LOG OUT</string>
+    <string name="go_back">BACK</string>
+    <string name="user_load_error">Error loading user data</string>
+
+    <!-- ═══ Minigames / Safari Zone ═══ -->
+    <string name="safari_zone">SAFARI ZONE</string>
+    <string name="minigames">MINIGAMES</string>
+    <string name="minigames_subtitle">Pick a challenge and earn coins!</string>
+    <string name="silhouettes">SILHOUETTES</string>
+    <string name="silhouettes_desc">Who\'s that Pokémon?</string>
+    <string name="memorama">MEMORY</string>
+    <string name="memorama_desc">Find the pairs</string>
+    <string name="word_soup">POKÉ SOUP</string>
+    <string name="word_soup_desc">Find hidden names</string>
+    <string name="battle">BATTLE</string>
+    <string name="battle_desc">Type master</string>
+    <string name="poke_dojo">POKÉ-DOJO</string>
+    <string name="poke_dojo_desc">Whack the Diglett</string>
+    <string name="reward_up_to">UP TO</string>
+
+    <!-- Safari Zone Help -->
+    <string name="safari_help_what">WHAT IS IT?</string>
+    <string name="safari_help_what_desc">The Safari Zone is where you can earn free Poké Coins by playing various minigames.</string>
+    <string name="safari_help_coins">COINS</string>
+    <string name="safari_help_coins_desc">Each game has an entry cost but offers great rewards if you beat the challenges.</string>
+    <string name="safari_help_difficulty">DIFFICULTY</string>
+    <string name="safari_help_difficulty_desc">Inside each game you can choose from several levels. Higher difficulty means bigger prizes!</string>
+    <string name="safari_help_use">USAGE</string>
+    <string name="safari_help_use_desc">Use coins earned in the Gacha Shop to complete your Pokédex.</string>
+
+    <!-- Guess Pokémon -->
+    <string name="who_is_it">WHO\'S THAT?</string>
+    <string name="which_pokemon">WHO\'S THAT POKÉMON?</string>
+    <string name="guess_title">WHO\'S THAT POKÉMON?</string>
+    <string name="select_mode">Select a mode to start</string>
+    <string name="easy">EASY</string>
+    <string name="hard">HARD</string>
+    <string name="infernal">INFERNAL</string>
+    <string name="no_limits">No limits</string>
+    <string name="time_rotated">5s | Rotated</string>
+    <string name="time_chaos">4s | Visual Chaos</string>
+    <string name="time_label">TIME</string>
+    <string name="mode_format">MODE %s</string>
+    <string name="guess_victory_desc">Amazing! You have an expert eye for Pokémon silhouettes.</string>
+    <string name="guess_defeat_desc">The silhouette got you confused this time. Keep practicing!</string>
+    <string name="round_load_error">Could not load the next round.</string>
+    <string name="connection_error">Connection error.</string>
+
+    <!-- Guess Pokémon Help -->
+    <string name="guess_help_title">WHO\'S THAT POKÉMON?</string>
+    <string name="guess_help_easy">EASY MODE</string>
+    <string name="guess_help_easy_desc">Guess the Pokémon by its silhouette. No time limit.</string>
+    <string name="guess_help_hard">HARD MODE</string>
+    <string name="guess_help_hard_desc">Randomly rotated Pokémon. You have 5 seconds.</string>
+    <string name="guess_help_infernal">INFERNAL MODE</string>
+    <string name="guess_help_infernal_desc">Distorted silhouettes, visual effects and only 4 seconds.</string>
+
+    <!-- Memory Game Help -->
+    <string name="memory_help_title">MEMORY</string>
+    <string name="memory_help_normal">NORMAL MODE</string>
+    <string name="memory_help_normal_desc">Find all the Pokémon pairs before time runs out.</string>
+    <string name="memory_help_infernal_desc">Watch out! There are hidden bombs that reduce time if tapped.</string>
+
+    <!-- Word Search Help -->
+    <string name="wordsearch_help_title">WORD SEARCH</string>
+    <string name="wordsearch_help_normal_desc">Find the Pokémon names in the grid.</string>
+    <string name="wordsearch_help_hard_desc">More words and less time.</string>
+    <string name="wordsearch_help_infernal_desc">Words in all directions, even reversed.</string>
+
+    <!-- Quick Battle Help -->
+    <string name="quickbattle_help_title">QUICK BATTLE</string>
+    <string name="quickbattle_help_rules">RULES</string>
+    <string name="quickbattle_help_rules_desc">Beat 3 trainers in a row by choosing the correct attack type.</string>
+    <string name="quickbattle_help_inverse">INVERSE MODE</string>
+    <string name="quickbattle_help_inverse_desc">Weaknesses are reversed. Use attacks that normally wouldn\'t be effective!</string>
+
+    <!-- Poké-Dojo Help -->
+    <string name="dojo_help_title">POKÉ-DOJO</string>
+    <string name="dojo_help_objective">OBJECTIVE</string>
+    <string name="dojo_help_objective_desc">Hit the Digletts popping out of holes to earn points.</string>
+    <string name="dojo_help_danger">DANGER</string>
+    <string name="dojo_help_danger_desc">Don\'t hit the Voltorbs or you\'ll lose points and time.</string>
+    <string name="dojo_help_infernal_desc">More speed and more explosive Voltorbs!</string>
+
+    <!-- ═══ General / Shared ═══ -->
+    <string name="understood">GOT IT</string>
+    <string name="exit">EXIT</string>
+    <string name="error_generic">Network error</string>
+    <string name="connection_server_error">Could not connect to the server to load your profile.</string>
+    <string name="connection_error_dialog">Connection Error!</string>
+    <string name="sync_error">Synchronization error with the server.</string>
+    <string name="notice_title">Notice</string>
+
+    <!-- Pokémon Types -->
+    <string name="type_fire">FIRE</string>
+    <string name="type_water">WATER</string>
+    <string name="type_grass">GRASS</string>
+    <string name="type_electric">ELECTRIC</string>
+    <string name="type_ground">GROUND</string>
+    <string name="type_flying">FLYING</string>
+    <string name="type_ice">ICE</string>
+    <string name="type_fighting">FIGHTING</string>
+    <string name="type_psychic">PSYCHIC</string>
+    <string name="type_bug">BUG</string>
+    <string name="type_poison">POISON</string>
+    <string name="type_ghost">GHOST</string>
+    <string name="type_dragon">DRAGON</string>
+    <string name="type_steel">STEEL</string>
+    <string name="type_dark">DARK</string>
+    <string name="type_normal">NORMAL</string>
+    <string name="type_rock">ROCK</string>
+    <string name="type_fairy">FAIRY</string>
+    <!-- Memory Game Additional -->
+    <string name="normal">NORMAL</string>
+    <string name="memory_desc_normal">5 Lives | Relaxed</string>
+    <string name="memory_desc_infernal">Chaotic | 20s</string>
+    <string name="memory_load_error">Could not load the Pokémon list.</string>
+    <string name="memory_victory_desc">Excellent memory! You have found all Pokémon pairs.</string>
+    <string name="memory_defeat_desc">Don\'t give up! Train your memory for the next time.</string>
+    <string name="exit_warning_msg">If you leave now you will be charged the entry fee of %d coins. Are you sure you want to exit?</string>
+    <string name="abandon">Abandon</string>
+    <string name="mode_infernal">INFERNAL MODE</string>
+
+    <!-- Poké-Dojo Game -->
+    <string name="dojo_title">POKÉ-DOJO</string>
+    <string name="dojo_points">POINTS</string>
+    <string name="dojo_time">TIME</string>
+    <string name="dojo_subtitle">Hit the Pokémon popping out!</string>
+    <string name="dojo_normal_desc">30s | Standard</string>
+    <string name="dojo_infernal_desc">20s | Chaos!</string>
+    <string name="dojo_rank_gold">GOLD</string>
+    <string name="dojo_rank_silver">SILVER</string>
+    <string name="dojo_rank_bronze">BRONZE</string>
+    <string name="dojo_rank_none">NONE</string>
+    <string name="dojo_session_ended">SESSION ENDED</string>
+    <string name="dojo_session_ended_victory">SESSION ENDED!</string>
+    <string name="dojo_result_subtitle">POKÉ-DOJO - RANK %s</string>
+    <string name="dojo_result_desc">You scored a total of %1$d points in %2$s mode.</string>
+
+    <!-- Quick Battle Game -->
+    <string name="quickbattle_inverse_title">INVERSE BATTLE</string>
+    <string name="quickbattle_round">ROUND</string>
+    <string name="quickbattle_victories">VICTORIES</string>
+    <string name="quickbattle_subtitle">Prove your type knowledge</string>
+    <string name="quickbattle_classic">CLASSIC</string>
+    <string name="quickbattle_classic_desc">Effective types</string>
+    <string name="quickbattle_inverse">INVERSE</string>
+    <string name="quickbattle_inverse_desc">Use resistances</string>
+    <string name="quickbattle_question_super">Which type is super effective?</string>
+    <string name="quickbattle_question_not">Which type is NOT very effective?</string>
+    <string name="quickbattle_effect_super">SUPER EFFECTIVE!</string>
+    <string name="quickbattle_effect_not">NOT VERY EFFECTIVE...</string>
+    <string name="quickbattle_effect_super_bad">IT\'S SUPER EFFECTIVE! (BAD)</string>
+    <string name="quickbattle_effect_not_good">IT\'S NOT VERY EFFECTIVE!</string>
+    <string name="quickbattle_master">TYPE MASTER!</string>
+    <string name="quickbattle_result_subtitle">%1$s BATTLE - %2$d/3 VICTORIES</string>
+    <string name="quickbattle_result_desc_classic">You proved your knowledge on the battlefield.</string>
+    <string name="quickbattle_result_desc_inverse">You mastered Pokémon resistances.</string>
+    <string name="quickbattle_load_error">Could not get an opponent from the server.</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="desc_logo">PokeQuiz Logo</string>
+    <string name="desc_starter">Starter</string>
+    <string name="desc_avatar">Avatar of %s</string>
+    <string name="desc_search">Search</string>
+    <string name="desc_sort">Sort</string>
+    <string name="desc_shiny">Shiny</string>
+    <string name="desc_favorite">Favorite</string>
+    <string name="desc_lives">Lives</string>
+    <string name="desc_pokemon_sprite">Pokémon Sprite</string>
+    <string name="desc_mystery_pokemon">Mystery Pokémon</string>
+    <string name="desc_enemy">Enemy</string>
+    <string name="desc_player">Player</string>
+    <string name="language_label">LANGUAGE:</string>
+</resources>

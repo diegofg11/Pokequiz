@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
+import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.ui.components.*
 import com.diegofg11.pokequiz.ui.theme.*
@@ -72,7 +74,7 @@ fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit, onC
         ) {
             Image(
                 painter = painterResource(id = com.diegofg11.pokequiz.R.drawable.logo_welcome),
-                contentDescription = "Logo PokeQuiz",
+                contentDescription = stringResource(R.string.desc_logo),
                 modifier = Modifier
                     .size(300.dp)
                     .padding(bottom = 16.dp)
@@ -98,7 +100,7 @@ fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit, onC
             ) {
                 if (isLoggedIn) {
                     RetroButton(
-                        text = "CONTINUAR",
+                        text = stringResource(R.string.continue_btn),
                         onClick = onContinueClick,
                         modifier = Modifier.fillMaxWidth().height(64.dp),
                         containerColor = Color(0xFF4CAF50),
@@ -107,14 +109,14 @@ fun WelcomeMenuScreen(onLoginClick: () -> Unit, onRegisterClick: () -> Unit, onC
                 }
                 
                 RetroButton(
-                    text = "INICIAR SESIÓN",
+                    text = stringResource(R.string.login_btn),
                     onClick = onLoginClick,
                     modifier = Modifier.fillMaxWidth().height(64.dp),
                     fontSize = 20.sp
                 )
 
                 RetroButton(
-                    text = "NUEVO USUARIO",
+                    text = stringResource(R.string.new_user_btn),
                     onClick = onRegisterClick,
                     modifier = Modifier.fillMaxWidth().height(64.dp),
                     containerColor = Color(0xFFE53935),
@@ -141,7 +143,7 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             RetroText(
-                text = "INICIAR SESIÓN",
+                text = stringResource(R.string.login_title),
                 fontSize = 32.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 32.dp)
@@ -155,7 +157,7 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text("TU NOMBRE", color = Color(0xFF1B3022), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold) },
+                    label = { Text(stringResource(R.string.your_name_label), color = Color(0xFF1B3022), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1B3022),
                         unfocusedBorderColor = Color(0xFF1B3022).copy(alpha = 0.5f),
@@ -185,7 +187,7 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                 }
 
                 RetroButton(
-                    text = if (isLoading) "..." else "ENTRAR",
+                    text = if (isLoading) stringResource(R.string.loading_dots) else stringResource(R.string.enter_btn),
                     onClick = {
                         if (username.isNotBlank()) {
                             isLoading = true
@@ -202,16 +204,16 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
                                         val errorBody = response.errorBody()?.string()
-                                        errorMessage = "ERROR: ${response.code()} - ${errorBody ?: "No se pudo iniciar sesión."}"
+                                        errorMessage = "${context.getString(R.string.error_prefix)} ${response.code()} - ${errorBody ?: context.getString(R.string.login_failed)}"
                                     }
                                 } catch (e: Exception) {
-                                    errorMessage = "ERROR DE CONEXIÓN: ${e.localizedMessage}"
+                                    errorMessage = "${context.getString(R.string.connection_error_prefix)} ${e.localizedMessage}"
                                 } finally {
                                     isLoading = false
                                 }
                             }
                         } else {
-                            errorMessage = "EL NOMBRE NO PUEDE ESTAR VACÍO"
+                            errorMessage = context.getString(R.string.name_empty_error)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -222,7 +224,7 @@ fun LoginScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             RetroButton(
-                text = "VOLVER AL MENÚ",
+                text = stringResource(R.string.back_to_menu),
                 onClick = onBack,
                 containerColor = Color.Gray,
                 fontSize = 12.sp,
@@ -249,7 +251,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             RetroText(
-                text = "NUEVO USUARIO",
+                text = stringResource(R.string.register_title),
                 fontSize = 32.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
@@ -263,7 +265,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text("TU NOMBRE", color = Color(0xFF1B3022), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold) },
+                    label = { Text(stringResource(R.string.your_name_label), color = Color(0xFF1B3022), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1B3022),
                         unfocusedBorderColor = Color(0xFF1B3022).copy(alpha = 0.5f),
@@ -280,7 +282,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                 Spacer(modifier = Modifier.height(20.dp))
                 
                 Text(
-                    "ELIGE TU INICIAL:", 
+                    stringResource(R.string.choose_starter), 
                     color = Color(0xFF1B3022), 
                     fontSize = 14.sp, 
                     fontFamily = FontFamily.Monospace,
@@ -314,7 +316,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                 }
 
                 RetroButton(
-                    text = if (isLoading) "..." else "REGISTRARSE",
+                    text = if (isLoading) stringResource(R.string.loading_dots) else stringResource(R.string.register_btn),
                     onClick = {
                         if (username.isNotBlank()) {
                             isLoading = true
@@ -333,17 +335,17 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
                                         withContext(Dispatchers.Main) { onSuccess() }
                                     } else {
                                         val errorBody = response.errorBody()?.string()
-                                        errorMessage = if (errorBody?.contains("existe") == true) "ESE NOMBRE YA EXISTE" 
-                                                      else "ERROR: ${response.code()} - ${errorBody ?: "Desconocido"}"
+                                        errorMessage = if (errorBody?.contains("existe") == true) context.getString(R.string.name_exists_error) 
+                                                      else "${context.getString(R.string.error_prefix)} ${response.code()} - ${errorBody ?: context.getString(R.string.unknown_error)}"
                                     }
                                 } catch (e: Exception) {
-                                    errorMessage = "ERROR DE RED."
+                                    errorMessage = context.getString(R.string.network_error)
                                 } finally {
                                     isLoading = false
                                 }
                             }
                         } else {
-                            errorMessage = "EL NOMBRE NO PUEDE ESTAR VACÍO"
+                            errorMessage = context.getString(R.string.name_empty_error)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -355,7 +357,7 @@ fun RegisterScreen(onBack: () -> Unit, onSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             RetroButton(
-                text = "VOLVER AL MENÚ",
+                text = stringResource(R.string.back_to_menu),
                 onClick = onBack,
                 containerColor = Color.Gray,
                 fontSize = 12.sp,
@@ -384,7 +386,7 @@ fun StarterPokemon(id: Int, selectedId: Int, onClick: () -> Unit) {
     ) {
         AsyncImage(
             model = imageUrl,
-            contentDescription = "Starter",
+            contentDescription = stringResource(R.string.desc_starter),
             modifier = Modifier.size(60.dp)
         )
     }

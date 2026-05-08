@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.ui.components.*
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
 
 private const val PAGE_COUNT = 5
 
@@ -47,7 +48,7 @@ fun SafariZonePager(
                     exit = fadeOut()
                 ) {
                     SafariRetroHeader(
-                        title = "ZONA SAFARI",
+                        title = stringResource(R.string.safari_zone),
                         onBackClick = onNavigateBack,
                         onHelpClick = { showHelp = true }
                     )
@@ -125,11 +126,11 @@ fun SafariZonePager(
         // --- DIÁLOGO DE AYUDA GLOBAL ---
         if (showHelp) {
             val title = when(pagerState.currentPage) {
-                0 -> "¿QUIÉN ES ESE POKÉMON?"
-                1 -> "MEMORAMA"
-                2 -> "SOPA DE LETRAS"
-                3 -> "BATALLA RÁPIDA"
-                else -> "POKÉ-DOJO"
+                0 -> stringResource(R.string.guess_help_title)
+                1 -> stringResource(R.string.memory_help_title)
+                2 -> stringResource(R.string.wordsearch_help_title)
+                3 -> stringResource(R.string.quickbattle_help_title)
+                else -> stringResource(R.string.dojo_help_title)
             }
 
             PokemonHelpDialog(
@@ -138,27 +139,27 @@ fun SafariZonePager(
             ) {
                 when(pagerState.currentPage) {
                     0 -> Column {
-                        HelpSection("MODO FÁCIL", "Adivina el Pokémon por su silueta. Sin límite de tiempo.")
-                        HelpSection("MODO DIFÍCIL", "Pokémon rotado aleatoriamente. Tienes 5 segundos.")
-                        HelpSection("MODO INFERNAL", "Siluetas distorsionadas, efectos visuales y solo 4 segundos.")
+                        HelpSection(stringResource(R.string.guess_help_easy), stringResource(R.string.guess_help_easy_desc))
+                        HelpSection(stringResource(R.string.guess_help_hard), stringResource(R.string.guess_help_hard_desc))
+                        HelpSection(stringResource(R.string.guess_help_infernal), stringResource(R.string.guess_help_infernal_desc))
                     }
                     1 -> Column {
-                        HelpSection("MODO NORMAL", "Encuentra todas las parejas de Pokémon antes de que se acabe el tiempo.")
-                        HelpSection("MODO INFERNAL", "¡Cuidado! Hay bombas ocultas que restan tiempo si las pulsas.")
+                        HelpSection(stringResource(R.string.memory_help_normal), stringResource(R.string.memory_help_normal_desc))
+                        HelpSection(stringResource(R.string.guess_help_infernal), stringResource(R.string.memory_help_infernal_desc))
                     }
                     2 -> Column {
-                        HelpSection("MODO NORMAL", "Busca los nombres de los Pokémon en la cuadrícula.")
-                        HelpSection("MODO DIFÍCIL", "Más palabras y menos tiempo.")
-                        HelpSection("MODO INFERNAL", "Palabras en todas direcciones, incluso invertidas.")
+                        HelpSection(stringResource(R.string.memory_help_normal), stringResource(R.string.wordsearch_help_normal_desc))
+                        HelpSection(stringResource(R.string.guess_help_hard), stringResource(R.string.wordsearch_help_hard_desc))
+                        HelpSection(stringResource(R.string.guess_help_infernal), stringResource(R.string.wordsearch_help_infernal_desc))
                     }
                     3 -> Column {
-                        HelpSection("REGLAS", "Vence a 3 entrenadores seguidos eligiendo el tipo de ataque correcto.")
-                        HelpSection("MODO INVERSO", "Las debilidades se invierten. ¡Usa ataques que normalmente no serían efectivos!")
+                        HelpSection(stringResource(R.string.quickbattle_help_rules), stringResource(R.string.quickbattle_help_rules_desc))
+                        HelpSection(stringResource(R.string.quickbattle_help_inverse), stringResource(R.string.quickbattle_help_inverse_desc))
                     }
                     4 -> Column {
-                        HelpSection("OBJETIVO", "Golpea a los Diglett que salgan de los agujeros para ganar puntos.")
-                        HelpSection("PELIGRO", "No golpees a los Voltorb o perderás puntos y tiempo.")
-                        HelpSection("MODO INFERNAL", "¡Más velocidad y más Voltorbs explosivos!")
+                        HelpSection(stringResource(R.string.dojo_help_objective), stringResource(R.string.dojo_help_objective_desc))
+                        HelpSection(stringResource(R.string.dojo_help_danger), stringResource(R.string.dojo_help_danger_desc))
+                        HelpSection(stringResource(R.string.guess_help_infernal), stringResource(R.string.dojo_help_infernal_desc))
                     }
                 }
             }

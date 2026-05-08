@@ -32,6 +32,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.diegofg11.pokequiz.api.Network
 import com.diegofg11.pokequiz.models.Pokemon
@@ -43,6 +44,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.utils.WallpaperManager
+import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.PokemonUtils
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -94,12 +96,12 @@ fun PCScreen() {
                     if (idx != -1) pokemonList[idx] = pokemon.copy()
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Error al guardar favorito", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.save_fav_error), Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.error_generic), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -145,7 +147,7 @@ fun PCScreen() {
             }
         } catch (e: Exception) {
             Log.e("PCScreen", "Error: ${e.message}")
-            errorMessage = "Error de red"
+            errorMessage = context.getString(R.string.error_generic)
         } finally {
             isLoading = false
         }
@@ -154,7 +156,7 @@ fun PCScreen() {
     RetroBackground {
         if (errorMessage != null) {
             PokemonAlertDialog(
-                title = "¡Error!",
+                title = stringResource(R.string.error_title),
                 message = errorMessage!!,
                 isError = true,
                 onDismiss = { errorMessage = null }
@@ -162,7 +164,7 @@ fun PCScreen() {
         }
         if (warningMessage != null) {
             PokemonAlertDialog(
-                title = "Aviso",
+                title = stringResource(R.string.notice_title),
                 message = warningMessage!!,
                 isError = false,
                 onDismiss = { warningMessage = null }
@@ -191,7 +193,7 @@ fun PCScreen() {
                 Spacer(modifier = Modifier.height(20.dp))
                 
                 RetroText(
-                    text = "EQUIPO ACTUAL",
+                    text = stringResource(R.string.current_team),
                     fontSize = 16.sp,
                     color = GoldPoke,
                     modifier = Modifier.align(Alignment.Start).padding(start = 4.dp, bottom = 8.dp)
@@ -230,7 +232,7 @@ fun PCScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RetroText(
-                        text = "COLECCIÓN PC",
+                        text = stringResource(R.string.pc_collection),
                         fontSize = 16.sp,
                         color = Color.White
                     )
@@ -244,7 +246,7 @@ fun PCScreen() {
                             border = BorderStroke(2.dp, Color(0xFF1B3022))
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Search, contentDescription = "Buscador", modifier = Modifier.size(20.dp), tint = Color.White)
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.desc_search), modifier = Modifier.size(20.dp), tint = Color.White)
                             }
                         }
                         
@@ -258,7 +260,7 @@ fun PCScreen() {
                             border = BorderStroke(2.dp, Color(0xFF1B3022))
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Menu, contentDescription = "Ordenar", modifier = Modifier.size(20.dp), tint = Color.White)
+                                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.desc_sort), modifier = Modifier.size(20.dp), tint = Color.White)
                             }
                         }
                     }
@@ -274,7 +276,7 @@ fun PCScreen() {
                             TextField(
                                 value = searchQuery,
                                 onValueChange = { searchQuery = it },
-                                placeholder = { Text("BUSCAR NOMBRE...", color = Color.White.copy(alpha = 0.4f), fontSize = 12.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace) },
+                                placeholder = { Text(stringResource(R.string.search_name), color = Color.White.copy(alpha = 0.4f), fontSize = 12.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace) },
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
                                 textStyle = TextStyle(color = Color.White, fontSize = 14.sp, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
                                 singleLine = true,
@@ -301,7 +303,7 @@ fun PCScreen() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "¡EL PC ESTÁ VACÍO!",
+                                text = stringResource(R.string.pc_empty),
                                 color = Color(0xFF1B3022),
                                 fontSize = 16.sp,
                                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
@@ -330,7 +332,7 @@ fun PCScreen() {
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "TOTAL: ${pokemonList.size} POKÉMON",
+                    text = stringResource(R.string.total_pokemon, pokemonList.size),
                     fontSize = 10.sp,
                     color = Color.White.copy(alpha = 0.6f),
                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
@@ -358,12 +360,12 @@ fun PCScreen() {
                                 if (listIdx != -1) pokemonList[listIdx] = targetPokemon.copy(inParty = toggleTo)
                             } else {
                                 withContext(Dispatchers.Main) {
-                                    warningMessage = "Equipo lleno (Máx 3)"
+                                    warningMessage = context.getString(R.string.team_full)
                                 }
                             }
                         } catch (e: Exception) {
                             withContext(Dispatchers.Main) {
-                                errorMessage = "Error de red"
+                                errorMessage = context.getString(R.string.error_generic)
                             }
                         }
                     }
@@ -427,7 +429,7 @@ fun SortDialog(
                 modifier = Modifier.fillMaxWidth().heightIn(max = 650.dp).padding(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                RetroText(text = "FILTRAR Y ORDENAR", fontSize = 18.sp, color = Color(0xFF1B3022))
+                RetroText(text = stringResource(R.string.filter_sort), fontSize = 18.sp, color = Color(0xFF1B3022))
                 Spacer(modifier = Modifier.height(12.dp))
                 PixelDivider()
                 Spacer(modifier = Modifier.height(12.dp))
@@ -435,7 +437,7 @@ fun SortDialog(
                 // Sección de Favoritos y Shinies
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     RetroButton(
-                        text = if (onlyFavorites) "VER TODOS" else "FAVORITOS",
+                        text = if (onlyFavorites) stringResource(R.string.see_all) else stringResource(R.string.favorites),
                         onClick = onToggleFavorites,
                         modifier = Modifier.weight(1f),
                         containerColor = if (onlyFavorites) GoldPoke else Color(0xFFE53935),
@@ -443,7 +445,7 @@ fun SortDialog(
                         fontSize = 11.sp
                     )
                     RetroButton(
-                        text = if (onlyShinies) "VER TODOS" else "SHINIES",
+                        text = if (onlyShinies) stringResource(R.string.see_all) else stringResource(R.string.shinies),
                         onClick = onToggleShinies,
                         modifier = Modifier.weight(1f),
                         containerColor = if (onlyShinies) GoldPoke else Color(0xFFFFA000),
@@ -457,7 +459,7 @@ fun SortDialog(
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 // Sección de Ordenación
-                RetroText(text = "ORDENAR POR:", fontSize = 12.sp, color = Color.Gray)
+                RetroText(text = stringResource(R.string.sort_by), fontSize = 12.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 val sortOptions = PokemonSortOption.values().toList()
@@ -466,7 +468,7 @@ fun SortDialog(
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             rowOptions.forEach { option ->
                                 RetroButton(
-                                    text = option.label,
+                                    text = stringResource(option.labelResId),
                                     onClick = { onSortSelected(option) },
                                     modifier = Modifier.weight(1f),
                                     containerColor = if (currentSort == option) GoldPoke else Color(0xFF2D5A27),
@@ -491,10 +493,10 @@ fun SortDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RetroText(text = "FILTRAR POR TIPO:", fontSize = 12.sp, color = Color.Gray)
+                    RetroText(text = stringResource(R.string.filter_by_type), fontSize = 12.sp, color = Color.Gray)
                     if (currentFilterType != null) {
                         Text(
-                            text = "LIMPIAR",
+                            text = stringResource(R.string.clear),
                             color = RedPoke,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
@@ -543,7 +545,7 @@ fun SortDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 RetroButton(
-                    text = "CERRAR",
+                    text = stringResource(R.string.close),
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
                     containerColor = Color.Gray,
@@ -633,16 +635,16 @@ fun PokedexDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                RetroText(text = "DATOS POKÉDEX", fontSize = 14.sp, color = Color(0xFF1B3022))
+                                RetroText(text = stringResource(R.string.pokedex_data), fontSize = 14.sp, color = Color(0xFF1B3022))
                                 if (pokemon.isShiny) {
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Icon(Icons.Default.Star, contentDescription = "Shiny", tint = Color(0xFFFFD700), modifier = Modifier.size(18.dp))
+                                    Icon(Icons.Default.Star, contentDescription = stringResource(R.string.desc_shiny), tint = Color(0xFFFFD700), modifier = Modifier.size(18.dp))
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 IconButton(onClick = { onToggleFavorite(pokemon) }) {
                                     Icon(
                                         imageVector = if (pokemon.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                        contentDescription = "Favorito",
+                                        contentDescription = stringResource(R.string.desc_favorite),
                                         tint = if (pokemon.isFavorite) Color(0xFFE53935) else Color.Gray,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -708,7 +710,7 @@ fun PokedexDialog(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = pokemon.pokedexDescription ?: "Sin datos registrados.",
+                            text = pokemon.pokedexDescription ?: stringResource(R.string.no_data),
                             color = Color(0xFF1B3022),
                             fontSize = 13.sp,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -722,15 +724,15 @@ fun PokedexDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
-                            StatInfo("NIV", "${pokemon.level}")
-                            StatInfo("PS", "${pokemon.hpBase}")
-                            StatInfo("EXP", "${pokemon.exp}/100")
+                            StatInfo(stringResource(R.string.lv_label), "${pokemon.level}")
+                            StatInfo(stringResource(R.string.hp_stat_label), "${pokemon.hpBase}")
+                            StatInfo(stringResource(R.string.exp_label), "${pokemon.exp}/100")
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
                         RetroButton(
-                            text = if (pokemon.inParty) "DEJAR EN PC" else "A EQUIPO",
+                            text = if (pokemon.inParty) stringResource(R.string.leave_in_pc) else stringResource(R.string.add_to_team),
                             onClick = { onToggleParty(pokemon, !pokemon.inParty) },
                             containerColor = if (pokemon.inParty) RedPoke else Color(0xFF2D5A27),
                             modifier = Modifier.fillMaxWidth()
@@ -739,7 +741,7 @@ fun PokedexDialog(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         RetroButton(
-                            text = "CERRAR",
+                            text = stringResource(R.string.close),
                             onClick = onDismiss,
                             containerColor = Color.Gray,
                             modifier = Modifier.fillMaxWidth()
@@ -828,11 +830,11 @@ private fun PCEmptySlot(isParty: Boolean = false) {
     }
 }
 
-enum class PokemonSortOption(val label: String) {
-    RECENT("RECIENTES"),
-    POKEDEX("Nº POKÉ"),
-    LEVEL("NIVEL"),
-    NAME("A-Z")
+enum class PokemonSortOption(val labelResId: Int) {
+    RECENT(R.string.sort_recent),
+    POKEDEX(R.string.sort_pokedex),
+    LEVEL(R.string.sort_level),
+    NAME(R.string.sort_name)
 }
 
 @Preview(showBackground = true)

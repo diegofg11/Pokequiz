@@ -1,6 +1,7 @@
 package com.diegofg11.pokequiz
 
 import android.os.Bundle
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +38,16 @@ import com.diegofg11.pokequiz.utils.SessionManager
 import com.diegofg11.pokequiz.utils.TutorialManager
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        val lang = com.diegofg11.pokequiz.utils.SessionManager.getLanguage(newBase)
+        val locale = java.util.Locale(lang)
+        java.util.Locale.setDefault(locale)
+        val config = newBase.resources.configuration
+        config.setLocale(locale)
+        val context = newBase.createConfigurationContext(config)
+        super.attachBaseContext(context)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         com.diegofg11.pokequiz.utils.SessionManager.init(this)
@@ -103,7 +115,7 @@ class MainActivity : ComponentActivity() {
                             } catch (e: Exception) {
                                 android.util.Log.e("MainActivity", "Error fetching user", e)
                                 globalErrorMessage =
-                                    "No se pudo conectar con el servidor para cargar tu perfil."
+                                    context.getString(R.string.connection_server_error)
                             }
                         }
                     }
@@ -111,7 +123,7 @@ class MainActivity : ComponentActivity() {
 
                 if (globalErrorMessage != null) {
                     PokemonAlertDialog(
-                        title = "¡Error de Conexión!",
+                        title = stringResource(R.string.connection_error_dialog),
                         message = globalErrorMessage!!,
                         isError = true,
                         onDismiss = { globalErrorMessage = null }
@@ -122,11 +134,11 @@ class MainActivity : ComponentActivity() {
                 com.diegofg11.pokequiz.utils.TutorialManager.init(context)
 
                 val tutorialSteps = listOf(
-                    "map" to ("EL MAPA" to "Aquí verás los niveles disponibles. Pulsa en uno para empezar una batalla y progresar."),
-                    "pc" to ("TU EQUIPO (PC)" to "En el PC podrás gestionar tus Pokémon y elegir quiénes te acompañan en batalla."),
-                    "gacha" to ("EL BAZAR" to "¡Usa tus monedas aquí para conseguir nuevos Pokémon aleatorios!"),
-                    "games" to ("ZONA SAFARI" to "¡Gana monedas extra jugando a divertidos minijuegos de tipos y memoria!"),
-                    "user" to ("TU PERFIL" to "Personaliza tu avatar y el fondo de pantalla desde aquí.")
+                    "map" to (stringResource(R.string.tutorial_map_title) to stringResource(R.string.tutorial_map_desc)),
+                    "pc" to (stringResource(R.string.tutorial_pc_title) to stringResource(R.string.tutorial_pc_desc)),
+                    "gacha" to (stringResource(R.string.tutorial_gacha_title) to stringResource(R.string.tutorial_gacha_desc)),
+                    "games" to (stringResource(R.string.tutorial_safari_title) to stringResource(R.string.tutorial_safari_desc)),
+                    "user" to (stringResource(R.string.tutorial_profile_title) to stringResource(R.string.tutorial_profile_desc))
                 )
 
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -196,7 +208,7 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             } catch (e: Exception) {
                                                 globalErrorMessage =
-                                                    "Error de sincronización con el servidor."
+                                                    context.getString(R.string.sync_error)
                                             }
                                             // Volver al mapa tras la victoria
                                             navController.navigate("map") {
@@ -258,7 +270,7 @@ class MainActivity : ComponentActivity() {
                                 TutorialBox(
                                     title = title,
                                     description = description,
-                                    buttonText = if (currentStep < tutorialSteps.size - 1) "SIGUIENTE" else "ENTENDIDO",
+                                    buttonText = if (currentStep < tutorialSteps.size - 1) stringResource(R.string.tutorial_next) else stringResource(R.string.tutorial_understood),
                                     onNext = {
                                         if (currentStep < tutorialSteps.size - 1) {
                                             val nextRoute = tutorialSteps[currentStep + 1].first
@@ -317,11 +329,11 @@ fun RetroBottomNavigation(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            RetroNavItem(label = "MAPA", selected = currentRoute == "map", onClick = { onNavigate("map") })
-            RetroNavItem(label = "PC", selected = currentRoute == "pc", onClick = { onNavigate("pc") })
-            RetroNavItem(label = "BAZAR", selected = currentRoute == "gacha", onClick = { onNavigate("gacha") })
-            RetroNavItem(label = "SAFARI", selected = currentRoute == "games" || currentRoute?.startsWith("safari_zone") == true, onClick = { onNavigate("games") })
-            RetroNavItem(label = "PERFIL", selected = currentRoute == "user", onClick = { onNavigate("user") })
+            RetroNavItem(label = stringResource(R.string.nav_map), selected = currentRoute == "map", onClick = { onNavigate("map") })
+            RetroNavItem(label = stringResource(R.string.nav_pc), selected = currentRoute == "pc", onClick = { onNavigate("pc") })
+            RetroNavItem(label = stringResource(R.string.nav_bazaar), selected = currentRoute == "gacha", onClick = { onNavigate("gacha") })
+            RetroNavItem(label = stringResource(R.string.nav_safari), selected = currentRoute == "games" || currentRoute?.startsWith("safari_zone") == true, onClick = { onNavigate("games") })
+            RetroNavItem(label = stringResource(R.string.nav_profile), selected = currentRoute == "user", onClick = { onNavigate("user") })
         }
     }
 }

@@ -1,3 +1,300 @@
 <resources>
     <string name="app_name">Pokequiz</string>
+
+    <!-- ═══ Welcome / Auth ═══ -->
+    <string name="continue_btn">CONTINUAR</string>
+    <string name="login_btn">INICIAR SESIÓN</string>
+    <string name="new_user_btn">NUEVO USUARIO</string>
+    <string name="login_title">INICIAR SESIÓN</string>
+    <string name="your_name_label">TU NOMBRE</string>
+    <string name="enter_btn">ENTRAR</string>
+    <string name="back_to_menu">VOLVER AL MENÚ</string>
+    <string name="register_title">NUEVO USUARIO</string>
+    <string name="register_btn">REGISTRARSE</string>
+    <string name="choose_starter">ELIGE TU INICIAL:</string>
+    <string name="name_empty_error">EL NOMBRE NO PUEDE ESTAR VACÍO</string>
+    <string name="name_exists_error">ESE NOMBRE YA EXISTE</string>
+    <string name="network_error">ERROR DE RED.</string>
+    <string name="connection_error_prefix">ERROR DE CONEXIÓN:</string>
+    <string name="error_prefix">ERROR:</string>
+    <string name="login_failed">No se pudo iniciar sesión.</string>
+    <string name="unknown_error">Desconocido</string>
+    <string name="loading_dots">…</string>
+
+    <!-- ═══ Bottom Navigation ═══ -->
+    <string name="nav_map">MAPA</string>
+    <string name="nav_pc">PC</string>
+    <string name="nav_bazaar">BAZAR</string>
+    <string name="nav_safari">SAFARI</string>
+    <string name="nav_profile">PERFIL</string>
+
+    <!-- ═══ Tutorial ═══ -->
+    <string name="tutorial_map_title">EL MAPA</string>
+    <string name="tutorial_map_desc">Aquí verás los niveles disponibles. Pulsa en uno para empezar una batalla y progresar.</string>
+    <string name="tutorial_pc_title">TU EQUIPO (PC)</string>
+    <string name="tutorial_pc_desc">En el PC podrás gestionar tus Pokémon y elegir quiénes te acompañan en batalla.</string>
+    <string name="tutorial_gacha_title">EL BAZAR</string>
+    <string name="tutorial_gacha_desc">¡Usa tus monedas aquí para conseguir nuevos Pokémon aleatorios!</string>
+    <string name="tutorial_safari_title">ZONA SAFARI</string>
+    <string name="tutorial_safari_desc">¡Gana monedas extra jugando a divertidos minijuegos de tipos y memoria!</string>
+    <string name="tutorial_profile_title">TU PERFIL</string>
+    <string name="tutorial_profile_desc">Personaliza tu avatar y el fondo de pantalla desde aquí.</string>
+    <string name="tutorial_next">SIGUIENTE</string>
+    <string name="tutorial_understood">ENTENDIDO</string>
+
+    <!-- ═══ Map Screen ═══ -->
+    <string name="route_pokequiz">RUTA POKÉQUIZ</string>
+    <string name="exploring_region">EXPLORANDO REGIÓN</string>
+    <string name="level_format">NIVEL %d</string>
+    <string name="level_short">NIVEL</string>
+    <string name="level_complete">COMPLETO</string>
+    <string name="level_locked">BLOQUEADO</string>
+
+    <!-- ═══ Battle Screen ═══ -->
+    <string name="error_title">¡Error!</string>
+    <string name="no_pokemon">Sin Pokémon</string>
+    <string name="level_prefix">Nv</string>
+    <string name="hp_label">PS</string>
+    <string name="you_won">¡HAS GANADO!</string>
+    <string name="you_lost">HAS PERDIDO…</string>
+    <string name="victory">¡VICTORIA!</string>
+    <string name="defeat">DERROTA</string>
+    <string name="back_to_map">VOLVER AL MAPA</string>
+    <string name="reward_claim_error">Error al reclamar la recompensa.</string>
+    <string name="enemy_label">ENEMIGO</string>
+
+    <!-- ═══ Gacha Screen ═══ -->
+    <string name="bazaar_title">BAZAR POKÉMON</string>
+    <string name="tap_pokeball">¡Toca la Pokéball para abrirla!</string>
+    <string name="open_pokeball">ABRIR POKÉBALL (%d 🪙)</string>
+    <string name="not_enough_coins">No tienes suficientes monedas.</string>
+    <string name="roll_again">TIRAR OTRA VEZ</string>
+    <string name="see_my_pc">VER MI PC</string>
+    <string name="new_pokemon">¡NUEVO POKÉMON!</string>
+    <string name="repeated_pokemon">¡REPETIDO! (+50 EXP)</string>
+    <string name="cost_label">COSTE: %d MONEDAS</string>
+    <string name="coins_load_error">No se pudo conectar con el servidor para cargar tus monedas.</string>
+
+    <!-- ═══ PC Screen ═══ -->
+    <string name="current_team">EQUIPO ACTUAL</string>
+    <string name="pc_collection">COLECCIÓN PC</string>
+    <string name="pc_empty">¡EL PC ESTÁ VACÍO!</string>
+    <string name="total_pokemon">TOTAL: %d POKÉMON</string>
+    <string name="search_name">BUSCAR NOMBRE…</string>
+    <string name="filter_sort">FILTRAR Y ORDENAR</string>
+    <string name="see_all">VER TODOS</string>
+    <string name="favorites">FAVORITOS</string>
+    <string name="shinies">SHINIES</string>
+    <string name="sort_by">ORDENAR POR:</string>
+    <string name="filter_by_type">FILTRAR POR TIPO:</string>
+    <string name="clear">LIMPIAR</string>
+    <string name="close">CERRAR</string>
+    <string name="pokedex_data">DATOS POKÉDEX</string>
+    <string name="no_data">Sin datos registrados.</string>
+    <string name="lv_label">NIV</string>
+    <string name="hp_stat_label">PS</string>
+    <string name="exp_label">EXP</string>
+    <string name="leave_in_pc">DEJAR EN PC</string>
+    <string name="add_to_team">A EQUIPO</string>
+    <string name="team_full">Equipo lleno (Máx 3)</string>
+    <string name="save_fav_error">Error al guardar favorito</string>
+    <string name="sort_recent">RECIENTES</string>
+    <string name="sort_pokedex">Nº POKÉ</string>
+    <string name="sort_level">NIVEL</string>
+    <string name="sort_name">A-Z</string>
+
+    <!-- ═══ User Screen ═══ -->
+    <string name="trainer_card">TARJETA ENTRENADOR</string>
+    <string name="id_number">Nº ID</string>
+    <string name="name_label">NOMBRE</string>
+    <string name="money_label">DINERO</string>
+    <string name="pokedex_label">POKéDEX</string>
+    <string name="guest">INVITADO</string>
+    <string name="customize_map">PERSONALIZAR MAPA</string>
+    <string name="change_wallpaper">Cambiar fondo de pantalla</string>
+    <string name="customize_trainer">PERSONALIZAR ENTRENADOR</string>
+    <string name="change_profile">Cambiar imagen de perfil</string>
+    <string name="account_settings">AJUSTES DE CUENTA</string>
+    <string name="logout_and_more">Cerrar sesión y otros</string>
+    <string name="select_wallpaper">SELECCIONAR FONDO</string>
+    <string name="wallpaper_updated">Fondo actualizado</string>
+    <string name="select_trainer">SELECCIONAR ENTRENADOR</string>
+    <string name="trainer_updated">Entrenador actualizado</string>
+    <string name="cancel">CANCELAR</string>
+    <string name="settings">AJUSTES</string>
+    <string name="volume_label">VOLUMEN: %d%%</string>
+    <string name="logout">CERRAR SESIÓN</string>
+    <string name="go_back">VOLVER</string>
+    <string name="user_load_error">Error al cargar datos del usuario</string>
+
+    <!-- ═══ Minigames / Safari Zone ═══ -->
+    <string name="safari_zone">ZONA SAFARI</string>
+    <string name="minigames">MINIJUEGOS</string>
+    <string name="minigames_subtitle">¡Elige un reto y gana monedas!</string>
+    <string name="silhouettes">SILUETAS</string>
+    <string name="silhouettes_desc">¿Quién es ese Pokémon?</string>
+    <string name="memorama">MEMORAMA</string>
+    <string name="memorama_desc">Encuentra las parejas</string>
+    <string name="word_soup">SOPA POKÉ</string>
+    <string name="word_soup_desc">Busca nombres ocultos</string>
+    <string name="battle">BATALLA</string>
+    <string name="battle_desc">Maestro de tipos</string>
+    <string name="poke_dojo">POKÉ-DOJO</string>
+    <string name="poke_dojo_desc">Golpea al Diglett</string>
+    <string name="reward_up_to">HASTA</string>
+
+    <!-- Safari Zone Help -->
+    <string name="safari_help_what">¿QUÉ ES?</string>
+    <string name="safari_help_what_desc">La Zona Safari es el lugar donde puedes conseguir Monedas Poké gratis jugando a diversos minijuegos.</string>
+    <string name="safari_help_coins">MONEDAS</string>
+    <string name="safari_help_coins_desc">Cada juego tiene un coste de entrada pero ofrece grandes recompensas si logras superar los retos.</string>
+    <string name="safari_help_difficulty">DIFICULTAD</string>
+    <string name="safari_help_difficulty_desc">Dentro de cada juego podrás elegir entre varios niveles. ¡A mayor dificultad, mayor será el premio!</string>
+    <string name="safari_help_use">USO</string>
+    <string name="safari_help_use_desc">Usa las monedas ganadas en la Tienda Gacha para completar tu Pokédex.</string>
+
+    <!-- Guess Pokémon -->
+    <string name="who_is_it">¿QUIÉN ES?</string>
+    <string name="which_pokemon">¿CUÁL ES ESTE POKÉMON?</string>
+    <string name="guess_title">¿CUAL ES ESTE POKÉMON?</string>
+    <string name="select_mode">Selecciona un modo para empezar</string>
+    <string name="easy">FÁCIL</string>
+    <string name="hard">DIFÍCIL</string>
+    <string name="infernal">INFERNAL</string>
+    <string name="no_limits">Sin límites</string>
+    <string name="time_rotated">5s | Rotado</string>
+    <string name="time_chaos">4s | Caos Visual</string>
+    <string name="time_label">TIEMPO</string>
+    <string name="mode_format">MODO %s</string>
+    <string name="guess_victory_desc">¡Increíble! Tienes un ojo experto para las siluetas Pokémon.</string>
+    <string name="guess_defeat_desc">La silueta te ha confundido esta vez. ¡Sigue practicando!</string>
+    <string name="round_load_error">No se pudo cargar la siguiente ronda.</string>
+    <string name="connection_error">Error de conexión.</string>
+
+    <!-- Guess Pokémon Help -->
+    <string name="guess_help_title">¿QUIÉN ES ESE POKÉMON?</string>
+    <string name="guess_help_easy">MODO FÁCIL</string>
+    <string name="guess_help_easy_desc">Adivina el Pokémon por su silueta. Sin límite de tiempo.</string>
+    <string name="guess_help_hard">MODO DIFÍCIL</string>
+    <string name="guess_help_hard_desc">Pokémon rotado aleatoriamente. Tienes 5 segundos.</string>
+    <string name="guess_help_infernal">MODO INFERNAL</string>
+    <string name="guess_help_infernal_desc">Siluetas distorsionadas, efectos visuales y solo 4 segundos.</string>
+
+    <!-- Memory Game Help -->
+    <string name="memory_help_title">MEMORAMA</string>
+    <string name="memory_help_normal">MODO NORMAL</string>
+    <string name="memory_help_normal_desc">Encuentra todas las parejas de Pokémon antes de que se acabe el tiempo.</string>
+    <string name="memory_help_infernal_desc">¡Cuidado! Hay bombas ocultas que restan tiempo si las pulsas.</string>
+
+    <!-- Word Search Help -->
+    <string name="wordsearch_help_title">SOPA DE LETRAS</string>
+    <string name="wordsearch_help_normal_desc">Busca los nombres de los Pokémon en la cuadrícula.</string>
+    <string name="wordsearch_help_hard_desc">Más palabras y menos tiempo.</string>
+    <string name="wordsearch_help_infernal_desc">Palabras en todas direcciones, incluso invertidas.</string>
+
+    <!-- Quick Battle Help -->
+    <string name="quickbattle_help_title">BATALLA RÁPIDA</string>
+    <string name="quickbattle_help_rules">REGLAS</string>
+    <string name="quickbattle_help_rules_desc">Vence a 3 entrenadores seguidos eligiendo el tipo de ataque correcto.</string>
+    <string name="quickbattle_help_inverse">MODO INVERSO</string>
+    <string name="quickbattle_help_inverse_desc">Las debilidades se invierten. ¡Usa ataques que normalmente no serían efectivos!</string>
+
+    <!-- Poké-Dojo Help -->
+    <string name="dojo_help_title">POKÉ-DOJO</string>
+    <string name="dojo_help_objective">OBJETIVO</string>
+    <string name="dojo_help_objective_desc">Golpea a los Diglett que salgan de los agujeros para ganar puntos.</string>
+    <string name="dojo_help_danger">PELIGRO</string>
+    <string name="dojo_help_danger_desc">No golpees a los Voltorb o perderás puntos y tiempo.</string>
+    <string name="dojo_help_infernal_desc">¡Más velocidad y más Voltorbs explosivos!</string>
+
+    <!-- ═══ General / Shared ═══ -->
+    <string name="understood">ENTENDIDO</string>
+    <string name="exit">SALIR</string>
+    <string name="error_generic">Error de red</string>
+    <string name="connection_server_error">No se pudo conectar con el servidor para cargar tu perfil.</string>
+    <string name="connection_error_dialog">¡Error de Conexión!</string>
+    <string name="sync_error">Error de sincronización con el servidor.</string>
+    <string name="notice_title">Aviso</string>
+
+    <!-- Pokémon Types -->
+    <string name="type_fire">FUEGO</string>
+    <string name="type_water">AGUA</string>
+    <string name="type_grass">PLANTA</string>
+    <string name="type_electric">ELÉCTRICO</string>
+    <string name="type_ground">TIERRA</string>
+    <string name="type_flying">VOLADOR</string>
+    <string name="type_ice">HIELO</string>
+    <string name="type_fighting">LUCHA</string>
+    <string name="type_psychic">PSÍQUICO</string>
+    <string name="type_bug">BICHO</string>
+    <string name="type_poison">VENENO</string>
+    <string name="type_ghost">FANTASMA</string>
+    <string name="type_dragon">DRAGÓN</string>
+    <string name="type_steel">ACERO</string>
+    <string name="type_dark">SINIESTRO</string>
+    <string name="type_normal">NORMAL</string>
+    <string name="type_rock">ROCA</string>
+    <string name="type_fairy">HADA</string>
+    <!-- Memory Game Additional -->
+    <string name="normal">NORMAL</string>
+    <string name="memory_desc_normal">5 Vidas | Relajado</string>
+    <string name="memory_desc_infernal">Caótico | 20s</string>
+    <string name="memory_load_error">No se pudo cargar la lista de Pokémon.</string>
+    <string name="memory_victory_desc">¡Excelente memoria! Has encontrado todas las parejas Pokémon.</string>
+    <string name="memory_defeat_desc">¡No te rindas! Entrena tu memoria para la próxima vez.</string>
+    <string name="exit_warning_msg">Si abandonas ahora se te cobrará la entrada de %d monedas. ¿Seguro que quieres salir?</string>
+    <string name="abandon">Abandonar</string>
+    <string name="mode_infernal">MODO INFERNAL</string>
+
+    <!-- Poké-Dojo Game -->
+    <string name="dojo_title">POKÉ-DOJO</string>
+    <string name="dojo_points">PUNTOS</string>
+    <string name="dojo_time">TIEMPO</string>
+    <string name="dojo_subtitle">¡Golpea a los Pokémon que asomen!</string>
+    <string name="dojo_normal_desc">30s | Estándar</string>
+    <string name="dojo_infernal_desc">20s | ¡Caos!</string>
+    <string name="dojo_rank_gold">ORO</string>
+    <string name="dojo_rank_silver">PLATA</string>
+    <string name="dojo_rank_bronze">BRONCE</string>
+    <string name="dojo_rank_none">NINGUNO</string>
+    <string name="dojo_session_ended">SESIÓN FINALIZADA</string>
+    <string name="dojo_session_ended_victory">¡SESIÓN FINALIZADA!</string>
+    <string name="dojo_result_subtitle">POKÉ-DOJO - RANGO %s</string>
+    <string name="dojo_result_desc">Has conseguido un total de %1$d puntos en el modo %2$s.</string>
+
+    <!-- Quick Battle Game -->
+    <string name="quickbattle_inverse_title">BATALLA INVERSA</string>
+    <string name="quickbattle_round">RONDA</string>
+    <string name="quickbattle_victories">VICTORIAS</string>
+    <string name="quickbattle_subtitle">Demuestra tu conocimiento de tipos</string>
+    <string name="quickbattle_classic">CLÁSICO</string>
+    <string name="quickbattle_classic_desc">Tipos efectivos</string>
+    <string name="quickbattle_inverse">INVERSO</string>
+    <string name="quickbattle_inverse_desc">Usa resistencias</string>
+    <string name="quickbattle_question_super">¿Qué tipo es súper efectivo?</string>
+    <string name="quickbattle_question_not">¿Qué tipo NO es muy efectivo?</string>
+    <string name="quickbattle_effect_super">¡SÚPER EFECTIVO!</string>
+    <string name="quickbattle_effect_not">NO ES MUY EFECTIVO...</string>
+    <string name="quickbattle_effect_super_bad">¡ES SÚPER EFECTIVO! (MAL)</string>
+    <string name="quickbattle_effect_not_good">¡NO ES MUY EFECTIVO!</string>
+    <string name="quickbattle_master">¡MAESTRO DE TIPOS!</string>
+    <string name="quickbattle_result_subtitle">BATALLA %1$s - %2$d/3 VICTORIAS</string>
+    <string name="quickbattle_result_desc_classic">Has demostrado tus conocimientos en el campo de batalla.</string>
+    <string name="quickbattle_result_desc_inverse">Has dominado las resistencias Pokémon.</string>
+    <string name="quickbattle_load_error">No se pudo obtener un oponente del servidor.</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="desc_logo">Logo PokeQuiz</string>
+    <string name="desc_starter">Inicial</string>
+    <string name="desc_avatar">Avatar de %s</string>
+    <string name="desc_search">Buscador</string>
+    <string name="desc_sort">Ordenar</string>
+    <string name="desc_shiny">Shiny</string>
+    <string name="desc_favorite">Favorito</string>
+    <string name="desc_lives">Vidas</string>
+    <string name="desc_pokemon_sprite">Sprite de Pokémon</string>
+    <string name="desc_mystery_pokemon">Pokémon misterioso</string>
+    <string name="desc_enemy">Enemigo</string>
+    <string name="desc_player">Jugador</string>
+    <string name="language_label">IDIOMA:</string>
 </resources>

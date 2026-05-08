@@ -9,6 +9,7 @@ object SessionManager {
     private const val KEY_TOKEN = "auth_token"
 
     private const val KEY_FIRST_TIME = "is_first_time"
+    private const val KEY_LANGUAGE = "app_language"
     var currentUserId: Int = -1
     var currentToken: String? = null
 
@@ -45,5 +46,15 @@ object SessionManager {
         prefs.edit().remove(KEY_USER_ID).remove(KEY_TOKEN).apply()
         currentUserId = -1
         currentToken = null
+    }
+
+    fun getLanguage(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_LANGUAGE, "es") ?: "es"
+    }
+
+    fun setLanguage(context: Context, lang: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_LANGUAGE, lang).apply()
     }
 }

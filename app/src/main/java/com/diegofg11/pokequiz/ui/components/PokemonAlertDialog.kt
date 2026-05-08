@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.res.stringResource
+import com.diegofg11.pokequiz.R
 
 @Composable
 fun PokemonAlertDialog(
@@ -77,7 +79,7 @@ fun PokemonAlertDialog(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             RetroButton(
-                                text = "SALIR",
+                                text = stringResource(R.string.exit),
                                 onClick = onDismiss,
                                 modifier = Modifier.weight(1f).height(46.dp),
                                 containerColor = Color.DarkGray,
@@ -93,7 +95,7 @@ fun PokemonAlertDialog(
                         }
                     } else {
                         RetroButton(
-                            text = "ENTENDIDO",
+                            text = stringResource(R.string.understood),
                             onClick = onDismiss,
                             modifier = Modifier.fillMaxWidth(0.8f).height(46.dp),
                             containerColor = if (isError) Color(0xFFD32F2F) else Color(0xFF1976D2),
