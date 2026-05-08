@@ -8,138 +8,213 @@
     <style>
         :root {
             --primary: #EE1515; /* Rojo Pokebola */
-            --secondary: #333333; /* Línea negra */
-            --white: #FFFFFF; /* Blanco Pokebola */
-            --bg-page: #f4f4f9;
+            --secondary: #37474F; /* Gris oscuro azulado oficial */
+            --retro-bg: #ECEFF1; /* Fondo retro oficial */
+            --white: #FFFFFF;
+            --bg-page: #94A684; /* Verde pantalla GBA oficial */
             --blue: #3B4CCA;
-            --yellow: #FFDE00;
+            --border-thick: 4px;
+            --border-thin: 2px;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-page);
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-page);
+        }
+
+        .page-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+        }
+
+        /* ESTILO POKEBOLA (HERO) */
+        .hero {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .hero {
             background: linear-gradient(180deg, var(--primary) 50%, var(--white) 50%);
-            padding: 6rem 1rem; /* Aumentado el padding para más espacio */
-            text-align: center;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-bottom: 2px solid #ddd;
+            border-bottom: 8px solid var(--secondary);
         }
 
-        /* Línea negra central */
-        .hero::before {
-            content: '';
+        .top-half {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 60px;
+        }
+
+        .bottom-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 60px;
+            gap: 2rem;
+        }
+
+        .mid-line {
             position: absolute;
             top: 50%;
             left: 0;
             width: 100%;
-            height: 12px;
-            background: var(--secondary);
+            height: 20px;
+            background-color: var(--secondary);
             transform: translateY(-50%);
-            z-index: 1;
+            z-index: 5;
         }
 
-        /* Círculo central (Botón Pokebola) */
-        .hero::after {
+        .pokeball-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            background: var(--white);
+            border: 15px solid var(--secondary);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pokeball-button::after {
             content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px; /* Un poco más grande para mejor impacto visual */
-            height: 100px;
-            background: var(--white);
-            border: 10px solid var(--secondary);
+            width: 50px;
+            height: 50px;
+            border: 3px solid #ccc;
             border-radius: 50%;
-            z-index: 2;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            background: white;
         }
 
-        /* Círculo pequeño interior del botón */
-        .inner-circle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 45px;
-            height: 45px;
-            border: 2px solid #ddd;
-            border-radius: 50%;
-            background: var(--white);
-            z-index: 3;
-        }
-
-        .hero h1 {
+        h1 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 2.2rem;
-            margin: 0;
-            z-index: 4;
-            position: relative;
+            font-size: clamp(2rem, 8vw, 4rem);
             color: white;
-            text-shadow: 4px 4px 0px rgba(0,0,0,0.4);
-            margin-bottom: 5rem; /* Aumentado para alejarlo de la pokebola */
+            text-shadow: 6px 6px 0px var(--secondary);
+            text-align: center;
         }
 
-        .hero p {
-            position: relative;
-            z-index: 4;
-            margin: 0;
-            margin-top: 5.5rem; /* Aumentado significativamente para evitar el solapamiento */
-            font-weight: 800;
-            font-size: 1.4rem;
-            letter-spacing: 2px;
+        p.subtitle {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.8rem, 3vw, 1.5rem);
+            line-height: 1.5;
             color: var(--secondary);
             text-transform: uppercase;
+            text-align: center;
+        }
+
+        .scroll-arrow {
+            width: 60px;
+            height: 60px;
+            background: var(--white);
+            color: var(--secondary);
+            border: 4px solid var(--secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 1.8rem;
+            animation: bounce 2s infinite;
+            transition: all 0.2s;
+        }
+
+        .scroll-arrow:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* ESTILO MANUALES (CARDS) */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(var(--secondary) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: var(--bg-page);
         }
 
         .container {
-            max-width: 1000px;
-            margin: 4rem auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 3rem;
-            padding: 0 2rem;
+            max-width: 1100px;
+            width: 100%;
         }
 
+        /* Imitación de RetroMenuBox */
         .card {
-            background: white;
-            border-radius: 24px;
+            background-color: var(--retro-bg);
+            border: var(--border-thick) solid var(--secondary);
+            outline: var(--border-thin) solid white;
+            outline-offset: calc(var(--border-thin) * -1 - var(--border-thick));
             padding: 3rem;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none;
             color: inherit;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 2px solid transparent;
+            position: relative;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
         }
+
+        /* Corner Dots de la app */
+        .card::before, .card::after, .card .dot-tl, .card .dot-tr {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+        }
+        .card::before { bottom: 0; left: 0; }
+        .card::after { bottom: 0; right: 0; }
+        .card .dot-tl { top: 0; left: 0; }
+        .card .dot-tr { top: 0; right: 0; }
 
         .card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
-            border-color: var(--blue);
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px var(--secondary);
         }
 
-        .icon-circle {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #f8fafc;
+        .icon-box {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 3px solid var(--secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 2rem;
-            font-size: 2.5rem;
-            border: 1px solid #e2e8f0;
+            font-size: 3rem;
         }
 
         .card h2 {
@@ -150,65 +225,95 @@
         }
 
         .card p {
-            color: #64748b;
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--secondary);
             font-size: 1rem;
             line-height: 1.6;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
         .btn {
-            margin-top: auto;
-            background: var(--blue);
+            background: var(--secondary);
             color: white;
-            padding: 0.9rem 2.2rem;
-            border-radius: 12px;
-            font-weight: bold;
+            padding: 1rem 2rem;
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: auto;
         }
 
         .card:hover .btn {
             background: var(--primary);
-            transform: scale(1.05);
+            box-shadow: 4px 4px 0px #880000;
         }
 
         footer {
-            margin-top: auto;
+            padding: 2rem;
             text-align: center;
-            padding: 3rem;
-            color: #94a3b8;
-            font-size: 0.9rem;
+            font-family: monospace;
+            color: var(--secondary);
+            font-weight: bold;
+            background-color: var(--bg-page);
+        }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; gap: 2rem; }
+            .card { padding: 2rem 1.5rem; }
+            h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="hero">
-    <div class="inner-circle"></div>
-    <h1>POKEQUIZ</h1>
-    <p>CENTRO DE DOCUMENTACIÓN</p>
-</div>
+    <div class="page-container">
+        
+        <!-- PANTALLA 1 -->
+        <section class="hero">
+            <div class="mid-line"></div>
+            <div class="pokeball-button"></div>
 
-<div class="container">
-    <a href="manuales/manual_implantacion.html" class="card">
-        <div class="icon-circle">⚙️</div>
-        <h2>IMPLANTACIÓN</h2>
-        <p>Guía técnica para desarrolladores. Requisitos, configuración de entorno y despliegue.</p>
-        <div class="btn">Abrir Manual</div>
-    </a>
+            <div class="top-half">
+                <h1>POKEQUIZ</h1>
+            </div>
 
-    <a href="manuales/manual_usuario.html" class="card">
-        <div class="icon-circle">🎒</div>
-        <h2>GUÍA DE USUARIO</h2>
-        <p>Todo lo que necesitas saber para jugar, combatir y completar tu colección.</p>
-        <div class="btn">Abrir Guía</div>
-    </a>
-</div>
+            <div class="bottom-half">
+                <p class="subtitle">CENTRO DE<br>DOCUMENTACIÓN</p>
+                <a href="#manuales" class="scroll-arrow">↓</a>
+            </div>
+        </section>
 
-<footer>
-    &copy; 2026 Pokequiz Project | ¡Hazte con todos los documentos!
-</footer>
+        <!-- PANTALLA 2 -->
+        <section class="main-content" id="manuales">
+            <div class="container">
+                <!-- Card de Implantación -->
+                <a href="manuales/manual_implantacion.html" class="card">
+                    <div class="dot-tl"></div><div class="dot-tr"></div>
+                    <div class="icon-box">⚙️</div>
+                    <h2>IMPLANTACIÓN</h2>
+                    <p>GUÍA TÉCNICA PARA DESARROLLADORES. REQUISITOS, CONFIGURACIÓN Y DESPLIEGUE.</p>
+                    <div class="btn">ABRIR</div>
+                </a>
+
+                <!-- Card de Usuario -->
+                <a href="manuales/manual_usuario.html" class="card">
+                    <div class="dot-tl"></div><div class="dot-tr"></div>
+                    <div class="icon-box">🎒</div>
+                    <h2>GUÍA USUARIO</h2>
+                    <p>TODO LO QUE NECESITAS SABER PARA JUGAR, COMBATIR Y COMPLETAR TU COLECCIÓN.</p>
+                    <div class="btn">ABRIR</div>
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            &copy; 2026 POKEQUIZ PROJECT | RETRO STYLE DOCUMENTATION
+        </footer>
+
+    </div>
 
 </body>
 </html>
