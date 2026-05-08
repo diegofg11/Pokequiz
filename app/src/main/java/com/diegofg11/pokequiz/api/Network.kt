@@ -7,19 +7,30 @@ import retrofit2.converter.gson.GsonConverterFactory
 import com.diegofg11.pokequiz.utils.SessionManager
 
 object Network {
-    const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"
+    const val BASE_URL = "http://192.168.1.30:8080/"
 
     private val authInterceptor = Interceptor { chain ->
         val original = chain.request()
+        val originalUrl = original.url
         val token = SessionManager.currentToken
-        val request = if (token != null) {
-            original.newBuilder()
-                .header("Authorization", "Bearer $token")
-                .build()
-        } else {
-            original
+        val lang = SessionManager.currentLanguage
+        android.util.Log.d("POKEQUIZ_NETWORK", "Interceptor sending lang: '$lang' for URL: ${originalUrl.encodedPath}")
+        
+        // Añadir lang como parámetro de consulta (Query Param) para máxima compatibilidad
+        val url = originalUrl.newBuilder()
+            .addQueryParameter("lang", lang)
+            .build()
+
+        val requestBuilder = original.newBuilder()
+            .url(url)
+            .header("lang", lang)
+            .header("Accept-Language", lang)
+            
+        if (token != null) {
+            requestBuilder.header("Authorization", "Bearer $token")
         }
-        chain.proceed(request)
+        
+        chain.proceed(requestBuilder.build())
     }
 
     private val httpClient = OkHttpClient.Builder()

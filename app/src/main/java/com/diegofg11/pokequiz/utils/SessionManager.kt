@@ -12,11 +12,14 @@ object SessionManager {
     private const val KEY_LANGUAGE = "app_language"
     var currentUserId: Int = -1
     var currentToken: String? = null
+    var currentLanguage: String = "es"
 
     fun init(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         currentUserId = prefs.getInt(KEY_USER_ID, -1)
         currentToken = prefs.getString(KEY_TOKEN, null)
+        currentLanguage = prefs.getString(KEY_LANGUAGE, "es") ?: "es"
+        android.util.Log.d("POKEQUIZ_DEBUG", "SessionManager init: lang=$currentLanguage, userId=$currentUserId")
     }
 
     fun isFirstTime(context: Context): Boolean {
@@ -56,5 +59,6 @@ object SessionManager {
     fun setLanguage(context: Context, lang: String) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putString(KEY_LANGUAGE, lang).apply()
+        currentLanguage = lang
     }
 }

@@ -126,7 +126,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-
+                    Log.d("POKEQUIZ_DEBUG", "Language being sent: ${com.diegofg11.pokequiz.utils.SessionManager.currentLanguage}")
                     Network.api.rollGacha(GachaRequest(userId = com.diegofg11.pokequiz.utils.SessionManager.currentUserId))
                 }
                 if (response.isSuccessful && response.body() != null) {

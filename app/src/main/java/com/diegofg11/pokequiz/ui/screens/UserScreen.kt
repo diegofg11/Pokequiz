@@ -262,6 +262,13 @@ fun UserScreen(onLogout: () -> Unit) {
                             subtitle = stringResource(R.string.logout_and_more),
                             onClick = { showSettingsDialog = true }
                         )
+                        HorizontalDivider(thickness = 2.dp, color = Color.Black)
+                        ActionMenuItem(
+                            icon = Icons.Default.Settings,
+                            title = stringResource(R.string.accessibility_title),
+                            subtitle = stringResource(R.string.accessibility_subtitle),
+                            onClick = { showAccessibilityDialog = true }
+                        )
                     }
                 }
             }
@@ -458,7 +465,13 @@ fun UserScreen(onLogout: () -> Unit) {
                                 onClick = { 
                                     com.diegofg11.pokequiz.utils.SessionManager.setLanguage(context, "es")
                                     currentLang = "es"
-                                    (context as? android.app.Activity)?.recreate()
+                                    // Buscar la Activity de forma segura para recrearla
+                                    var actContext = context
+                                    while (actContext is android.content.ContextWrapper) {
+                                        if (actContext is android.app.Activity) break
+                                        actContext = actContext.baseContext
+                                    }
+                                    (actContext as? android.app.Activity)?.recreate()
                                 },
                                 modifier = Modifier.weight(1f),
                                 containerColor = if (currentLang == "es") GoldPoke else Color.LightGray,
@@ -469,7 +482,13 @@ fun UserScreen(onLogout: () -> Unit) {
                                 onClick = { 
                                     com.diegofg11.pokequiz.utils.SessionManager.setLanguage(context, "en")
                                     currentLang = "en"
-                                    (context as? android.app.Activity)?.recreate()
+                                    // Buscar la Activity de forma segura para recrearla
+                                    var actContext = context
+                                    while (actContext is android.content.ContextWrapper) {
+                                        if (actContext is android.app.Activity) break
+                                        actContext = actContext.baseContext
+                                    }
+                                    (actContext as? android.app.Activity)?.recreate()
                                 },
                                 modifier = Modifier.weight(1f),
                                 containerColor = if (currentLang == "en") GoldPoke else Color.LightGray,
