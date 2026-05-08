@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.utils.PokemonUtils
 import com.diegofg11.pokequiz.models.PokeType
+import com.diegofg11.pokequiz.utils.AccessibilityManager
 
 private enum class GachaAnimState { IDLE, SHAKING, OPENING, REVEALED }
 

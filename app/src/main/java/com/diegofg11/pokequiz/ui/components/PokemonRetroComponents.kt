@@ -19,12 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +41,7 @@ import com.diegofg11.pokequiz.ui.theme.*
 import com.diegofg11.pokequiz.utils.AccessibilityManager
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import com.diegofg11.pokequiz.utils.ColorBlindMode
 
 @Composable
 fun RetroMenuBox(
@@ -325,14 +328,14 @@ fun SafariRetroHeader(
     rightContent: (@Composable () -> Unit)? = null,
     extraContent: (@Composable () -> Unit)? = null
 ) {
+    val height = if (extraContent != null) 110.dp else 70.dp
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
     val headerBg = if (isHighContrast) Color.Black else Color(0xFF1B3022)
-    val contentColor = Color.White
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 60.dp)
+            .heightIn(min = height)
             .drawBehind {
                 drawLine(
                     color = if (isHighContrast) Color.White else Color.Black.copy(alpha = 0.4f),
@@ -344,7 +347,9 @@ fun SafariRetroHeader(
         color = headerBg
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = height),
             verticalArrangement = Arrangement.Center
         ) {
             Row(
@@ -461,69 +466,79 @@ fun RetroDifficultyCard(
     onClick: () -> Unit
 ) {
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    val finalColor = if (isHighContrast) Color.White else color
-    val borderColor = if (isHighContrast) Color.Black else color.copy(alpha = 0.8f)
+    val borderColor = if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    val mainColor = if (isHighContrast) Color.White else color
     
     Box(
         modifier = modifier
             .heightIn(min = 150.dp)
             .fillMaxWidth()
             .clickable { onClick() }
-            .border(3.dp, Color(0xFF1B3022), androidx.compose.ui.graphics.RectangleShape)
-            .background(Color.Black.copy(alpha = 0.05f), androidx.compose.ui.graphics.RectangleShape)
-            .padding(4.dp)
+            .border(3.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color.copy(alpha = 0.15f), androidx.compose.ui.graphics.RectangleShape)
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Título de dificultad (Contraste alto garantizado)
-            Text(
-                text = title.uppercase(),
-                color = Color(0xFF1B3022), // Verde casi negro para máxima lectura
-                fontWeight = FontWeight.Black,
-                fontSize = 18.sp * AccessibilityManager.fontScale,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center
-            )
+        // Fondo base que llena todo
+        Box(modifier = Modifier.matchParentSize().background(if (isHighContrast) Color.White else mainColor.copy(alpha = 0.15f)))
+        
+        Column(modifier = Modifier.matchParentSize()) {
+            // Cabecera GBA Style
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(if (isHighContrast) Color.Black else mainColor)
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title.uppercase(),
+                    color = Color.White,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 15.sp * AccessibilityManager.fontScale,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
             
-            // Subtítulo descriptivo
-            Text(
-                text = subtitle,
-                color = Color.Black.copy(alpha = 0.7f),
-                fontSize = 10.sp * AccessibilityManager.fontScale,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 2.dp, bottom = 8.dp),
-                lineHeight = 12.sp * AccessibilityManager.fontScale
-            )
+            // Cuerpo
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = subtitle,
+                    color = Color.Black.copy(alpha = 0.8f),
+                    fontSize = 10.sp * AccessibilityManager.fontScale,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 13.sp * AccessibilityManager.fontScale
+                )
+            }
             
-            Spacer(modifier = Modifier.weight(1f))
-            
-            // Info Bar para Coste y Premio (Solo si hay valores)
-            if (cost.isNotEmpty() || reward.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.08f), androidx.compose.ui.graphics.RectangleShape)
-                        .padding(vertical = 6.dp, horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (cost.isNotEmpty()) {
-                        InfoItem(label = costLabel, value = cost, color = Color(0xFFB71C1C))
-                        if (reward.isNotEmpty()) {
-                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.Black.copy(alpha = 0.1f)))
-                        }
+            // Footer de Recompensa
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.08f))
+                    .drawBehind {
+                        drawLine(
+                            color = Color.Black.copy(alpha = 0.1f),
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
                     }
-                    if (reward.isNotEmpty()) {
-                        InfoItem(label = rewardLabel, value = reward, color = Color(0xFF1B5E20))
-                    }
-                }
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                InfoItem(
+                    label = rewardLabel, 
+                    value = reward, 
+                    color = if (isHighContrast) Color.Black else Color(0xFF2E7D32)
+                )
             }
         }
     }
@@ -753,8 +768,9 @@ fun SafariSelectionScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
+            Spacer(modifier = Modifier.height(32.dp))
             RetroText(
                 text = title.uppercase(),
                 fontSize = 38.sp,
