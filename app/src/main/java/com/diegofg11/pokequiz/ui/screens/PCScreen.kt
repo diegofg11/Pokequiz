@@ -81,23 +81,36 @@ fun PCScreen() {
 
     fun toggleFavorite(pokemon: Pokemon) {
         val inventoryId = pokemon.inventoryId ?: return
-        val newFavoriteState = !pokemon.isFavorite
+        val oldFavoriteState = pokemon.isFavorite
+        val newFavoriteState = !oldFavoriteState
+        
+        // Actualización optimista inmediata en la UI
+        val idx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
+        if (idx != -1) {
+            pokemonList[idx] = pokemon.copy(isFavorite = newFavoriteState)
+        }
         
         scope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
                     Network.api.toggleFavorite(com.diegofg11.pokequiz.models.ToggleFavoriteRequest(inventoryId, newFavoriteState))
                 }
-                if (response.isSuccessful) {
-                    pokemon.isFavorite = newFavoriteState
-                    val idx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
-                    if (idx != -1) pokemonList[idx] = pokemon.copy()
-                } else {
+                if (!response.isSuccessful) {
+                    // Revertir si la API falla
+                    val rollbackIdx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
+                    if (rollbackIdx != -1) {
+                        pokemonList[rollbackIdx] = pokemon.copy(isFavorite = oldFavoriteState)
+                    }
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, "Error al guardar favorito", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
+                // Revertir si hay error de red
+                val rollbackIdx = pokemonList.indexOfFirst { it.inventoryId == inventoryId }
+                if (rollbackIdx != -1) {
+                    pokemonList[rollbackIdx] = pokemon.copy(isFavorite = oldFavoriteState)
+                }
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
                 }
@@ -341,7 +354,7 @@ fun PCScreen() {
         selectedIndex?.let { idx ->
             val safeIdx = idx.coerceIn(0, pokemonList.lastIndex)
             PokedexDialog(
-                pokemonList = pokemonList.toList(),
+                pokemonList = pokemonList,
                 initialIndex = safeIdx,
                 onDismiss = { selectedIndex = null },
                 onToggleFavorite = { toggleFavorite(it) },
