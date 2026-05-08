@@ -848,9 +848,8 @@ fun SafariSelectionScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
             RetroText(
                 text = title.uppercase(),
                 fontSize = 38.sp,
@@ -865,28 +864,58 @@ fun SafariSelectionScreen(
                 modifier = Modifier.padding(top = 12.dp, bottom = 40.dp)
             )
 
-            // Grid de Selección de Dificultad
-            androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+            // Contenedor de cartas centrado
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                var currentBatch = mutableListOf<DifficultyCardData>()
+                var currentSpanSum = 0
+                
                 cards.forEach { card ->
-                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(card.span) }) {
-                        RetroDifficultyCard(
-                            title = card.title,
-                            subtitle = card.subtitle,
-                            cost = card.cost,
-                            reward = card.reward,
-                            rewardLabel = card.rewardLabel,
-                            color = card.color,
-                            onClick = card.onClick,
-                            modifier = card.modifier
-                        )
+                    if (currentSpanSum + card.span > columns) {
+                        DifficultyRow(currentBatch, columns)
+                        currentBatch = mutableListOf()
+                        currentSpanSum = 0
                     }
+                    currentBatch.add(card)
+                    currentSpanSum += card.span
+                }
+                
+                if (currentBatch.isNotEmpty()) {
+                    DifficultyRow(currentBatch, columns)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun DifficultyRow(rowCards: List<DifficultyCardData>, totalColumns: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        rowCards.forEach { card ->
+            Box(
+                modifier = Modifier.weight(card.span.toFloat())
+            ) {
+                RetroDifficultyCard(
+                    title = card.title,
+                    subtitle = card.subtitle,
+                    cost = card.cost,
+                    reward = card.reward,
+                    rewardLabel = card.rewardLabel,
+                    color = card.color,
+                    onClick = card.onClick,
+                    modifier = card.modifier
+                )
+            }
+        }
+        
+        val rowSpanSum = rowCards.sumOf { it.span }
+        if (rowSpanSum < totalColumns) {
+            Spacer(modifier = Modifier.weight((totalColumns - rowSpanSum).toFloat()))
         }
     }
 }
