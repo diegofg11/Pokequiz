@@ -604,7 +604,7 @@ private fun InfoItem(label: String, value: String, color: Color) {
         val isHighContrast = AccessibilityManager.isHighContrastEnabled
         Text(
             text = label, 
-            fontSize = 9.sp, 
+            fontSize = 9.sp * AccessibilityManager.fontScale, 
             fontWeight = FontWeight.Black, 
             color = if (isHighContrast) Color.Black else Color.Black.copy(alpha = 0.5f),
             fontFamily = FontFamily.Monospace
@@ -615,7 +615,7 @@ private fun InfoItem(label: String, value: String, color: Color) {
         ) {
             Text(
                 text = "🪙",
-                fontSize = 12.sp,
+                fontSize = 12.sp * AccessibilityManager.fontScale,
                 modifier = Modifier.padding(end = 2.dp)
             )
             Text(
@@ -699,10 +699,10 @@ fun SafariResultScreen(
             Text(
                 text = description,
                 color = Color(0xFF1B3022).copy(alpha = 0.8f),
-                fontSize = 13.sp,
+                fontSize = 13.sp * AccessibilityManager.fontScale,
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily.Monospace,
-                lineHeight = 18.sp,
+                lineHeight = 18.sp * AccessibilityManager.fontScale,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
@@ -718,12 +718,12 @@ fun SafariResultScreen(
                 Text(
                     text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
                     color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
-                    fontSize = 24.sp,
+                    fontSize = 24.sp * AccessibilityManager.fontScale,
                     fontWeight = FontWeight.Black,
                     fontFamily = FontFamily.Monospace
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("🪙", fontSize = 20.sp)
+                Text("🪙", fontSize = 20.sp * AccessibilityManager.fontScale)
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -734,7 +734,7 @@ fun SafariResultScreen(
                 onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
+                    .heightIn(min = 64.dp),
                 containerColor = Color(0xFF2D5A27),
                 contentColor = Color.White,
                 fontSize = 18.sp

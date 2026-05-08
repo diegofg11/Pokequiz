@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+import com.diegofg11.pokequiz.utils.AccessibilityManager
+
 @Composable
 fun PokemonHelpDialog(
     title: String,
@@ -87,7 +89,7 @@ fun PokemonHelpDialog(
                     onClick = onDismiss,
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
-                        .height(48.dp),
+                        .heightIn(min = 48.dp),
                     shape = androidx.compose.ui.graphics.RectangleShape,
                     color = Color(0xFF2D5A27),
                     contentColor = Color.White,
@@ -97,8 +99,9 @@ fun PokemonHelpDialog(
                         Text(
                             text = "ENTENDIDO",
                             fontWeight = FontWeight.Black,
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily.Monospace
+                            fontSize = 14.sp * AccessibilityManager.fontScale,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
                 }
@@ -109,20 +112,21 @@ fun PokemonHelpDialog(
 
 @Composable
 fun HelpSection(title: String, description: String) {
+    val scaledFontScale = AccessibilityManager.fontScale
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             text = title.uppercase(),
             fontWeight = FontWeight.Black,
-            fontSize = 13.sp,
+            fontSize = 13.sp * scaledFontScale,
             color = Color(0xFF1B3022),
             fontFamily = FontFamily.Monospace
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = description,
-            fontSize = 12.sp,
+            fontSize = 12.sp * scaledFontScale,
             color = Color.Black.copy(alpha = 0.7f),
-            lineHeight = 16.sp,
+            lineHeight = 16.sp * scaledFontScale,
             fontFamily = FontFamily.Monospace
         )
     }
