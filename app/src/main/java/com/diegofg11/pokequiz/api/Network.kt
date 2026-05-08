@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import com.diegofg11.pokequiz.utils.SessionManager
 
 object Network {
-    const val BASE_URL = "http://192.168.1.30:8080/"
+    const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"
 
     private val authInterceptor = Interceptor { chain ->
         val original = chain.request()
