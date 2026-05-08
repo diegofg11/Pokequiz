@@ -330,18 +330,29 @@ fun SafariRetroHeader(
 ) {
     val height = if (extraContent != null) 110.dp else 70.dp
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    val headerBg = if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    // Ahora el fondo es blanco como el menú inferior
+    val headerBg = Color.White
+    val contentColor = Color.Black
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = height)
             .drawBehind {
+                // Sincronización con el menú inferior (pero en la parte de abajo del header)
+                // 1. Línea Verde Safari
                 drawLine(
-                    color = if (isHighContrast) Color.White else Color.Black.copy(alpha = 0.4f),
+                    color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
+                    start = Offset(0f, size.height - 4.dp.toPx()),
+                    end = Offset(size.width, size.height - 4.dp.toPx()),
+                    strokeWidth = 8.dp.toPx()
+                )
+                // 2. Línea Negra de cierre
+                drawLine(
+                    color = Color.Black,
                     start = Offset(0f, size.height),
                     end = Offset(size.width, size.height),
-                    strokeWidth = 6.dp.toPx()
+                    strokeWidth = 2.dp.toPx()
                 )
             },
         color = headerBg
@@ -355,18 +366,19 @@ fun SafariRetroHeader(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 6.dp), // Compensar los bordes gruesos
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left: Back Button (Balanced with right side)
+                // Left: Back Button
                 Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
                     Surface(
                         onClick = onBackClick,
                         modifier = Modifier.size(40.dp),
                         shape = androidx.compose.ui.graphics.RectangleShape,
-                        color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
-                        contentColor = Color.White,
-                        border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f))
+                        color = if (isHighContrast) Color.White else Color(0xFFF5F5F5),
+                        contentColor = Color.Black,
+                        border = BorderStroke(2.dp, Color.Black)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
@@ -381,10 +393,10 @@ fun SafariRetroHeader(
                         .padding(horizontal = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    val scaledTitleSize = 15.sp * AccessibilityManager.fontScale
+                    val scaledTitleSize = 16.sp * AccessibilityManager.fontScale
                     Text(
                         text = title.uppercase(),
-                        color = Color.White,
+                        color = Color.Black,
                         fontSize = scaledTitleSize,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
@@ -402,9 +414,9 @@ fun SafariRetroHeader(
                             onClick = onHelpClick,
                             modifier = Modifier.size(40.dp),
                             shape = androidx.compose.ui.graphics.RectangleShape,
-                            color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
-                            contentColor = Color.White,
-                            border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f))
+                            color = if (isHighContrast) Color.White else Color(0xFFF5F5F5),
+                            contentColor = Color.Black,
+                            border = BorderStroke(2.dp, Color.Black)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text("?", fontWeight = FontWeight.Black, fontSize = 20.sp)
@@ -415,12 +427,10 @@ fun SafariRetroHeader(
             }
 
             if (extraContent != null) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp, start = 24.dp, end = 24.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     extraContent()
                 }
