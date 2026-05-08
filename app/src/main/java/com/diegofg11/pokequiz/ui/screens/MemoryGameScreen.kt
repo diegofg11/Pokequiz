@@ -242,10 +242,9 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         RetroHeader(
             title = if (difficulty == MemoryDifficulty.INFERNAL) stringResource(R.string.mode_infernal) else stringResource(R.string.memorama),
-            isSafariStyle = true,
             onBackClick = {
                 if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
                     showExitWarning = true
@@ -269,14 +268,15 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
         )
 
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = GoldPoke)
             }
         } else {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 120.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {

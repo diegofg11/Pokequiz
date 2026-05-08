@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guía del Entrenador - Pokequiz</title>
+    
+    <!-- Fuentes para estilo Pixel y lectura técnica -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
+        /* Definición de la paleta temática del Manual de Usuario */
         :root {
-            --primary: #FFCC00;
-            --secondary: #0A285F;
-            --accent: #FB1B1B;
+            --primary: #FFCC00; /* Amarillo Pikachu */
+            --secondary: #0A285F; /* Azul oscuro oficial */
+            --accent: #FB1B1B; /* Rojo de realce */
             --retro-bg: #ECEFF1;
             --bg-page: #94A684;
             --border-thick: 4px;
@@ -31,6 +35,7 @@
             padding: 2rem 1rem;
         }
 
+        /* Estilo del cabezal principal basado en RetroHeader.kt */
         header {
             background-color: var(--secondary);
             border-bottom: 8px solid var(--accent);
@@ -55,6 +60,7 @@
             letter-spacing: 2px;
         }
 
+        /* Contenedor tipo 'Retro Box' con bordes dobles */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -67,7 +73,7 @@
             box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
         }
 
-        /* Corner Dots */
+        /* Puntos decorativos en las esquinas */
         .container::before, .container::after, .dot-tl, .dot-tr {
             content: '';
             position: absolute;
@@ -81,6 +87,7 @@
         .dot-tl { top: 0; left: 0; }
         .dot-tr { top: 0; right: 0; }
 
+        /* Tarjetas de sección para organizar el contenido en bloques */
         .section-card {
             background: white;
             border: 3px solid var(--secondary);
@@ -99,6 +106,7 @@
             gap: 10px;
         }
 
+        /* Decoración de bullet circular en h2 */
         h2::before {
             content: '';
             width: 15px;
@@ -127,6 +135,7 @@
             padding-left: 2rem;
         }
 
+        /* Caja de consejos (Tips) */
         .tip {
             background: #E1F5FE;
             border: 2px solid var(--secondary);
@@ -135,6 +144,7 @@
             font-style: italic;
         }
 
+        /* Botón de navegación para volver al portal */
         .back-link {
             display: inline-block;
             margin-top: 2rem;
@@ -160,58 +170,65 @@
 </head>
 <body>
 
-<header>
-    <h1>GUÍA ENTRENADOR</h1>
-    <p>POKEQUIZ OFFICIAL HANDBOOK</p>
-</header>
+    <!-- CABECERA DEL MANUAL -->
+    <header>
+        <h1>GUÍA ENTRENADOR</h1>
+        <p>POKEQUIZ OFFICIAL HANDBOOK</p>
+    </header>
 
-<div class="container">
-    <div class="dot-tl"></div><div class="dot-tr"></div>
-    
-    <div class="section-card">
-        <h2>1. COMIENZA AQUÍ</h2>
-        <p>¡BIENVENIDO A POKEQUIZ! PARA SER EL MEJOR, DEBERÁS CAPTURAR A LOS 151 POKÉMON ORIGINALES DE KANTO.</p>
-        <h3>REGISTRO</h3>
-        <p>ELIGE TU NOMBRE Y TU PRIMER COMPAÑERO: BULBASAUR, CHARMANDER O SQUIRTLE.</p>
-    </div>
-
-    <div class="section-card">
-        <h2>2. COMBATE RPG</h2>
-        <p>LOS COMBATES MEZCLAN ESTRATEGIA Y CONOCIMIENTO.</p>
-        <ul>
-            <li>PREGUNTAS: ACIERTA PARA ATACAR AL RIVAL.</li>
-            <li>VIDA (PS): CUIDADO CON LOS FALLOS, RESTARÁN VIDA A TU POKÉMON.</li>
-            <li>ROTACIÓN: SI TU LUCHADOR CAE, EL SIGUIENTE EN TU EQUIPO DE 3 SALDRÁ AL CAMPO.</li>
-        </ul>
-        <div class="tip">
-            CONSEJO: ¡MANTÉN A TUS 3 POKÉMON CON BUEN NIVEL PARA AGUANTAR MÁS PREGUNTAS!
-        </div>
-    </div>
-
-    <div class="section-card">
-        <h2>3. GESTIÓN PC</h2>
-        <p>ADMINISTRA TU EQUIPO EN LA PANTALLA DE PC.</p>
-        <ul>
-            <li>EQUIPO ACTIVO: ELIGE TUS 3 MEJORES POKÉMON.</li>
-            <li>FAVORITOS: MARCA A TUS MEJORES COMPAÑEROS CON UN CORAZÓN.</li>
-        </ul>
-    </div>
-
-    <div class="section-card">
-        <h2>4. BAZAR Y SAFARI</h2>
-        <h3>BAZAR (GACHA)</h3>
-        <p>USA TUS MONEDAS PARA CAPTURAR NUEVOS POKÉMON. LOS REPETIDOS TE DAN +50 EXP EXTRA.</p>
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="container">
+        <div class="dot-tl"></div><div class="dot-tr"></div>
         
-        <h3>ZONA SAFARI</h3>
-        <p>GANA MONEDAS GRATIS EN LOS 5 MINIJUEGOS: SILUETAS, MEMORAMA, SOPA DE LETRAS, BATALLA DE TIPOS Y POKÉ-DOJO.</p>
+        <!-- Bloque 1: Bienvenida -->
+        <div class="section-card">
+            <h2>1. COMIENZA AQUÍ</h2>
+            <p>¡BIENVENIDO A POKEQUIZ! PARA SER EL MEJOR, DEBERÁS CAPTURAR A LOS 151 POKÉMON ORIGINALES DE KANTO.</p>
+            <h3>REGISTRO</h3>
+            <p>ELIGE TU NOMBRE Y TU PRIMER COMPAÑERO: BULBASAUR, CHARMANDER O SQUIRTLE.</p>
+        </div>
+
+        <!-- Bloque 2: Combate -->
+        <div class="section-card">
+            <h2>2. COMBATE RPG</h2>
+            <p>LOS COMBATES MEZCLAN ESTRATEGIA Y CONOCIMIENTO.</p>
+            <ul>
+                <li>PREGUNTAS: ACIERTA PARA ATACAR AL RIVAL.</li>
+                <li>VIDA (PS): CUIDADO CON LOS FALLOS, RESTARÁN VIDA A TU POKÉMON.</li>
+                <li>ROTACIÓN: SI TU LUCHADOR CAE, EL SIGUIENTE EN TU EQUIPO DE 3 SALDRÁ AL CAMPO.</li>
+            </ul>
+            <div class="tip">
+                CONSEJO: ¡MANTÉN A TUS 3 POKÉMON CON BUEN NIVEL PARA AGUANTAR MÁS PREGUNTAS!
+            </div>
+        </div>
+
+        <!-- Bloque 3: Gestión de Colección -->
+        <div class="section-card">
+            <h2>3. GESTIÓN PC</h2>
+            <p>ADMINISTRA TU EQUIPO EN LA PANTALLA DE PC.</p>
+            <ul>
+                <li>EQUIPO ACTIVO: ELIGE TUS 3 MEJORES POKÉMON.</li>
+                <li>FAVORITOS: MARCA A TUS MEJORES COMPAÑEROS CON UN CORAZÓN.</li>
+            </ul>
+        </div>
+
+        <!-- Bloque 4: Bazar y Safari -->
+        <div class="section-card">
+            <h2>4. BAZAR Y SAFARI</h2>
+            <h3>BAZAR (GACHA)</h3>
+            <p>USA TUS MONEDAS PARA CAPTURAR NUEVOS POKÉMON. LOS REPETIDOS TE DAN +50 EXP EXTRA.</p>
+            
+            <h3>ZONA SAFARI</h3>
+            <p>GANA MONEDAS GRATIS EN LOS 5 MINIJUEGOS: SILUETAS, MEMORAMA, SOPA DE LETRAS, BATALLA DE TIPOS Y POKÉ-DOJO.</p>
+        </div>
+
+        <!-- Enlace de retorno -->
+        <a href="../index.html" class="back-link">< VOLVER</a>
     </div>
 
-    <a href="../index.html" class="back-link">< VOLVER</a>
-</div>
-
-<footer>
-    &copy; 2026 POKEQUIZ PROJECT | RETRO STYLE DOCUMENTATION
-</footer>
+        <footer>
+            &copy; 2026 POKEQUIZ PROJECT
+        </footer>
 
 </body>
 </html>

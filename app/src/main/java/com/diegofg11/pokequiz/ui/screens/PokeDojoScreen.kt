@@ -72,7 +72,6 @@ fun PokeDojoScreen(
             if (gameState != SafariGameState.START) {
                 RetroHeader(
                     title = stringResource(R.string.dojo_title),
-                    isSafariStyle = true,
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {
                             gameState = SafariGameState.RESULT
@@ -86,8 +85,7 @@ fun PokeDojoScreen(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-                    .padding(top = if (gameState == SafariGameState.START) 0.dp else 80.dp),
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 if (gameState == SafariGameState.PLAYING) {

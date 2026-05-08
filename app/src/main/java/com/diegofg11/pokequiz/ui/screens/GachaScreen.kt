@@ -211,7 +211,8 @@ fun GachaScreen(onBack: () -> Unit, onNavigateToPC: () -> Unit) {
                 RetroText(
                     text = if (gachaState == GachaAnimState.REVEALED) stringResource(R.string.magnificent) else stringResource(R.string.collect_all),
                     fontSize = if (gachaState == GachaAnimState.REVEALED) 38.sp else 28.sp,
-                    color = if (isHighContrast) Color.Black else (if (gachaState == GachaAnimState.REVEALED) GoldPoke else Color.White)
+                    color = if (isHighContrast) Color.Black else (if (gachaState == GachaAnimState.REVEALED) GoldPoke else Color.White),
+                    textAlign = TextAlign.Center
                 )
 
                 if (gachaState != GachaAnimState.REVEALED) {
@@ -220,6 +221,7 @@ fun GachaScreen(onBack: () -> Unit, onNavigateToPC: () -> Unit) {
                         fontSize = 14.sp,
                         fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                         color = if (isHighContrast) Color.Black else Color.Black.copy(alpha = 0.6f),
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 } else {
@@ -229,6 +231,7 @@ fun GachaScreen(onBack: () -> Unit, onNavigateToPC: () -> Unit) {
                         fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }

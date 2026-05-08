@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual de Implantación - Pokequiz</title>
+    
+    <!-- Fuentes para estilo Pixel y lectura técnica -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
+        /* Paleta de colores para el Manual de Implantación (Rojo / Gris Sistema) */
         :root {
-            --primary: #FFCC00;
-            --secondary: #0A285F;
-            --accent: #FB1B1B;
+            --primary: #EE1515; /* Rojo Pokéball */
+            --secondary: #0A285F; /* Azul oscuro oficial */
+            --accent: #FFFFFF;
             --retro-bg: #ECEFF1;
             --bg-page: #94A684;
             --border-thick: 4px;
@@ -31,9 +35,10 @@
             padding: 2rem 1rem;
         }
 
+        /* Estilo del cabezal principal basado en RetroHeader.kt */
         header {
-            background-color: var(--secondary);
-            border-bottom: 8px solid var(--accent);
+            background-color: var(--primary);
+            border-bottom: 8px solid var(--secondary);
             padding: 2rem;
             text-align: center;
             position: relative;
@@ -44,7 +49,7 @@
         header h1 {
             font-family: 'Press Start 2P', cursive;
             font-size: 1.2rem;
-            color: var(--primary);
+            color: white;
             text-transform: uppercase;
         }
 
@@ -55,6 +60,7 @@
             letter-spacing: 2px;
         }
 
+        /* Contenedor tipo 'Retro Box' con bordes dobles */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -67,7 +73,7 @@
             box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
         }
 
-        /* Corner Dots */
+        /* Puntos decorativos en las esquinas */
         .container::before, .container::after, .dot-tl, .dot-tr {
             content: '';
             position: absolute;
@@ -81,6 +87,7 @@
         .dot-tl { top: 0; left: 0; }
         .dot-tr { top: 0; right: 0; }
 
+        /* Tarjetas de sección para organizar el contenido técnico */
         .section-card {
             background: white;
             border: 3px solid var(--secondary);
@@ -92,7 +99,7 @@
         h2 {
             font-family: 'Press Start 2P', cursive;
             font-size: 0.9rem;
-            color: var(--accent);
+            color: var(--primary);
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
@@ -127,6 +134,7 @@
             padding-left: 2rem;
         }
 
+        /* Estilo para etiquetas de código en línea */
         code {
             background: #D1D9E0;
             padding: 0.2rem 0.5rem;
@@ -134,6 +142,7 @@
             font-weight: bold;
         }
 
+        /* Bloques de código (Terminal / Scripts) */
         pre {
             background: #263238;
             color: #80CBC4;
@@ -146,14 +155,16 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
+        /* Caja de notas importantes / Advertencias */
         .important {
-            background: #FFF9C4;
-            border: 2px solid var(--secondary);
+            background: #FFEBEE;
+            border: 2px solid var(--primary);
             padding: 1rem;
             margin: 1rem 0;
             font-style: italic;
         }
 
+        /* Tablas técnicas para troubleshooting */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -173,6 +184,7 @@
             font-weight: bold;
         }
 
+        /* Botón de navegación */
         .back-link {
             display: inline-block;
             margin-top: 2rem;
@@ -185,7 +197,7 @@
         }
 
         .back-link:hover {
-            background: var(--accent);
+            background: var(--primary);
         }
 
         footer {
@@ -198,50 +210,56 @@
 </head>
 <body>
 
-<header>
-    <h1>IMPLANTACIÓN</h1>
-    <p>POKEQUIZ TECHNICAL HANDBOOK</p>
-</header>
+    <!-- CABECERA DEL MANUAL TÉCNICO -->
+    <header>
+        <h1>IMPLANTACIÓN</h1>
+        <p>POKEQUIZ TECHNICAL HANDBOOK</p>
+    </header>
 
-<div class="container">
-    <div class="dot-tl"></div><div class="dot-tr"></div>
-    
-    <div class="section-card">
-        <h2>1. FICHA TÉCNICA</h2>
-        <p>CONFIGURACIÓN BASE DEL PROYECTO ANDROID.</p>
-        <ul>
-            <li>PLATAFORMA: ANDROID NATIVO (KOTLIN)</li>
-            <li>SDK MÍNIMO: 29 | SDK OBJETIVO: 36</li>
-            <li>UI FRAMEWORK: JETPACK COMPOSE</li>
-        </ul>
-    </div>
-
-    <div class="section-card">
-        <h2>2. ARQUITECTURA</h2>
-        <h3>FRONTEND</h3>
-        <p>SISTEMA REACTIVO CON GESTIÓN DE ESTADO. COMUNICACIÓN MEDIANTE RETROFIT 2 Y COIL PARA IMÁGENES.</p>
+    <!-- CONTENIDO TÉCNICO -->
+    <div class="container">
+        <div class="dot-tl"></div><div class="dot-tr"></div>
         
-        <h3>BACKEND</h3>
-        <p>NODE.JS + EXPRESS + PRISMA ORM SOBRE POSTGRESQL (RAILWAY).</p>
-    </div>
-
-    <div class="section-card">
-        <h2>3. CONFIGURACIÓN</h2>
-        <h3>CLONACIÓN</h3>
-        <pre>git clone https://github.com/diegofg11/Pokequiz.git</pre>
-        
-        <h3>LOCAL PROPERTIES</h3>
-        <p>ASEGÚRATE DE TENER EL SDK DIR CORRECTO:</p>
-        <pre>sdk.dir=C\:\\Users\\USER\\AppData\\Local\\Android\\Sdk</pre>
-    </div>
-
-    <div class="section-card">
-        <h2>4. SERVICIOS API</h2>
-        <div class="important">
-            LA URL DE PRODUCCIÓN ESTÁ DEFINIDA EN NETWORK.KT
+        <!-- Sección 1: Datos del proyecto -->
+        <div class="section-card">
+            <h2>1. FICHA TÉCNICA</h2>
+            <p>CONFIGURACIÓN BASE DEL PROYECTO ANDROID.</p>
+            <ul>
+                <li>PLATAFORMA: ANDROID NATIVO (KOTLIN)</li>
+                <li>SDK MÍNIMO: 29 | SDK OBJETIVO: 36</li>
+                <li>UI FRAMEWORK: JETPACK COMPOSE</li>
+            </ul>
         </div>
-        <pre>const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"</pre>
-    </div>
+
+        <!-- Sección 2: Arquitectura y componentes -->
+        <div class="section-card">
+            <h2>2. ARQUITECTURA</h2>
+            <h3>FRONTEND</h3>
+            <p>SISTEMA REACTIVO CON GESTIÓN DE ESTADO. COMUNICACIÓN MEDIANTE RETROFIT 2 Y COIL PARA IMÁGENES.</p>
+            
+            <h3>BACKEND</h3>
+            <p>NODE.JS + EXPRESS + PRISMA ORM SOBRE POSTGRESQL (RAILWAY).</p>
+        </div>
+
+        <!-- Sección 3: Guía de instalación -->
+        <div class="section-card">
+            <h2>3. CONFIGURACIÓN</h2>
+            <h3>CLONACIÓN</h3>
+            <pre>git clone https://github.com/diegofg11/Pokequiz.git</pre>
+            
+            <h3>LOCAL PROPERTIES</h3>
+            <p>ASEGÚRATE DE TENER EL SDK DIR CORRECTO:</p>
+            <pre>sdk.dir=C\:\\Users\\USER\\AppData\\Local\\Android\\Sdk</pre>
+        </div>
+
+        <!-- Sección 4: Configuración de Red -->
+        <div class="section-card">
+            <h2>4. SERVICIOS API</h2>
+            <div class="important">
+                LA URL DE PRODUCCIÓN ESTÁ DEFINIDA EN NETWORK.KT
+            </div>
+            <pre>const val BASE_URL = "https://pokequizbackend-production.up.railway.app/"</pre>
+        </div>
 
     <div class="section-card">
         <h2>5. DESPLIEGUE LOCAL DEL BACKEND</h2>
@@ -343,12 +361,13 @@ PORT=3001</pre>
         </table>
     </div>
 
-    <a href="../index.html" class="back-link">< VOLVER</a>
-</div>
+        <!-- Enlace de retorno -->
+        <a href="../index.html" class="back-link">< VOLVER</a>
+    </div>
 
-<footer>
-    &copy; 2026 POKEQUIZ PROJECT | RETRO STYLE DOCUMENTATION
-</footer>
+    <footer>
+        &copy; 2026 POKEQUIZ PROJECT
+    </footer>
 
 </body>
 </html>
