@@ -177,9 +177,7 @@ fun RetroText(
 ) {
     val scaledFontSize = fontSize * AccessibilityManager.fontScale
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    var textColor = if (isHighContrast) {
-        if (color == Color.White) Color.White else Color.Black
-    } else color
+    val textColor = if (isHighContrast) Color.Black else color
 
     val style = TextStyle(
         color = textColor,

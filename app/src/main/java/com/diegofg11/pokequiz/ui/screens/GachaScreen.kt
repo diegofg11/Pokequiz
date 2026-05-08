@@ -183,10 +183,11 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
         ) {
             Spacer(modifier = Modifier.weight(0.1f))
 
+            val isHighContrast = AccessibilityManager.isHighContrastEnabled
             RetroText(
                 text = if (gachaState == GachaAnimState.REVEALED) "¡MAGNÍFICO!" else "BAZAR POKÉMON",
                 fontSize = if (gachaState == GachaAnimState.REVEALED) 38.sp else 34.sp,
-                color = if (gachaState == GachaAnimState.REVEALED) GoldPoke else Color.White
+                color = if (isHighContrast) Color.Black else (if (gachaState == GachaAnimState.REVEALED) GoldPoke else Color.White)
             )
             
             if (gachaState != GachaAnimState.REVEALED) {
@@ -194,7 +195,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
                     text = "¡Toca la Pokéball para abrirla!",
                     fontSize = 14.sp,
                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                    color = Color.Black.copy(alpha = 0.6f),
+                    color = if (isHighContrast) Color.Black else Color.Black.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 4.dp)
                 )
             } else {
