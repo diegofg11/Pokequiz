@@ -209,7 +209,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        SafariRetroHeader(
+        RetroHeader(isSafariStyle = true, 
             title = "¿CUÁL ES ESTE POKÉMON?",
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {

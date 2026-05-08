@@ -90,7 +90,7 @@ fun QuickBattleScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             if (gameState != SafariGameState.START) {
-                SafariRetroHeader(
+                RetroHeader(isSafariStyle = true, 
                     title = if (isInverse) "BATALLA INVERSA" else "BATALLA RÁPIDA",
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {

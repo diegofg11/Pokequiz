@@ -63,7 +63,7 @@ fun PokeDojoScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             if (gameState != SafariGameState.START) {
-                SafariRetroHeader(
+                RetroHeader(isSafariStyle = true, 
                     title = "POKÉ-DOJO",
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {

@@ -46,7 +46,7 @@ fun SafariZonePager(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    SafariRetroHeader(
+                    RetroHeader(isSafariStyle = true, 
                         title = "ZONA SAFARI",
                         onBackClick = onNavigateBack,
                         onHelpClick = { showHelp = true }

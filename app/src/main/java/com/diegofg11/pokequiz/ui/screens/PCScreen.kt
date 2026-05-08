@@ -42,8 +42,9 @@ import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.diegofg11.pokequiz.utils.WallpaperManager
 import com.diegofg11.pokequiz.utils.PokemonUtils
+import com.diegofg11.pokequiz.utils.AccessibilityManager
+import com.diegofg11.pokequiz.utils.WallpaperManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Search
@@ -58,10 +59,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 
+enum class PokemonSortOption(val label: String) {
+    RECENT("RECIENTES"),
+    POKEDEX("Nº POKÉ"),
+    LEVEL("NIVEL"),
+    NAME("A-Z")
+}
+import androidx.compose.ui.res.painterResource
+
 @Composable
-fun PCScreen() {
+fun PCScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var showHelp by remember { mutableStateOf(false) }
 
     var user by remember { mutableStateOf<User?>(null) }
     val pokemonList = remember { mutableStateListOf<Pokemon>() }
@@ -73,7 +83,7 @@ fun PCScreen() {
     // Estados de búsqueda y ordenación
     var searchQuery by remember { mutableStateOf("") }
     var isSearchVisible by remember { mutableStateOf(false) }
-    var sortOption by remember { mutableStateOf(PokemonSortOption.RECENT) }
+    var sortOption by remember { mutableStateOf<PokemonSortOption>(PokemonSortOption.RECENT) }
     var filterType by remember { mutableStateOf<PokeType?>(null) }
     var showFavoritesOnly by remember { mutableStateOf(false) }
     var showShiniesOnly by remember { mutableStateOf(false) }
@@ -190,12 +200,22 @@ fun PCScreen() {
             }
         } else {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
+                RetroHeader(
+                    title = "PC POKÉMON",
+                    onBackClick = onBack,
+                    onHelpClick = { showHelp = true }
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -408,6 +428,20 @@ fun PCScreen() {
                 },
                 onDismiss = { showSortDialog = false }
             )
+        }
+    }
+
+    if (showHelp) {
+        PokemonHelpDialog(
+            title = "SISTEMA PC",
+            onDismiss = { showHelp = false }
+        ) {
+            Column {
+                HelpSection("MI EQUIPO", "Aquí puedes ver los 3 Pokémon que te acompañarán en tus batallas. Pulsa en uno para ver sus detalles.")
+                HelpSection("COLECCIÓN", "Todos los Pokémon que consigas en el Bazar se guardarán aquí. El PC tiene espacio para muchísimos compañeros.")
+                HelpSection("ORGANIZAR", "Usa los botones de búsqueda y filtros para encontrar rápidamente a tus Pokémon favoritos o por su tipo.")
+                HelpSection("FAVORITOS", "Marca a tus Pokémon especiales como favoritos para que aparezcan siempre al principio de tu lista.")
+            }
         }
     }
 }
@@ -841,17 +875,11 @@ private fun PCEmptySlot(isParty: Boolean = false) {
     }
 }
 
-enum class PokemonSortOption(val label: String) {
-    RECENT("RECIENTES"),
-    POKEDEX("Nº POKÉ"),
-    LEVEL("NIVEL"),
-    NAME("A-Z")
-}
 
 @Preview(showBackground = true)
 @Composable
 fun PCScreenPreview() {
     PokequizTheme {
-        PCScreen()
+        PCScreen(onBack = {})
     }
 }

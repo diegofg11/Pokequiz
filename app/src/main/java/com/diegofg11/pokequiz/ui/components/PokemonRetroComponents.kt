@@ -320,40 +320,59 @@ fun PokeballPageIndicator(
 }
 
 @Composable
-fun SafariRetroHeader(
+fun RetroHeader(
     title: String,
-    onBackClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
     onHelpClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    isSafariStyle: Boolean = false, // Si es true, usa el estilo verde antiguo para juegos
     rightContent: (@Composable () -> Unit)? = null,
     extraContent: (@Composable () -> Unit)? = null
 ) {
     val height = if (extraContent != null) 110.dp else 70.dp
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    // Ahora el fondo es blanco como el menú inferior
-    val headerBg = Color.White
-    val contentColor = Color.Black
+    
+    // Colores dinámicos según el estilo
+    val headerBg = if (isSafariStyle) {
+        if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    } else {
+        Color.White
+    }
+    val contentColor = if (isSafariStyle) Color.White else Color.Black
+    val borderColor = if (isSafariStyle) {
+        if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f)
+    } else {
+        Color.Black
+    }
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = height)
             .drawBehind {
-                // Sincronización con el menú inferior (pero en la parte de abajo del header)
-                // 1. Línea Verde Safari
-                drawLine(
-                    color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
-                    start = Offset(0f, size.height - 4.dp.toPx()),
-                    end = Offset(size.width, size.height - 4.dp.toPx()),
-                    strokeWidth = 8.dp.toPx()
-                )
-                // 2. Línea Negra de cierre
-                drawLine(
-                    color = Color.Black,
-                    start = Offset(0f, size.height),
-                    end = Offset(size.width, size.height),
-                    strokeWidth = 2.dp.toPx()
-                )
+                if (!isSafariStyle) {
+                    // Estilo Blanco (Sincronizado con menú inferior)
+                    drawLine(
+                        color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
+                        start = Offset(0f, size.height - 4.dp.toPx()),
+                        end = Offset(size.width, size.height - 4.dp.toPx()),
+                        strokeWidth = 8.dp.toPx()
+                    )
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 2.dp.toPx()
+                    )
+                } else {
+                    // Estilo Safari (Verde clásico para juegos)
+                    drawLine(
+                        color = if (isHighContrast) Color.White else Color.Black.copy(alpha = 0.4f),
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 6.dp.toPx()
+                    )
+                }
             },
         color = headerBg
     ) {
@@ -367,21 +386,27 @@ fun SafariRetroHeader(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(bottom = 6.dp), // Compensar los bordes gruesos
+                    .padding(bottom = if (isSafariStyle) 0.dp else 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Left: Back Button
                 Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
-                    Surface(
-                        onClick = onBackClick,
-                        modifier = Modifier.size(40.dp),
-                        shape = androidx.compose.ui.graphics.RectangleShape,
-                        color = if (isHighContrast) Color.White else Color(0xFFF5F5F5),
-                        contentColor = Color.Black,
-                        border = BorderStroke(2.dp, Color.Black)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
+                    if (onBackClick != null) {
+                        Surface(
+                            onClick = onBackClick,
+                            modifier = Modifier.size(40.dp),
+                            shape = androidx.compose.ui.graphics.RectangleShape,
+                            color = if (isSafariStyle) {
+                                if (isHighContrast) Color.Black else Color(0xFF2D5A27)
+                            } else {
+                                if (isHighContrast) Color.White else Color(0xFFF5F5F5)
+                            },
+                            contentColor = contentColor,
+                            border = BorderStroke(2.dp, if (isSafariStyle) borderColor else Color.Black)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
+                            }
                         }
                     }
                 }
@@ -396,7 +421,7 @@ fun SafariRetroHeader(
                     val scaledTitleSize = 16.sp * AccessibilityManager.fontScale
                     Text(
                         text = title.uppercase(),
-                        color = Color.Black,
+                        color = contentColor,
                         fontSize = scaledTitleSize,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
@@ -414,9 +439,13 @@ fun SafariRetroHeader(
                             onClick = onHelpClick,
                             modifier = Modifier.size(40.dp),
                             shape = androidx.compose.ui.graphics.RectangleShape,
-                            color = if (isHighContrast) Color.White else Color(0xFFF5F5F5),
-                            contentColor = Color.Black,
-                            border = BorderStroke(2.dp, Color.Black)
+                            color = if (isSafariStyle) {
+                                if (isHighContrast) Color.Black else Color(0xFF2D5A27)
+                            } else {
+                                if (isHighContrast) Color.White else Color(0xFFF5F5F5)
+                            },
+                            contentColor = contentColor,
+                            border = BorderStroke(2.dp, if (isSafariStyle) borderColor else Color.Black)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text("?", fontWeight = FontWeight.Black, fontSize = 20.sp)

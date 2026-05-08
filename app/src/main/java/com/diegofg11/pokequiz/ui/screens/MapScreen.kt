@@ -65,6 +65,8 @@ fun MapScreen(
         listState.animateScrollToItem(indexToScroll)
     }
 
+    var showHelp by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         // Fondo dinámico
         Image(
@@ -91,11 +93,17 @@ fun MapScreen(
         // Capa de contraste
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.1f)))
 
+        // Cabecera Estándar (Sin botón de atrás por ser pantalla principal)
+        RetroHeader(
+            title = "RUTA ${user?.nivelProgreso ?: completedLevel + 1}",
+            onHelpClick = { showHelp = true }
+        )
+
         // Lista de niveles
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = 160.dp, bottom = 100.dp),
+            contentPadding = PaddingValues(top = 100.dp, bottom = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val levelRange = (1..totalLevels).reversed().toList()
@@ -180,6 +188,20 @@ fun MapScreen(
                         RetroText(text = "🪙 ${user?.monedasGacha ?: 0}", fontSize = 11.sp, showShadow = false)
                     }
                 }
+            }
+        }
+    }
+
+    if (showHelp) {
+        PokemonHelpDialog(
+            title = "EL MAPA",
+            onDismiss = { showHelp = false }
+        ) {
+            Column {
+                HelpSection("AVENTURA", "Este es tu viaje Pokémon. Recorre las rutas y derrota a los entrenadores para avanzar.")
+                HelpSection("NIVELES", "Cada punto en el mapa es una batalla. Los puntos verdes son niveles superados, los amarillos son los que puedes jugar ahora.")
+                HelpSection("DIFICULTAD", "A medida que avanzas por las rutas, los Pokémon serán más fuertes y los retos más difíciles.")
+                HelpSection("PROGRESO", "Supera niveles para desbloquear nuevas zonas y obtener mejores recompensas.")
             }
         }
     }
