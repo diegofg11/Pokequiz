@@ -26,7 +26,7 @@
 
         .hero {
             background: linear-gradient(180deg, var(--primary) 50%, var(--white) 50%);
-            padding: 5rem 1rem;
+            padding: 6rem 1rem; /* Aumentado el padding para más espacio */
             text-align: center;
             position: relative;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -53,13 +53,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90px;
-            height: 90px;
+            width: 100px; /* Un poco más grande para mejor impacto visual */
+            height: 100px;
             background: var(--white);
             border: 10px solid var(--secondary);
             border-radius: 50%;
             z-index: 2;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         }
 
         /* Círculo pequeño interior del botón */
@@ -68,9 +68,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 2px solid #ccc;
+            width: 45px;
+            height: 45px;
+            border: 2px solid #ddd;
             border-radius: 50%;
             background: var(--white);
             z-index: 3;
@@ -84,13 +84,14 @@
             position: relative;
             color: white;
             text-shadow: 4px 4px 0px rgba(0,0,0,0.4);
-            margin-bottom: 3.5rem;
+            margin-bottom: 5rem; /* Aumentado para alejarlo de la pokebola */
         }
 
         .hero p {
             position: relative;
             z-index: 4;
-            margin-top: 4.5rem;
+            margin: 0;
+            margin-top: 5.5rem; /* Aumentado significativamente para evitar el solapamiento */
             font-weight: 800;
             font-size: 1.4rem;
             letter-spacing: 2px;
@@ -190,14 +191,14 @@
 </div>
 
 <div class="container">
-    <a href="manual_implantacion.html" class="card">
+    <a href="manuales/manual_implantacion.html" class="card">
         <div class="icon-circle">⚙️</div>
         <h2>IMPLANTACIÓN</h2>
         <p>Guía técnica para desarrolladores. Requisitos, configuración de entorno y despliegue.</p>
         <div class="btn">Abrir Manual</div>
     </a>
 
-    <a href="manual_usuario.html" class="card">
+    <a href="manuales/manual_usuario.html" class="card">
         <div class="icon-circle">🎒</div>
         <h2>GUÍA DE USUARIO</h2>
         <p>Todo lo que necesitas saber para jugar, combatir y completar tu colección.</p>
