@@ -16,9 +16,10 @@ fun MinigamesScreen(navController: NavController? = null) {
 
     RetroBackground {
         Column(modifier = Modifier.fillMaxSize()) {
-            SafariRetroHeader(
+            RetroHeader(
                 title = stringResource(R.string.safari_zone),
-                onBackClick = { navController?.navigateUp() },
+                onBackClick = { navController?.popBackStack() },
+                isSafariStyle = true,
                 onHelpClick = { showHelp = true }
             )
 

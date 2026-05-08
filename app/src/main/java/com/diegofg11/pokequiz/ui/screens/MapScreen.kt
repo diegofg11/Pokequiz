@@ -66,6 +66,8 @@ fun MapScreen(
         listState.animateScrollToItem(indexToScroll)
     }
 
+    var showHelp by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         // Fondo dinámico
         Image(
@@ -92,11 +94,13 @@ fun MapScreen(
         // Capa de contraste
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.1f)))
 
+        // El header se moverá al final del Box para asegurar que esté por encima de la lista
+
         // Lista de niveles
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = 160.dp, bottom = 100.dp),
+            contentPadding = PaddingValues(top = 100.dp, bottom = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val levelRange = (1..totalLevels).reversed().toList()
@@ -120,41 +124,7 @@ fun MapScreen(
             }
         }
 
-        // --- HUD DE UBICACIÓN (ARRIBA) ---
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .offset(y = (-8).dp),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            RetroMenuBox(
-                modifier = Modifier.width(220.dp),
-                backgroundColor = Color.White,
-                borderColor = Color(0xFF2D5A27)
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
-                ) {
-                    RetroText(
-                        text = stringResource(R.string.route_pokequiz), 
-                        fontSize = 16.sp, 
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = stringResource(R.string.exploring_region), 
-                        fontSize = 9.sp, 
-                        color = Color.Gray, 
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
+
 
         Box(
             modifier = Modifier
@@ -181,6 +151,28 @@ fun MapScreen(
                         RetroText(text = "🪙 ${user?.monedasGacha ?: 0}", fontSize = 11.sp, showShadow = false)
                     }
                 }
+            }
+        }
+
+        // Cabecera Estándar (Al final para que quede por encima de todo)
+        RetroHeader(
+            title = stringResource(R.string.route_pokequiz),
+            subtitle = stringResource(R.string.exploring_region),
+            titleAlignment = Alignment.CenterStart,
+            onHelpClick = { showHelp = true }
+        )
+    }
+
+    if (showHelp) {
+        PokemonHelpDialog(
+            title = "EL MAPA",
+            onDismiss = { showHelp = false }
+        ) {
+            Column {
+                HelpSection("AVENTURA", "Este es tu viaje Pokémon. Recorre las rutas y derrota a los entrenadores para avanzar.")
+                HelpSection("NIVELES", "Cada punto en el mapa es una batalla. Los puntos verdes son niveles superados, los amarillos son los que puedes jugar ahora.")
+                HelpSection("DIFICULTAD", "A medida que avanzas por las rutas, los Pokémon serán más fuertes y los retos más difíciles.")
+                HelpSection("PROGRESO", "Supera niveles para desbloquear nuevas zonas y obtener mejores recompensas.")
             }
         }
     }

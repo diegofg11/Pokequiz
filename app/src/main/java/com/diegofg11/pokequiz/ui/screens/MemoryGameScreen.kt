@@ -237,8 +237,9 @@ fun MemoryGameBoard(difficulty: MemoryDifficulty, onNavigateBack: () -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        SafariRetroHeader(
+        RetroHeader(
             title = if (difficulty == MemoryDifficulty.INFERNAL) stringResource(R.string.mode_infernal) else stringResource(R.string.memorama),
+            isSafariStyle = true,
             onBackClick = {
                 if (gameStarted && !hasWon && lives > 0 && !isProcessing) {
                     showExitWarning = true

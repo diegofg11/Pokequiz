@@ -44,13 +44,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.diegofg11.pokequiz.utils.PokemonUtils
 import com.diegofg11.pokequiz.models.PokeType
+import com.diegofg11.pokequiz.utils.AccessibilityManager
 
 private enum class GachaAnimState { IDLE, SHAKING, OPENING, REVEALED }
 
 @Composable
-fun GachaScreen(onNavigateToPC: () -> Unit) {
+fun GachaScreen(onBack: () -> Unit, onNavigateToPC: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var showHelp by remember { mutableStateOf(false) }
 
     var coins by remember { mutableIntStateOf(0) }
     val costPerRoll = 100
@@ -179,227 +181,307 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
         }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.weight(0.1f))
-
-            RetroText(
-                text = stringResource(R.string.bazaar_title),
-                fontSize = 34.sp,
-                color = Color.White
-            )
-            Text(
-                text = stringResource(R.string.tap_pokeball),
-                fontSize = 14.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                color = Color.Black.copy(alpha = 0.6f),
-                modifier = Modifier.padding(top = 4.dp)
+            RetroHeader(
+                title = stringResource(R.string.bazaar_title),
+                onBackClick = onBack,
+                onHelpClick = { showHelp = true }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Monedas (Ahora debajo del título)
-            RetroMenuBox(
-                backgroundColor = Color.Black.copy(alpha = 0.05f),
-                borderColor = GoldPoke
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("🪙", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    RetroText(
-                        text = "$coins",
-                        color = GoldPoke,
-                        fontSize = 18.sp,
-                        showShadow = false
+                Spacer(modifier = Modifier.weight(0.1f))
+
+                val isHighContrast = AccessibilityManager.isHighContrastEnabled
+                RetroText(
+                    text = if (gachaState == GachaAnimState.REVEALED) stringResource(R.string.magnificent) else stringResource(R.string.collect_all),
+                    fontSize = if (gachaState == GachaAnimState.REVEALED) 38.sp else 28.sp,
+                    color = if (isHighContrast) Color.Black else (if (gachaState == GachaAnimState.REVEALED) GoldPoke else Color.White)
+                )
+
+                if (gachaState != GachaAnimState.REVEALED) {
+                    Text(
+                        text = stringResource(R.string.tap_pokeball),
+                        fontSize = 14.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        color = if (isHighContrast) Color.Black else Color.Black.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.obtained_new_partner),
+                        fontSize = 12.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.weight(0.05f))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Zona central
-            Box(modifier = Modifier.size(250.dp), contentAlignment = Alignment.Center) {
-                if (gachaState != GachaAnimState.REVEALED) {
-                    Box(
-                        modifier = Modifier
-                            .size(160.dp)
-                            .scale(pokeballScale)
-                            .rotate(shakeAnim.value)
-                            .border(4.dp, Color.Black.copy(alpha = 0.2f), CircleShape)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .clickable(enabled = gachaState == GachaAnimState.IDLE && coins >= costPerRoll) { doRoll() },
-                        contentAlignment = Alignment.Center
+                // Monedas (Ahora debajo del título)
+                RetroMenuBox(
+                    backgroundColor = Color.Black.copy(alpha = 0.05f),
+                    borderColor = GoldPoke
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.5f)
-                                .align(Alignment.TopCenter)
-                                .background(RedPoke)
+                        Text("🪙", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        RetroText(
+                            text = "$coins",
+                            color = GoldPoke,
+                            fontSize = 18.sp,
+                            showShadow = false
                         )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(0.05f))
+
+                // Zona central
+                Box(modifier = Modifier.size(250.dp), contentAlignment = Alignment.Center) {
+                    if (gachaState != GachaAnimState.REVEALED) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp)
-                                .align(Alignment.Center)
-                                .background(Color.Black)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
+                                .size(160.dp)
+                                .scale(pokeballScale)
+                                .rotate(shakeAnim.value)
+                                .border(4.dp, Color.Black.copy(alpha = 0.2f), CircleShape)
                                 .clip(CircleShape)
-                                .background(Color.Black),
+                                .background(Color.White)
+                                .clickable(enabled = gachaState == GachaAnimState.IDLE && coins >= costPerRoll) { doRoll() },
                             contentAlignment = Alignment.Center
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(0.5f)
+                                    .align(Alignment.TopCenter)
+                                    .background(RedPoke)
                             )
-                        }
-                    }
-                }
-
-                if (gachaState == GachaAnimState.REVEALED && revealedPokemon != null) {
-                    Column(
-                        modifier = Modifier.scale(pokemonScale),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
                             Box(
                                 modifier = Modifier
-                                    .size(200.dp)
-                                    .background(
-                                        Brush.radialGradient(
-                                            colors = listOf(Color(0xFFFFD700).copy(alpha = 0.2f), Color.Transparent)
-                                        )
-                                    )
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .align(Alignment.Center)
+                                    .background(Color.Black)
                             )
-                            AsyncImage(
-                                model = revealedPokemon!!.spriteFront,
-                                contentDescription = revealedPokemon!!.nombre,
-                                modifier = Modifier.size(180.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Info del Pokémon revelado
-            if (gachaState == GachaAnimState.REVEALED && revealedPokemon != null) {
-                RetroMenuBox(
-                    backgroundColor = Color.White.copy(alpha = 0.9f),
-                    borderColor = if (isNewPull) GoldPoke else Color(0xFF2D5A27)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        RetroText(
-                            text = if (isNewPull) stringResource(R.string.new_pokemon) else stringResource(R.string.repeated_pokemon),
-                            fontSize = 12.sp,
-                            color = if (isNewPull) GoldPoke else Color(0xFF2D5A27)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        RetroText(
-                            text = revealedPokemon!!.nombre.uppercase(),
-                            fontSize = 22.sp,
-                            color = Color(0xFF1B3022)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            revealedPokemon!!.tipos.forEach { tipo ->
-                                val pokeType = PokeType.getByString(tipo)
-                                Surface(
-                                    shape = androidx.compose.ui.graphics.RectangleShape,
-                                    color = pokeType?.color ?: Color.Gray,
-                                    border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
-                                ) {
-                                    Text(
-                                        text = pokeType?.let { stringResource(it.stringResId) } ?: tipo.uppercase(),
-                                        color = Color.White,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                                    )
-                                }
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Black),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White)
+                                )
                             }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        PixelDivider()
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = revealedPokemon!!.pokedexDescription ?: "",
-                            color = Color(0xFF1B3022),
-                            fontSize = 13.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 16.sp,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
+                    }
+
+                    if (gachaState == GachaAnimState.REVEALED && revealedPokemon != null) {
+                        Column(
+                            modifier = Modifier.scale(pokemonScale),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(200.dp)
+                                        .background(
+                                            Brush.radialGradient(
+                                                colors = listOf(
+                                                    Color(0xFFFFD700).copy(alpha = 0.2f),
+                                                    Color.Transparent
+                                                )
+                                            )
+                                        )
+                                )
+                                AsyncImage(
+                                    model = revealedPokemon!!.spriteFront,
+                                    contentDescription = revealedPokemon!!.nombre,
+                                    modifier = Modifier.size(180.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.weight(0.05f))
-
-            // Botones
-            when (gachaState) {
-                GachaAnimState.IDLE -> {
-                    RetroButton(
-                        text = stringResource(R.string.open_pokeball, costPerRoll),
-                        onClick = { doRoll() },
-                        enabled = coins >= costPerRoll,
-                        modifier = Modifier.fillMaxWidth(),
-                        containerColor = RedPoke,
-                        fontSize = 18.sp
-                    )
-                    if (coins < costPerRoll) {
-                        Text(
-                            text = stringResource(R.string.not_enough_coins),
-                            color = Color(0xFFB71C1C),
-                            fontSize = 12.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                // Info del Pokémon revelado
+                if (gachaState == GachaAnimState.REVEALED && revealedPokemon != null) {
+                    RetroMenuBox(
+                        backgroundColor = Color.White.copy(alpha = 0.9f),
+                        borderColor = if (isNewPull) GoldPoke else Color(0xFF2D5A27)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            RetroText(
+                                text = if (isNewPull) stringResource(R.string.new_pokemon) else stringResource(R.string.repeated_pokemon),
+                                fontSize = 12.sp,
+                                color = if (isNewPull) GoldPoke else Color(0xFF2D5A27)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            RetroText(
+                                text = revealedPokemon!!.nombre.uppercase(),
+                                fontSize = 22.sp,
+                                color = Color(0xFF1B3022)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                revealedPokemon!!.tipos.forEach { tipo ->
+                                    val pokeType = PokeType.getByString(tipo)
+                                    Surface(
+                                        shape = androidx.compose.ui.graphics.RectangleShape,
+                                        color = pokeType?.color ?: Color.Gray,
+                                        border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f))
+                                    ) {
+                                        Text(
+                                            text = pokeType?.let { stringResource(it.stringResId) } ?: tipo.uppercase(),
+                                            color = Color.White,
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(
+                                                horizontal = 8.dp,
+                                                vertical = 2.dp
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            PixelDivider()
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = revealedPokemon!!.pokedexDescription ?: "",
+                                color = Color(0xFF1B3022),
+                                fontSize = 13.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 16.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
                     }
                 }
-                GachaAnimState.REVEALED -> {
-                    RetroButton(
-                        text = stringResource(R.string.roll_again),
-                        onClick = { gachaState = GachaAnimState.IDLE; revealedPokemon = null },
-                        modifier = Modifier.fillMaxWidth(),
-                        containerColor = RedPoke,
-                        fontSize = 18.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    RetroButton(
-                        text = stringResource(R.string.see_my_pc),
-                        onClick = onNavigateToPC,
-                        modifier = Modifier.fillMaxWidth(),
-                        containerColor = Color(0xFF2D5A27),
-                        fontSize = 18.sp
+
+                Spacer(modifier = Modifier.weight(0.05f))
+
+                // Botones
+                when (gachaState) {
+                    GachaAnimState.IDLE -> {
+                        RetroButton(
+                            text = stringResource(R.string.open_pokeball, costPerRoll),
+                            onClick = { doRoll() },
+                            enabled = coins >= costPerRoll,
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = RedPoke,
+                            fontSize = 18.sp
+                        )
+                        if (coins < costPerRoll) {
+                            Text(
+                                text = stringResource(R.string.not_enough_coins),
+                                color = Color(0xFFB71C1C),
+                                fontSize = 12.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+
+                    GachaAnimState.REVEALED -> {
+                        RetroButton(
+                            text = stringResource(R.string.roll_again),
+                            onClick = {
+                                revealedPokemon = null
+                                gachaState = GachaAnimState.IDLE
+                                doRoll()
+                            },
+                            enabled = coins >= costPerRoll,
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = RedPoke,
+                            fontSize = 18.sp
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            RetroButton(
+                                text = stringResource(R.string.go_back),
+                                onClick = {
+                                    revealedPokemon = null
+                                    gachaState = GachaAnimState.IDLE
+                                },
+                                modifier = Modifier.weight(1f),
+                                containerColor = Color.Gray,
+                                fontSize = 16.sp
+                            )
+                            RetroButton(
+                                text = stringResource(R.string.see_my_pc),
+                                onClick = onNavigateToPC,
+                                modifier = Modifier.weight(1f),
+                                containerColor = Color(0xFF2D5A27),
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+
+                    else -> {}
+                }
+
+                Spacer(modifier = Modifier.weight(0.1f))
+                if (gachaState != GachaAnimState.REVEALED) {
+                    Text(
+                        text = stringResource(R.string.cost_label, costPerRoll),
+                        fontSize = 11.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        color = Color.Black.copy(alpha = 0.4f),
+                        textAlign = TextAlign.Center
                     )
                 }
-                else -> {}
+                Spacer(modifier = Modifier.height(8.dp))
             }
+        }
 
-            Spacer(modifier = Modifier.weight(0.1f))
-            Text(
-                text = stringResource(R.string.cost_label, costPerRoll),
-                fontSize = 11.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                color = Color.Black.copy(alpha = 0.4f),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+        if (showHelp) {
+            PokemonHelpDialog(
+                title = stringResource(R.string.bazaar_title),
+                onDismiss = { showHelp = false }
+            ) {
+                Column {
+                    HelpSection(
+                        stringResource(R.string.help_collect_title),
+                        stringResource(R.string.help_collect_desc)
+                    )
+                    HelpSection(
+                        stringResource(R.string.help_pokeballs_title),
+                        stringResource(R.string.help_pokeballs_desc)
+                    )
+                    HelpSection(
+                        stringResource(R.string.help_repeated_title),
+                        stringResource(R.string.help_repeated_desc)
+                    )
+                    HelpSection(
+                        stringResource(R.string.help_pc_title),
+                        stringResource(R.string.help_pc_desc)
+                    )
+                }
+            }
         }
     }
 }
@@ -409,6 +491,7 @@ fun GachaScreen(onNavigateToPC: () -> Unit) {
 @Composable
 fun GachaScreenPreview() {
     PokequizTheme {
-        GachaScreen(onNavigateToPC = {})
+        GachaScreen(onBack = {}, onNavigateToPC = {})
     }
 }
+

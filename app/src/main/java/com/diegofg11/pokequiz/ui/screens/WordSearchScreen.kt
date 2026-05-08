@@ -215,7 +215,7 @@ fun WordSearchGame(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-        SafariRetroHeader(
+        RetroHeader(
             title = "SOPA POKÉ",
             onBackClick = onNavigateBack
         )

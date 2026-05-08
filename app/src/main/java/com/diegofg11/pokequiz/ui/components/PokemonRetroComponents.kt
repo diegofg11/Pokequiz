@@ -180,9 +180,7 @@ fun RetroText(
 ) {
     val scaledFontSize = fontSize * AccessibilityManager.fontScale
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    var textColor = if (isHighContrast) {
-        if (color == Color.White) Color.White else Color.Black
-    } else color
+    val textColor = if (isHighContrast) Color.Black else color
 
     val style = TextStyle(
         color = textColor,
@@ -322,34 +320,67 @@ fun PokeballPageIndicator(
 }
 
 @Composable
-fun SafariRetroHeader(
+fun RetroHeader(
     title: String,
-    onBackClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
     onHelpClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    isSafariStyle: Boolean = false, // Si es true, usa el estilo verde antiguo para juegos
     rightContent: (@Composable () -> Unit)? = null,
-    extraContent: (@Composable () -> Unit)? = null
+    extraContent: (@Composable () -> Unit)? = null,
+    subtitle: String? = null,
+    titleAlignment: Alignment = Alignment.Center
 ) {
     val height = if (extraContent != null) 110.dp else 70.dp
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    val headerBg = if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    // Colores dinámicos según el estilo
+    val headerBg = if (isSafariStyle) {
+        if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    } else {
+        Color.White
+    }
+    val contentColor = if (isSafariStyle) Color.White else Color.Black
+    val borderColor = if (isSafariStyle) {
+        if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f)
+    } else {
+        Color.Black
+    }
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = height)
             .drawBehind {
-                drawLine(
-                    color = if (isHighContrast) Color.White else Color.Black.copy(alpha = 0.4f),
-                    start = Offset(0f, size.height),
-                    end = Offset(size.width, size.height),
-                    strokeWidth = 6.dp.toPx()
-                )
+                if (!isSafariStyle) {
+                    // Estilo Blanco (Sincronizado con menú inferior)
+                    drawLine(
+                        color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
+                        start = Offset(0f, size.height - 4.dp.toPx()),
+                        end = Offset(size.width, size.height - 4.dp.toPx()),
+                        strokeWidth = 8.dp.toPx()
+                    )
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 2.dp.toPx()
+                    )
+                } else {
+                    // Estilo Safari (Verde clásico para juegos)
+                    drawLine(
+                        color = if (isHighContrast) Color.White else Color.Black.copy(alpha = 0.4f),
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 6.dp.toPx()
+                    )
+                }
             },
         color = headerBg
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = height),
             verticalArrangement = Arrangement.Center
         ) {
             Row(
@@ -358,20 +389,32 @@ fun SafariRetroHeader(
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left: Back Button (Balanced with right side)
-                Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
-                    Surface(
-                        onClick = onBackClick,
-                        modifier = Modifier.size(40.dp),
-                        shape = androidx.compose.ui.graphics.RectangleShape,
-                        color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
-                        contentColor = Color.White,
-                        border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f))
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
+                // Left: Back Button
+                if (onBackClick != null) {
+                    Box(modifier = Modifier.size(width = 80.dp, height = 40.dp), contentAlignment = Alignment.CenterStart) {
+                        Surface(
+                            onClick = onBackClick,
+                            modifier = Modifier.size(40.dp),
+                            shape = androidx.compose.ui.graphics.RectangleShape,
+                            color = if (isSafariStyle) {
+                                if (isHighContrast) Color.Black else Color(0xFF2D5A27)
+                            } else {
+                                if (isHighContrast) Color.White else Color(0xFFF5F5F5)
+                            },
+                            contentColor = contentColor,
+                            border = BorderStroke(2.dp, if (isSafariStyle) borderColor else Color.Black)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
+                            }
                         }
                     }
+                } else if (titleAlignment != Alignment.Center) {
+                    // Si no hay botón atrás y no está centrado, reducimos el espacio para que el texto esté más a la izquierda
+                    Spacer(modifier = Modifier.width(8.dp))
+                } else {
+                    // Mantenemos el espacio para asegurar que el título centrado siga centrado si hay algo a la derecha
+                    Box(modifier = Modifier.size(width = 80.dp, height = 40.dp))
                 }
 
                 // Center: Title
@@ -379,18 +422,36 @@ fun SafariRetroHeader(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 4.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = titleAlignment
                 ) {
-                    val scaledTitleSize = 15.sp * AccessibilityManager.fontScale
-                    Text(
-                        text = title.uppercase(),
-                        color = Color.White,
-                        fontSize = scaledTitleSize,
-                        fontWeight = FontWeight.Black,
-                        fontFamily = FontFamily.Monospace,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1
-                    )
+                    val scaledTitleSize = 20.sp * AccessibilityManager.fontScale
+                    val scaledSubtitleSize = 12.sp * AccessibilityManager.fontScale
+                    
+                    Column(
+                        horizontalAlignment = if (titleAlignment == Alignment.Center) Alignment.CenterHorizontally else Alignment.Start,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = title.uppercase(),
+                            color = contentColor,
+                            fontSize = scaledTitleSize,
+                            fontWeight = FontWeight.Black,
+                            fontFamily = FontFamily.Monospace,
+                            textAlign = if (titleAlignment == Alignment.Center) TextAlign.Center else TextAlign.Start,
+                            maxLines = 1
+                        )
+                        if (subtitle != null) {
+                            Text(
+                                text = subtitle.uppercase(),
+                                color = if (isSafariStyle) Color.White.copy(alpha = 0.7f) else Color.Gray,
+                                fontSize = scaledSubtitleSize,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                textAlign = if (titleAlignment == Alignment.Center) TextAlign.Center else TextAlign.Start,
+                                maxLines = 1
+                            )
+                        }
+                    }
                 }
 
                 // Right: Custom Content or Help
@@ -402,9 +463,13 @@ fun SafariRetroHeader(
                             onClick = onHelpClick,
                             modifier = Modifier.size(40.dp),
                             shape = androidx.compose.ui.graphics.RectangleShape,
-                            color = if (isHighContrast) Color.Black else Color(0xFF2D5A27),
-                            contentColor = Color.White,
-                            border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.White.copy(alpha = 0.3f))
+                            color = if (isSafariStyle) {
+                                if (isHighContrast) Color.Black else Color(0xFF2D5A27)
+                            } else {
+                                if (isHighContrast) Color.White else Color(0xFFF5F5F5)
+                            },
+                            contentColor = contentColor,
+                            border = BorderStroke(2.dp, if (isSafariStyle) borderColor else Color.Black)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text("?", fontWeight = FontWeight.Black, fontSize = 20.sp)
@@ -415,12 +480,10 @@ fun SafariRetroHeader(
             }
 
             if (extraContent != null) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp, start = 24.dp, end = 24.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     extraContent()
                 }
@@ -435,15 +498,31 @@ fun NavigationArrow(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val isHighContrast = AccessibilityManager.isHighContrastEnabled
+    
     Surface(
         onClick = onClick,
         modifier = modifier.size(48.dp),
         shape = androidx.compose.ui.graphics.RectangleShape,
-        color = Color(0xFF2D5A27),
-        contentColor = Color.White,
-        border = BorderStroke(2.dp, Color(0xFF1B3022))
+        color = if (isHighContrast) Color.Black else Color.White,
+        contentColor = if (isHighContrast) Color.White else Color.Black,
+        border = BorderStroke(2.dp, if (isHighContrast) Color.White else Color.Black)
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    if (!isHighContrast) {
+                        // Franja decorativa verde arriba para mantener consistencia con el header y bottom nav
+                        drawRect(
+                            color = Color(0xFF2D5A27),
+                            topLeft = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            size = androidx.compose.ui.geometry.Size(size.width, 4.dp.toPx())
+                        )
+                    }
+                }
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -466,69 +545,79 @@ fun RetroDifficultyCard(
     onClick: () -> Unit
 ) {
     val isHighContrast = AccessibilityManager.isHighContrastEnabled
-    val finalColor = if (isHighContrast) Color.White else color
-    val borderColor = if (isHighContrast) Color.Black else color.copy(alpha = 0.8f)
+    val borderColor = if (isHighContrast) Color.Black else Color(0xFF1B3022)
+    val mainColor = if (isHighContrast) Color.White else color
     
     Box(
         modifier = modifier
             .heightIn(min = 150.dp)
             .fillMaxWidth()
             .clickable { onClick() }
-            .border(3.dp, Color(0xFF1B3022), androidx.compose.ui.graphics.RectangleShape)
-            .background(Color.Black.copy(alpha = 0.05f), androidx.compose.ui.graphics.RectangleShape)
-            .padding(4.dp)
+            .border(3.dp, borderColor, androidx.compose.ui.graphics.RectangleShape)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color.copy(alpha = 0.15f), androidx.compose.ui.graphics.RectangleShape)
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Título de dificultad (Contraste alto garantizado)
-            Text(
-                text = title.uppercase(),
-                color = Color(0xFF1B3022), // Verde casi negro para máxima lectura
-                fontWeight = FontWeight.Black,
-                fontSize = 18.sp * AccessibilityManager.fontScale,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center
-            )
+        // Fondo base que llena todo
+        Box(modifier = Modifier.matchParentSize().background(if (isHighContrast) Color.White else mainColor.copy(alpha = 0.15f)))
+        
+        Column(modifier = Modifier.matchParentSize()) {
+            // Cabecera GBA Style
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(if (isHighContrast) Color.Black else mainColor)
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title.uppercase(),
+                    color = Color.White,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 15.sp * AccessibilityManager.fontScale,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
             
-            // Subtítulo descriptivo
-            Text(
-                text = subtitle,
-                color = Color.Black.copy(alpha = 0.7f),
-                fontSize = 10.sp * AccessibilityManager.fontScale,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 2.dp, bottom = 8.dp),
-                lineHeight = 12.sp * AccessibilityManager.fontScale
-            )
+            // Cuerpo
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = subtitle,
+                    color = Color.Black.copy(alpha = 0.8f),
+                    fontSize = 10.sp * AccessibilityManager.fontScale,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 13.sp * AccessibilityManager.fontScale
+                )
+            }
             
-            Spacer(modifier = Modifier.weight(1f))
-            
-            // Info Bar para Coste y Premio (Solo si hay valores)
-            if (cost.isNotEmpty() || reward.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.08f), androidx.compose.ui.graphics.RectangleShape)
-                        .padding(vertical = 6.dp, horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (cost.isNotEmpty()) {
-                        InfoItem(label = costLabel, value = cost, color = Color(0xFFB71C1C))
-                        if (reward.isNotEmpty()) {
-                            Box(modifier = Modifier.width(1.dp).height(20.dp).background(Color.Black.copy(alpha = 0.1f)))
-                        }
+            // Footer de Recompensa
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.08f))
+                    .drawBehind {
+                        drawLine(
+                            color = Color.Black.copy(alpha = 0.1f),
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
                     }
-                    if (reward.isNotEmpty()) {
-                        InfoItem(label = rewardLabel, value = reward, color = Color(0xFF1B5E20))
-                    }
-                }
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                InfoItem(
+                    label = rewardLabel, 
+                    value = reward, 
+                    color = if (isHighContrast) Color.Black else Color(0xFF2E7D32)
+                )
             }
         }
     }
@@ -594,7 +683,7 @@ private fun InfoItem(label: String, value: String, color: Color) {
         val isHighContrast = AccessibilityManager.isHighContrastEnabled
         Text(
             text = label, 
-            fontSize = 9.sp, 
+            fontSize = 9.sp * AccessibilityManager.fontScale, 
             fontWeight = FontWeight.Black, 
             color = if (isHighContrast) Color.Black else Color.Black.copy(alpha = 0.5f),
             fontFamily = FontFamily.Monospace
@@ -605,7 +694,7 @@ private fun InfoItem(label: String, value: String, color: Color) {
         ) {
             Text(
                 text = "🪙",
-                fontSize = 12.sp,
+                fontSize = 12.sp * AccessibilityManager.fontScale,
                 modifier = Modifier.padding(end = 2.dp)
             )
             Text(
@@ -689,10 +778,10 @@ fun SafariResultScreen(
             Text(
                 text = description,
                 color = Color(0xFF1B3022).copy(alpha = 0.8f),
-                fontSize = 13.sp,
+                fontSize = 13.sp * AccessibilityManager.fontScale,
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily.Monospace,
-                lineHeight = 18.sp,
+                lineHeight = 18.sp * AccessibilityManager.fontScale,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
@@ -708,12 +797,12 @@ fun SafariResultScreen(
                 Text(
                     text = if (coinsEarned >= 0) "+$coinsEarned" else "$coinsEarned",
                     color = if (coinsEarned >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C),
-                    fontSize = 24.sp,
+                    fontSize = 24.sp * AccessibilityManager.fontScale,
                     fontWeight = FontWeight.Black,
                     fontFamily = FontFamily.Monospace
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("🪙", fontSize = 20.sp)
+                Text("🪙", fontSize = 20.sp * AccessibilityManager.fontScale)
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -724,7 +813,7 @@ fun SafariResultScreen(
                 onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
+                    .heightIn(min = 64.dp),
                 containerColor = Color(0xFF2D5A27),
                 contentColor = Color.White,
                 fontSize = 18.sp
@@ -774,28 +863,58 @@ fun SafariSelectionScreen(
                 modifier = Modifier.padding(top = 12.dp, bottom = 40.dp)
             )
 
-            // Grid de Selección de Dificultad
-            androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+            // Contenedor de cartas centrado
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                var currentBatch = mutableListOf<DifficultyCardData>()
+                var currentSpanSum = 0
+                
                 cards.forEach { card ->
-                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(card.span) }) {
-                        RetroDifficultyCard(
-                            title = card.title,
-                            subtitle = card.subtitle,
-                            cost = card.cost,
-                            reward = card.reward,
-                            rewardLabel = card.rewardLabel,
-                            color = card.color,
-                            onClick = card.onClick,
-                            modifier = card.modifier
-                        )
+                    if (currentSpanSum + card.span > columns) {
+                        DifficultyRow(currentBatch, columns)
+                        currentBatch = mutableListOf()
+                        currentSpanSum = 0
                     }
+                    currentBatch.add(card)
+                    currentSpanSum += card.span
+                }
+                
+                if (currentBatch.isNotEmpty()) {
+                    DifficultyRow(currentBatch, columns)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun DifficultyRow(rowCards: List<DifficultyCardData>, totalColumns: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        rowCards.forEach { card ->
+            Box(
+                modifier = Modifier.weight(card.span.toFloat())
+            ) {
+                RetroDifficultyCard(
+                    title = card.title,
+                    subtitle = card.subtitle,
+                    cost = card.cost,
+                    reward = card.reward,
+                    rewardLabel = card.rewardLabel,
+                    color = card.color,
+                    onClick = card.onClick,
+                    modifier = card.modifier
+                )
+            }
+        }
+        
+        val rowSpanSum = rowCards.sumOf { it.span }
+        if (rowSpanSum < totalColumns) {
+            Spacer(modifier = Modifier.weight((totalColumns - rowSpanSum).toFloat()))
         }
     }
 }

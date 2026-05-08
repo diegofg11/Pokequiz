@@ -74,6 +74,17 @@
     <string name="repeated_pokemon">¡REPETIDO! (+50 EXP)</string>
     <string name="cost_label">COSTE: %d MONEDAS</string>
     <string name="coins_load_error">No se pudo conectar con el servidor para cargar tus monedas.</string>
+    <string name="magnificent">¡MAGNÍFICO!</string>
+    <string name="collect_all">¡COLECCIÓNALOS TODOS!</string>
+    <string name="obtained_new_partner">Has obtenido un nuevo compañero para tu equipo.</string>
+    <string name="help_collect_title">COLECCIONA</string>
+    <string name="help_collect_desc">Gasta tus Monedas Poké en el Bazar para conseguir Pokémon aleatorios de la primera generación.</string>
+    <string name="help_pokeballs_title">POKÉBALLS</string>
+    <string name="help_pokeballs_desc">Toca la Pokéball central para iniciar la apertura. ¡Cada intento cuesta 100 monedas!</string>
+    <string name="help_repeated_title">REPETIDOS</string>
+    <string name="help_repeated_desc">Si obtienes un Pokémon que ya tienes, recibirás 50 puntos de experiencia extra para ese Pokémon.</string>
+    <string name="help_pc_title">TU PC</string>
+    <string name="help_pc_desc">Todos los Pokémon capturados se enviarán automáticamente a tu PC, donde podrás ver sus datos.</string>
 
     <!-- ═══ PC Screen ═══ -->
     <string name="current_team">EQUIPO ACTUAL</string>

@@ -224,16 +224,19 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable("pc") {
-                                PCScreen()
+                                PCScreen(onBack = { navController.popBackStack() })
                             }
                             composable("gacha") {
-                                GachaScreen(onNavigateToPC = {
-                                    navController.navigate("pc") {
-                                        popUpTo("map") { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
+                                GachaScreen(
+                                    onBack = { navController.popBackStack() },
+                                    onNavigateToPC = {
+                                        navController.navigate("pc") {
+                                            popUpTo("map") { saveState = true }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
                                     }
-                                })
+                                )
                             }
                             composable("games") {
                                 MinigamesScreen(navController = navController)

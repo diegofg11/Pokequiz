@@ -47,8 +47,9 @@ fun SafariZonePager(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    SafariRetroHeader(
+                    RetroHeader(
                         title = stringResource(R.string.safari_zone),
+                        isSafariStyle = true,
                         onBackClick = onNavigateBack,
                         onHelpClick = { showHelp = true }
                     )
