@@ -125,9 +125,9 @@ fun SafariZonePager(
         // --- DIÁLOGO DE AYUDA GLOBAL ---
         if (showHelp) {
             val title = when(pagerState.currentPage) {
-                0 -> "¿QUIÉN ES ESE POKÉMON?"
+                0 -> "¿CUÁL ES ESTE POKÉMON?"
                 1 -> "MEMORAMA"
-                2 -> "SOPA DE LETRAS"
+                2 -> "SOPA POKÉ"
                 3 -> "BATALLA RÁPIDA"
                 else -> "POKÉ-DOJO"
             }

@@ -575,7 +575,7 @@ private fun InfoItem(label: String, value: String, color: Color) {
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "💰",
+                text = "🪙",
                 fontSize = 12.sp,
                 modifier = Modifier.padding(end = 2.dp)
             )
@@ -684,7 +684,7 @@ fun SafariResultScreen(
                     fontFamily = FontFamily.Monospace
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("💰", fontSize = 20.sp)
+                Text("🪙", fontSize = 20.sp)
             }
 
             Spacer(modifier = Modifier.height(40.dp))

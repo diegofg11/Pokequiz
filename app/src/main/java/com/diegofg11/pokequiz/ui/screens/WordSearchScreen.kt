@@ -56,7 +56,7 @@ fun WordSearchScreen(
 
     if (difficulty == null) {
         SafariSelectionScreen(
-            title = "SOPA DE LETRAS",
+            title = "SOPA POKÉ",
             subtitle = "Encuentra los Pokémon ocultos",
             cards = listOf(
                 DifficultyCardData("NORMAL", "8x8 | 3 Palabras", "-20", "60", Color(0xFF4CAF50), { difficulty = WordSearchDifficulty.NORMAL }),

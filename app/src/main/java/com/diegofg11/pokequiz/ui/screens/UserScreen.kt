@@ -173,14 +173,14 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text(
-                                    text = "DINERO",
+                                    text = "MONEDAS",
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "$${displayUser?.monedasGacha ?: 0}",
+                                    text = "🪙 ${displayUser?.monedasGacha ?: 0}",
                                     fontSize = 14.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -189,7 +189,7 @@ fun UserScreen(onLogout: () -> Unit) {
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text(
-                                    text = "POKéDEX",
+                                    text = "POKÉDEX",
                                     fontSize = 10.sp,
                                     color = Color.Black,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,

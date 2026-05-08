@@ -78,7 +78,7 @@ fun MinigamesScreen(navController: NavController? = null) {
                     HelpSection("¿QUÉ ES?", "La Zona Safari es el lugar donde puedes conseguir Monedas Poké gratis jugando a diversos minijuegos.")
                     HelpSection("MONEDAS", "Cada juego tiene un coste de entrada pero ofrece grandes recompensas si logras superar los retos.")
                     HelpSection("DIFICULTAD", "Dentro de cada juego podrás elegir entre varios niveles. ¡A mayor dificultad, mayor será el premio!")
-                    HelpSection("USO", "Usa las monedas ganadas en la Tienda Gacha para completar tu Pokédex.")
+                    HelpSection("USO", "Usa las monedas ganadas en el Bazar Pokémon para completar tu Pokédex.")
                 }
             }
         }

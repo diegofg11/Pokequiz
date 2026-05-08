@@ -66,7 +66,7 @@ fun GuessPokemonScreen(
 
     if (difficulty == null) {
         SafariSelectionScreen(
-            title = "¿CUAL ES ESTE POKÉMON?",
+            title = "¿CUÁL ES ESTE POKÉMON?",
             subtitle = "Selecciona un modo para empezar",
             cards = listOf(
                 DifficultyCardData("FÁCIL", "Sin límites", "-30", "15", Color(0xFF4CAF50), { difficulty = GuessDifficulty.EASY }),
@@ -210,7 +210,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
 
     Box(modifier = Modifier.fillMaxSize()) {
         SafariRetroHeader(
-            title = "¿QUIÉN ES?",
+            title = "¿CUÁL ES ESTE POKÉMON?",
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
@@ -233,7 +233,7 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("$sessionCoins", color = GoldPoke, fontSize = 18.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("💰", fontSize = 16.sp)
+                    Text("🪙", fontSize = 16.sp)
                 }
             }
         )
