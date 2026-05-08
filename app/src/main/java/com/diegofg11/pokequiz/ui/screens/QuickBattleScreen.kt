@@ -91,8 +91,9 @@ fun QuickBattleScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             if (gameState != SafariGameState.START) {
-                SafariRetroHeader(
+                RetroHeader(
                     title = if (isInverse) stringResource(R.string.quickbattle_inverse_title) else stringResource(R.string.quickbattle_help_title),
+                    isSafariStyle = true,
                     onBackClick = {
                         if (gameState == SafariGameState.PLAYING) {
                             showExitWarning = true

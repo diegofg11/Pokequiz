@@ -43,9 +43,10 @@ import com.diegofg11.pokequiz.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.diegofg11.pokequiz.utils.WallpaperManager
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.PokemonUtils
+import com.diegofg11.pokequiz.utils.AccessibilityManager
+import com.diegofg11.pokequiz.utils.WallpaperManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Search
@@ -58,12 +59,22 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.res.painterResource
 
+enum class PokemonSortOption(val labelResId: Int) {
+    RECENT(R.string.sort_recent),
+    POKEDEX(R.string.sort_pokedex),
+    LEVEL(R.string.sort_level),
+    NAME(R.string.sort_name)
+}
+
 @Composable
-fun PCScreen() {
+fun PCScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var showHelp by remember { mutableStateOf(false) }
 
     var user by remember { mutableStateOf<User?>(null) }
     val pokemonList = remember { mutableStateListOf<Pokemon>() }
@@ -75,7 +86,7 @@ fun PCScreen() {
     // Estados de búsqueda y ordenación
     var searchQuery by remember { mutableStateOf("") }
     var isSearchVisible by remember { mutableStateOf(false) }
-    var sortOption by remember { mutableStateOf(PokemonSortOption.RECENT) }
+    var sortOption by remember { mutableStateOf<PokemonSortOption>(PokemonSortOption.RECENT) }
     var filterType by remember { mutableStateOf<PokeType?>(null) }
     var showFavoritesOnly by remember { mutableStateOf(false) }
     var showShiniesOnly by remember { mutableStateOf(false) }
@@ -192,12 +203,22 @@ fun PCScreen() {
             }
         } else {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
+                RetroHeader(
+                    title = stringResource(R.string.nav_pc),
+                    onBackClick = onBack,
+                    onHelpClick = { showHelp = true }
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -352,8 +373,9 @@ fun PCScreen() {
                 )
             }
         }
+    }
 
-        selectedIndex?.let { idx ->
+    selectedIndex?.let { idx ->
             val safeIdx = idx.coerceIn(0, pokemonList.lastIndex)
             PokedexDialog(
                 pokemonList = pokemonList,
@@ -410,6 +432,20 @@ fun PCScreen() {
                 },
                 onDismiss = { showSortDialog = false }
             )
+        }
+    }
+
+    if (showHelp) {
+        PokemonHelpDialog(
+            title = stringResource(R.string.tutorial_pc_title),
+            onDismiss = { showHelp = false }
+        ) {
+            Column {
+                HelpSection(stringResource(R.string.current_team), "Aquí puedes ver los 3 Pokémon que te acompañarán en tus batallas. Pulsa en uno para ver sus detalles.")
+                HelpSection(stringResource(R.string.pc_collection), "Todos los Pokémon que consigas en el Bazar se guardarán aquí. El PC tiene espacio para muchísimos compañeros.")
+                HelpSection(stringResource(R.string.filter_sort), "Usa los botones de búsqueda y filtros para encontrar rápidamente a tus Pokémon favoritos o por su tipo.")
+                HelpSection(stringResource(R.string.favorites), "Marca a tus Pokémon especiales como favoritos para que aparezcan siempre al principio de tu lista.")
+            }
         }
     }
 }
@@ -843,17 +879,12 @@ private fun PCEmptySlot(isParty: Boolean = false) {
     }
 }
 
-enum class PokemonSortOption(val labelResId: Int) {
-    RECENT(R.string.sort_recent),
-    POKEDEX(R.string.sort_pokedex),
-    LEVEL(R.string.sort_level),
-    NAME(R.string.sort_name)
-}
+
 
 @Preview(showBackground = true)
 @Composable
 fun PCScreenPreview() {
     PokequizTheme {
-        PCScreen()
+        PCScreen(onBack = {})
     }
 }

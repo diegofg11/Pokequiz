@@ -211,8 +211,9 @@ fun GuessPokemonGame(difficulty: GuessDifficulty, onNavigateBack: () -> Unit, on
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        SafariRetroHeader(
+        RetroHeader(
             title = stringResource(R.string.who_is_it),
+            isSafariStyle = true,
             onBackClick = {
                 if (sessionCoins != 0 && !isProcessing) {
                     isProcessing = true
