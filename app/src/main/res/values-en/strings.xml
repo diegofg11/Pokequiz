@@ -109,6 +109,8 @@
     <string name="name_label">NAME</string>
     <string name="money_label">MONEY</string>
     <string name="pokedex_label">POKéDEX</string>
+    <string name="level">LEVEL</string>
+    <string name="coins">COINS</string>
     <string name="guest">GUEST</string>
     <string name="customize_map">CUSTOMIZE MAP</string>
     <string name="change_wallpaper">Change wallpaper</string>

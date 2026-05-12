@@ -120,6 +120,8 @@
     <string name="name_label">NOMBRE</string>
     <string name="money_label">DINERO</string>
     <string name="pokedex_label">POKéDEX</string>
+    <string name="level">NIVEL</string>
+    <string name="coins">MONEDAS</string>
     <string name="guest">INVITADO</string>
     <string name="customize_map">PERSONALIZAR MAPA</string>
     <string name="change_wallpaper">Cambiar fondo de pantalla</string>

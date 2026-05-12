@@ -85,7 +85,7 @@ fun UserScreen(onLogout: () -> Unit) {
                 // Header con Foto y Nombre
                 Box(contentAlignment = Alignment.BottomEnd) {
                     AsyncImage(
-                        model = AvatarManager.getAvatarUrl(user?.avatarId ?: 1),
+                        model = AvatarManager.getAvatarModel(user?.avatarUrl),
                         contentDescription = "User Avatar",
                         modifier = Modifier
                             .size(120.dp)
@@ -99,7 +99,7 @@ fun UserScreen(onLogout: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 RetroText(
-                    text = user?.username ?: "Trainer",
+                    text = user?.nombre ?: "Trainer",
                     fontSize = 22.sp,
                     color = Color.Black
                 )
@@ -112,7 +112,7 @@ fun UserScreen(onLogout: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     StatCard(label = stringResource(R.string.level), value = user?.nivelProgreso?.toString() ?: "1")
-                    StatCard(label = stringResource(R.string.coins), value = user?.monedas?.toString() ?: "0")
+                    StatCard(label = stringResource(R.string.coins), value = user?.monedasGacha?.toString() ?: "0")
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

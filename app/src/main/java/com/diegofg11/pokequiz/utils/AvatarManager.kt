@@ -47,4 +47,10 @@ object AvatarManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putString(KEY_SELECTED_AVATAR, avatarId).apply()
     }
+
+    fun getAvatarModel(avatarUrl: String?): Any {
+        if (avatarUrl.isNullOrEmpty()) return availableAvatars[0].resId
+        if (avatarUrl.startsWith("http")) return avatarUrl
+        return availableAvatars.find { it.id == avatarUrl }?.resId ?: availableAvatars[0].resId
+    }
 }
