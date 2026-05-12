@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.diegofg11.pokequiz.R
 import com.diegofg11.pokequiz.utils.SafariUtils
+import com.diegofg11.pokequiz.utils.Logger
 
 /**
  * @authors: Gaizka, Diego y Xiker
@@ -84,6 +85,7 @@ fun UserScreen(onLogout: () -> Unit) {
                 pokedexCount = pcResp.body()?.size ?: 0
             }
         } catch (e: Exception) {
+            Logger.e(context, "UserScreen", "Error loading user profile", e)
             errorMessage = context.getString(R.string.user_load_error)
         } finally {
             isLoading = false
@@ -512,6 +514,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         RetroButton(
                             text = stringResource(R.string.free_coins_btn) + " (CHEAT)",
                             onClick = {
+                                Logger.i(context, "UserScreen", "Usuario activó cheat de monedas")
                                 SafariUtils.rewardUser(
                                     scope = scope,
                                     coins = 100,
@@ -527,7 +530,10 @@ fun UserScreen(onLogout: () -> Unit) {
                                             }
                                         }
                                     },
-                                    onError = { errorMsg -> Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show() }
+                                    onError = { errorMsg -> 
+                                        Logger.e(context, "UserScreen", "Error en cheat de monedas: $errorMsg")
+                                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show() 
+                                    }
                                 )
                             },
                             containerColor = GoldPoke,
@@ -539,6 +545,7 @@ fun UserScreen(onLogout: () -> Unit) {
                         RetroButton(
                             text = stringResource(R.string.logout),
                             onClick = {
+                                Logger.i(context, "UserScreen", "Cierre de sesión")
                                 SessionManager.logout(context)
                                 showSettingsDialog = false
                                 onLogout()
